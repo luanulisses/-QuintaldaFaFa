@@ -273,6 +273,7 @@ export const NotificationBell: React.FC = () => {
 export const UrgentEventBanner: React.FC = () => {
     const events = useUpcomingEvents();
     const navigate = useNavigate();
+    const [dismissed, setDismissed] = useState<Set<string>>(new Set());
     const isMobile = window.innerWidth < 768;
 
     const urgent = events.filter(ev => {
@@ -289,7 +290,6 @@ export const UrgentEventBanner: React.FC = () => {
                 const isToday = days === 0;
                 const time = ev.start_date.slice(11, 16);
 
-                return (
                 return (
                     <div
                         key={ev.id}
