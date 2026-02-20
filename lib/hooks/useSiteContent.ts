@@ -9,27 +9,30 @@ export interface SiteContentItem {
 }
 
 export const useSiteContent = () => {
-    const [content, setContent] = useState<Record<string, string>>({});
+    const [content, setContent] = useState<Record<string, string>>(() => {
+        // Initialize from localStorage if available for instant load
+        const cached = localStorage.getItem('site_content_cache');
+        return cached ? JSON.parse(cached) : {};
+    });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const fetchContent = async () => {
         try {
             setLoading(true);
-            // First check if table exists to avoid ugly errors in console if migration hasn't run
-            const { error: checkError } = await supabase.from('site_content').select('key').limit(1);
-            if (checkError && checkError.code === '42P01') {
-                // Table doesn't exist
-                console.warn('site_content table not found. Using defaults.');
-                setLoading(false);
-                return;
-            }
 
             const { data, error } = await supabase
                 .from('site_content')
                 .select('*');
 
-            if (error) throw error;
+            if (error) {
+                // If table doesn't exist (42P01), it's okay, we use defaults
+                if (error.code === '42P01') {
+                    console.warn('site_content table not found. Using defaults.');
+                    return;
+                }
+                throw error;
+            }
 
             if (data) {
                 const contentMap: Record<string, string> = {};
@@ -37,6 +40,8 @@ export const useSiteContent = () => {
                     contentMap[item.key] = item.value;
                 });
                 setContent(contentMap);
+                // Save to cache
+                localStorage.setItem('site_content_cache', JSON.stringify(contentMap));
             }
         } catch (err: any) {
             console.error('Error fetching site content:', err);
@@ -52,7 +57,9 @@ export const useSiteContent = () => {
 
     const updateContent = async (key: string, value: string, section?: string, type: 'text' | 'image' | 'textarea' = 'text') => {
         // Optimistic update
-        setContent(prev => ({ ...prev, [key]: value }));
+        const newContent = { ...content, [key]: value };
+        setContent(newContent);
+        localStorage.setItem('site_content_cache', JSON.stringify(newContent));
 
         const { error } = await supabase
             .from('site_content')

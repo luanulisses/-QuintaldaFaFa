@@ -19,12 +19,23 @@ export interface GalleryItem {
 export const useGallery = () => {
     // Gallery (Album) Operations
     const fetchGalleries = async () => {
+        // Try to get from cache first
+        const cached = localStorage.getItem('galleries_cache');
+        if (cached) {
+            // Background update
+            supabase.from('galleries').select('*').order('name', { ascending: true }).then(({ data }) => {
+                if (data) localStorage.setItem('galleries_cache', JSON.stringify(data));
+            });
+            return JSON.parse(cached) as Gallery[];
+        }
+
         const { data, error } = await supabase
             .from('galleries')
             .select('*')
             .order('name', { ascending: true });
 
         if (error) throw error;
+        if (data) localStorage.setItem('galleries_cache', JSON.stringify(data));
         return data as Gallery[];
     };
 
@@ -36,6 +47,8 @@ export const useGallery = () => {
             .single();
 
         if (error) throw error;
+        // Invalidate cache
+        localStorage.removeItem('galleries_cache');
         return data as Gallery;
     };
 
@@ -46,10 +59,25 @@ export const useGallery = () => {
             .eq('id', id);
 
         if (error) throw error;
+        // Invalidate cache
+        localStorage.removeItem('galleries_cache');
     };
 
     // Image Operations
     const fetchGalleryImages = async (galleryId?: string) => {
+        const cacheKey = `gallery_images_cache_${galleryId || 'all'}`;
+        const cached = localStorage.getItem(cacheKey);
+
+        if (cached) {
+            // Background update
+            let bgQuery = supabase.from('gallery_images').select('*');
+            if (galleryId) bgQuery = bgQuery.eq('gallery_id', galleryId);
+            bgQuery.order('created_at', { ascending: false }).then(({ data }) => {
+                if (data) localStorage.setItem(cacheKey, JSON.stringify(data));
+            });
+            return JSON.parse(cached) as GalleryItem[];
+        }
+
         let query = supabase.from('gallery_images').select('*');
 
         if (galleryId) {
@@ -59,6 +87,7 @@ export const useGallery = () => {
         const { data, error } = await query.order('created_at', { ascending: false });
 
         if (error) throw error;
+        if (data) localStorage.setItem(cacheKey, JSON.stringify(data));
         return data as GalleryItem[];
     };
 

@@ -85,6 +85,7 @@ const Gallery: React.FC = () => {
                                     src={item.url}
                                     alt={item.caption || ''}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    loading="lazy"
                                 />
                                 <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                     <p className="text-white text-xs font-bold drop-shadow-md">{item.caption || 'Ver Foto'}</p>

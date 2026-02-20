@@ -190,6 +190,7 @@ const Landing: React.FC = () => {
                                 src={getText('about_img_main', 'https://images.unsplash.com/photo-1587271407850-8d4389188bf4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80')}
                                 alt="Espaço principal"
                                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                loading="lazy"
                             />
                         </div>
                         {/* Coluna com 2 fotos menores */}
@@ -199,6 +200,7 @@ const Landing: React.FC = () => {
                                     src={getText('about_img_2', 'https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')}
                                     alt="Área do espaço"
                                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                    loading="lazy"
                                 />
                             </div>
                             <div className="rounded-3xl overflow-hidden shadow-md flex-1 min-h-[180px]">
@@ -206,6 +208,7 @@ const Landing: React.FC = () => {
                                     src={getText('about_img_3', 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80')}
                                     alt="Decoração do espaço"
                                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                    loading="lazy"
                                 />
                             </div>
                         </div>
