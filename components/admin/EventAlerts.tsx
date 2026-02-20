@@ -273,7 +273,7 @@ export const NotificationBell: React.FC = () => {
 export const UrgentEventBanner: React.FC = () => {
     const events = useUpcomingEvents();
     const navigate = useNavigate();
-    const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+    const isMobile = window.innerWidth < 768;
 
     const urgent = events.filter(ev => {
         const d = daysFrom(ev.start_date);
@@ -290,12 +290,17 @@ export const UrgentEventBanner: React.FC = () => {
                 const time = ev.start_date.slice(11, 16);
 
                 return (
+                return (
                     <div
                         key={ev.id}
                         style={{
-                            display: 'flex', alignItems: 'center', gap: '12px',
-                            padding: '12px 16px',
+                            display: 'flex',
+                            flexDirection: isMobile ? 'column' : 'row',
+                            alignItems: isMobile ? 'flex-start' : 'center',
+                            gap: isMobile ? '8px' : '12px',
+                            padding: isMobile ? '10px 12px' : '12px 16px',
                             borderRadius: '14px',
+                            position: 'relative',
                             background: isToday
                                 ? 'linear-gradient(135deg, #FEE2E2 0%, #FEF2F2 100%)'
                                 : 'linear-gradient(135deg, #FEF3C7 0%, #FFFBEB 100%)',
@@ -306,54 +311,69 @@ export const UrgentEventBanner: React.FC = () => {
                             animation: 'slideInDown 0.3s ease',
                         }}
                     >
-                        {/* Icon */}
-                        <div style={{
-                            width: '40px', height: '40px', borderRadius: '10px', flexShrink: 0,
-                            background: isToday ? '#EF4444' : '#F59E0B',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            boxShadow: `0 4px 12px ${isToday ? 'rgba(239,68,68,0.35)' : 'rgba(245,158,11,0.35)'}`,
-                        }}>
-                            <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '20px' }}>
-                                {isToday ? 'event_available' : 'schedule'}
-                            </span>
-                        </div>
-
-                        {/* Text */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{
-                                fontWeight: 700, fontSize: '13px',
-                                color: isToday ? '#7F1D1D' : '#78350F',
-                                display: 'flex', alignItems: 'center', gap: '6px',
-                            }}>
-                                <span style={{
+                        {/* Icon + Text Group */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, width: '100%' }}>
+                            {/* Icon */}
+                            {!isMobile && (
+                                <div style={{
+                                    width: '40px', height: '40px', borderRadius: '10px', flexShrink: 0,
                                     background: isToday ? '#EF4444' : '#F59E0B',
-                                    color: '#fff', borderRadius: '6px',
-                                    padding: '1px 7px', fontSize: '10px', fontWeight: 800,
-                                    letterSpacing: '0.5px',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    boxShadow: `0 4px 12px ${isToday ? 'rgba(239,68,68,0.35)' : 'rgba(245,158,11,0.35)'}`,
                                 }}>
-                                    {isToday ? '⚡ HOJE' : '⏰ AMANHÃ'}
-                                </span>
-                                {ev.title}
-                            </div>
-                            <div style={{ fontSize: '11px', color: isToday ? '#991B1B' : '#92400E', marginTop: '2px' }}>
-                                🕐 {time} &nbsp;•&nbsp; {TYPE_LABELS[ev.type] || ev.type}
+                                    <span className="material-symbols-outlined" style={{ color: '#fff', fontSize: '20px' }}>
+                                        {isToday ? 'event_available' : 'schedule'}
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Text */}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{
+                                    fontWeight: 700, fontSize: isMobile ? '12px' : '13px',
+                                    color: isToday ? '#7F1D1D' : '#78350F',
+                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                    flexWrap: 'wrap'
+                                }}>
+                                    <span style={{
+                                        background: isToday ? '#EF4444' : '#F59E0B',
+                                        color: '#fff', borderRadius: '6px',
+                                        padding: '1px 7px', fontSize: '9px', fontWeight: 800,
+                                        letterSpacing: '0.5px',
+                                    }}>
+                                        {isToday ? '⚡ HOJE' : '⏰ AMANHÃ'}
+                                    </span>
+                                    {ev.title}
+                                </div>
+                                <div style={{ fontSize: '10px', color: isToday ? '#991B1B' : '#92400E', marginTop: '2px' }}>
+                                    🕐 {time} &nbsp;•&nbsp; {TYPE_LABELS[ev.type] || ev.type}
+                                </div>
                             </div>
                         </div>
 
                         {/* Actions */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            flexShrink: 0,
+                            width: isMobile ? '100%' : 'auto',
+                            justifyContent: isMobile ? 'space-between' : 'flex-end',
+                            marginTop: isMobile ? '8px' : '0',
+                            paddingTop: isMobile ? '8px' : '0',
+                            borderTop: isMobile ? `1px solid ${isToday ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)'}` : 'none'
+                        }}>
                             <button
                                 onClick={() => navigate('/admin/agenda')}
                                 style={{
-                                    padding: '6px 12px', borderRadius: '8px',
+                                    padding: '5px 10px', borderRadius: '8px',
                                     border: `1.5px solid ${isToday ? '#EF4444' : '#F59E0B'}`,
                                     background: 'transparent',
                                     color: isToday ? '#EF4444' : '#D97706',
-                                    fontSize: '12px', fontWeight: 700, cursor: 'pointer',
-                                    transition: 'all 0.15s',
+                                    fontSize: '11px', fontWeight: 700, cursor: 'pointer',
+                                    flex: isMobile ? 1 : 'none',
+                                    textAlign: 'center'
                                 }}
-                                onMouseEnter={e => (e.currentTarget.style.background = isToday ? '#FEE2E2' : '#FEF3C7')}
-                                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                             >
                                 Ver Agenda
                             </button>
@@ -361,14 +381,12 @@ export const UrgentEventBanner: React.FC = () => {
                                 onClick={() => setDismissed(d => new Set([...d, ev.id]))}
                                 title="Dispensar alerta"
                                 style={{
-                                    background: 'none', border: 'none', cursor: 'pointer',
+                                    background: isMobile ? (isToday ? 'rgba(239,68,68,0.05)' : 'rgba(245,158,11,0.05)') : 'none',
+                                    border: 'none', cursor: 'pointer',
                                     color: isToday ? '#EF4444' : '#D97706', opacity: 0.6,
-                                    padding: '4px', borderRadius: '6px',
+                                    padding: '6px', borderRadius: '6px',
                                     display: 'flex', alignItems: 'center',
-                                    transition: 'opacity 0.15s',
                                 }}
-                                onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-                                onMouseLeave={e => (e.currentTarget.style.opacity = '0.6')}
                             >
                                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>close</span>
                             </button>

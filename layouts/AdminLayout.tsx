@@ -158,7 +158,7 @@ const AdminLayout: React.FC = () => {
                     background: 'rgba(255,255,255,0.9)',
                     backdropFilter: 'blur(10px)',
                     position: 'sticky', top: 0, zIndex: 10,
-                    padding: '16px 24px',
+                    padding: isDesktop ? '16px 24px' : '12px 16px',
                     borderBottom: '1px solid rgba(120,185,38,0.08)',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
@@ -173,7 +173,7 @@ const AdminLayout: React.FC = () => {
                                 <span className="material-symbols-outlined">menu</span>
                             </button>
                         )}
-                        <h2 style={{ fontFamily: 'var(--font-display, Georgia)', fontSize: '20px', fontWeight: 700, color: '#2D3748', margin: 0 }}>
+                        <h2 style={{ fontFamily: 'var(--font-display, Georgia)', fontSize: isDesktop ? '20px' : '18px', fontWeight: 700, color: '#2D3748', margin: 0 }}>
                             {menuItems.find(item =>
                                 item.end ? location.pathname === item.path : location.pathname.startsWith(item.path)
                             )?.name || 'Dashboard'}
@@ -186,7 +186,7 @@ const AdminLayout: React.FC = () => {
                             target="_blank"
                             style={{
                                 display: 'flex', alignItems: 'center', gap: '6px',
-                                padding: '6px 14px', borderRadius: '20px',
+                                padding: isDesktop ? '6px 14px' : '6px 8px', borderRadius: '20px',
                                 color: '#5C6E56', textDecoration: 'none', fontSize: '13px', fontWeight: 700,
                                 border: '1px solid rgba(120,185,38,0.2)',
                                 background: 'transparent',
@@ -194,7 +194,7 @@ const AdminLayout: React.FC = () => {
                             }}
                         >
                             <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>visibility</span>
-                            Ver Site
+                            {isDesktop && "Ver Site"}
                         </Link>
                         <NotificationBell />
                         <div style={{
@@ -207,7 +207,7 @@ const AdminLayout: React.FC = () => {
                 </header>
 
                 {/* Page Content */}
-                <div style={{ padding: '24px 32px', flex: 1 }}>
+                <div style={{ padding: isDesktop ? '24px 32px' : '16px', flex: 1 }}>
                     <UrgentEventBanner />
                     <Outlet />
                 </div>
