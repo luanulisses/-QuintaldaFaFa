@@ -107,7 +107,7 @@ const Landing: React.FC = () => {
             </nav>
 
             {/* Hero Section */}
-            <section id="home" className="relative h-screen min-h-[600px] flex items-center justify-center text-center px-4">
+            <section id="home" className="relative h-screen min-h-[750px] md:min-h-[600px] flex items-center justify-center text-center px-4">
                 <div className="absolute inset-0 z-0">
                     {getText('hero_bg_image', 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80').match(/\.(mp4|webm|ogg)$/i) ? (
                         <video
@@ -133,37 +133,37 @@ const Landing: React.FC = () => {
                     <span className="inline-block py-1 px-4 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-bold tracking-widest uppercase border border-white/30">
                         {getText('hero_location', 'Planaltina - DF')}
                     </span>
-                    <h1 className="font-display text-5xl md:text-7xl font-bold text-white leading-tight drop-shadow-lg whitespace-pre-line">
+                    <h1 className="font-display text-4xl md:text-7xl font-bold text-white leading-tight drop-shadow-lg whitespace-pre-line">
                         {getText('hero_title', 'Seu evento com \nclima rústico e moderno')}
                     </h1>
-                    <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-md">
+                    <p className="text-base md:text-xl text-white/90 max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-md px-2">
                         {getText('hero_subtitle', 'O espaço ideal para casamentos e confraternizações inesquecíveis.')}
                     </p>
-                    <div className="flex flex-col md:flex-row gap-4 justify-center mt-8">
-                        <Button size="lg" className="bg-primary hover:bg-primary-dark text-white border-none shadow-lg transform hover:scale-105 transition-all" onClick={() => scrollToSection('contact')}>
+                    <div className="flex flex-col md:flex-row gap-3 md:gap-4 justify-center mt-6 md:mt-8">
+                        <Button size="lg" className="bg-primary hover:bg-primary-dark text-white border-none shadow-lg transform hover:scale-105 transition-all text-sm md:text-base py-3 md:py-4" onClick={() => scrollToSection('contact')}>
                             Agendar Visita
                         </Button>
-                        <Button variant="outline" size="lg" className="bg-white text-text-main border-white hover:bg-white/90 shadow-lg transform hover:scale-105 transition-all" onClick={() => scrollToSection('gallery')}>
+                        <Button variant="outline" size="lg" className="bg-white text-text-main border-white hover:bg-white/90 shadow-lg transform hover:scale-105 transition-all text-sm md:text-base py-3 md:py-4" onClick={() => scrollToSection('gallery')}>
                             Ver Galeria
                         </Button>
                     </div>
                 </div>
 
                 {/* Metrics Bar */}
-                <div className="absolute bottom-10 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-5xl bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-4 flex flex-col md:flex-row justify-around items-center gap-4 border border-white/50 text-text-main">
+                <div className="absolute bottom-6 md:bottom-10 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-5xl bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-3 md:p-4 flex flex-col md:flex-row justify-around items-center gap-2 md:gap-4 border border-white/50 text-text-main">
                     <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary">groups</span>
-                        <span className="font-bold">{getText('metric_capacity', '100...300 Pessoas')}</span>
+                        <span className="material-symbols-outlined text-primary text-xl md:text-2xl">groups</span>
+                        <span className="font-bold text-xs md:text-base">{getText('metric_capacity', '100...300 Pessoas')}</span>
                     </div>
                     <div className="hidden md:block w-px h-8 bg-gray-300"></div>
                     <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary">security</span>
-                        <span className="font-bold">{getText('metric_privacy', 'Privativo')}</span>
+                        <span className="material-symbols-outlined text-primary text-xl md:text-2xl">security</span>
+                        <span className="font-bold text-xs md:text-base">{getText('metric_privacy', 'Privativo')}</span>
                     </div>
                     <div className="hidden md:block w-px h-8 bg-gray-300"></div>
                     <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary">check_circle</span>
-                        <span className="font-bold">{getText('metric_infrastructure', 'Infraestrutura Completa')}</span>
+                        <span className="material-symbols-outlined text-primary text-xl md:text-2xl">check_circle</span>
+                        <span className="font-bold text-xs md:text-base">{getText('metric_infrastructure', 'Infraestrutura Completa')}</span>
                     </div>
                 </div>
             </section>
