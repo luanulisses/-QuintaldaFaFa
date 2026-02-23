@@ -81,6 +81,7 @@ const ContractGenerator: React.FC = () => {
     const [data, setData] = useState<ContractData>(INITIAL_DATA);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [saveSuccess, setSaveSuccess] = useState(false);
     const [searchParams] = useSearchParams();
     const printRef = useRef<HTMLDivElement>(null);
     const { id } = useParams();
@@ -293,10 +294,8 @@ const ContractGenerator: React.FC = () => {
                     }
                 }
 
-                alert('Contrato salvo com sucesso e fluxo de caixa alimentado!');
-                if (!id || id === 'novo') {
-                    navigate(`/admin/contratos/${savedContract.id}`);
-                }
+                setSaveSuccess(true);
+                // Removido o alert e o navigate automático para mostrar a nova tela de sucesso
             }
 
         } catch (err) {
@@ -1018,7 +1017,58 @@ const ContractGenerator: React.FC = () => {
                 </div>
             </div>
 
+            {/* SUCCESS MODAL */}
+            {saveSuccess && (
+                <div className="fixed inset-0 bg-[#5C2A0A]/60 backdrop-blur-md z-[50] flex items-center justify-center p-4 animate-fade-in">
+                    <div className="bg-white rounded-[32px] p-8 max-w-md w-full shadow-2xl text-center space-y-6 transform animate-scale-up">
+                        <div className="w-20 h-20 bg-[#78B926] rounded-full flex items-center justify-center mx-auto shadow-lg shadow-[#78B926]/30">
+                            <span className="material-symbols-outlined text-white text-4xl">check_circle</span>
+                        </div>
+
+                        <div className="space-y-2">
+                            <h2 className="text-3xl font-display font-bold text-[#2D2420]">Contrato Salvo!</h2>
+                            <p className="text-[#5A2D0C]/70">O contrato foi registrado com sucesso no sistema e na agenda.</p>
+                        </div>
+
+                        <div className="flex flex-col gap-3 pt-4">
+                            <button
+                                onClick={() => navigate('/admin/contratos')}
+                                className="w-full py-4 rounded-2xl bg-[#78B926] text-white font-bold flex items-center justify-center gap-2 hover:bg-[#5D8F1D] transition-all shadow-lg shadow-[#78B926]/20"
+                            >
+                                <span className="material-symbols-outlined">list_alt</span>
+                                Voltar para a Lista
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    setData(INITIAL_DATA);
+                                    setStep(0);
+                                    setSaveSuccess(false);
+                                    navigate('/admin/contratos/novo');
+                                }}
+                                className="w-full py-4 rounded-2xl bg-[#5C2A0A] text-white font-bold flex items-center justify-center gap-2 hover:bg-[#3D1C07] transition-all shadow-lg shadow-[#5C2A0A]/20"
+                            >
+                                <span className="material-symbols-outlined">add_circle</span>
+                                Fazer Novo Contrato
+                            </button>
+
+                            <button
+                                onClick={() => setSaveSuccess(false)}
+                                className="w-full py-4 rounded-2xl border-2 border-[#E2DED0] text-[#5A2D0C] font-bold flex items-center justify-center gap-2 hover:bg-[#FAF7F5] transition-all"
+                            >
+                                <span className="material-symbols-outlined">visibility</span>
+                                Continuar Visualizando
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <style>{`
+                @keyframes scale-up {
+                    from { opacity: 0; transform: scale(0.9); }
+                    to { opacity: 1; transform: scale(1); }
+                }
                 @media print {
                     body * {
                         visibility: hidden;
