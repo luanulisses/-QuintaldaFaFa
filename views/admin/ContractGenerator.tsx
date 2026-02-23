@@ -15,7 +15,7 @@ interface ContractData {
         date: string;
         startTime: string;
         endTime: string;
-        guests: number;
+        guests: number | string;
         location: string;
         structure: string[];
     };
@@ -27,8 +27,8 @@ interface ContractData {
         observations: string;
     };
     payment: {
-        pricePerPerson: number;
-        baseGuests: number;
+        pricePerPerson: number | string;
+        baseGuests: number | string;
         deposit: number | string;
         depositDate: string;
         balanceDate: string;
@@ -111,7 +111,7 @@ const ContractGenerator: React.FC = () => {
         }
     }, [id, searchParams]);
 
-    const totalValue = Math.max(data.event.guests, data.payment.baseGuests) * data.payment.pricePerPerson;
+    const totalValue = Math.max(Number(data.event.guests || 0), Number(data.payment.baseGuests || 0)) * Number(data.payment.pricePerPerson || 0);
     const balanceValue = totalValue - Number(data.payment.deposit || 0);
 
     const handleNext = () => setStep(s => Math.min(s + 1, STEPS.length - 1));
@@ -472,7 +472,7 @@ const ContractGenerator: React.FC = () => {
                                                 className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] transition-all"
                                                 value={data.event.guests}
                                                 onChange={(e) => {
-                                                    const val = parseInt(e.target.value) || 0;
+                                                    const val = e.target.value === '' ? '' : parseInt(e.target.value);
                                                     updateData('event', 'guests', val);
                                                     updateData('payment', 'baseGuests', val);
                                                 }}
@@ -620,7 +620,7 @@ const ContractGenerator: React.FC = () => {
                                                 step="0.01"
                                                 className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] transition-all font-bold text-lg"
                                                 value={data.payment.pricePerPerson}
-                                                onChange={(e) => updateData('payment', 'pricePerPerson', parseFloat(e.target.value) || 0)}
+                                                onChange={(e) => updateData('payment', 'pricePerPerson', e.target.value === '' ? '' : parseFloat(e.target.value))}
                                             />
                                         </div>
                                         <div className="group">
@@ -629,7 +629,7 @@ const ContractGenerator: React.FC = () => {
                                                 type="number"
                                                 className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] transition-all"
                                                 value={data.payment.baseGuests}
-                                                onChange={(e) => updateData('payment', 'baseGuests', parseInt(e.target.value) || 0)}
+                                                onChange={(e) => updateData('payment', 'baseGuests', e.target.value === '' ? '' : parseInt(e.target.value))}
                                             />
                                             <p className="text-[10px] text-[#5A2D0C]/60 mt-1 italic">Acima deste número: {formatCurrency(data.payment.pricePerPerson)} por excedente</p>
                                         </div>
