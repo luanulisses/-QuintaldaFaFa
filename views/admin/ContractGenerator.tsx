@@ -45,7 +45,7 @@ const INITIAL_DATA: ContractData = {
         date: '',
         startTime: '12:00',
         endTime: '17:00',
-        guests: 150,
+        guests: '',
         location: 'Quintal da Fafá',
         structure: ['Espaço', 'Mesas e Cadeiras', 'Tendas']
     },
@@ -57,8 +57,8 @@ const INITIAL_DATA: ContractData = {
         observations: ''
     },
     payment: {
-        pricePerPerson: 60,
-        baseGuests: 150,
+        pricePerPerson: '',
+        baseGuests: '',
         deposit: '',
         depositDate: '',
         balanceDate: '',
@@ -204,6 +204,8 @@ const ContractGenerator: React.FC = () => {
             if (contractError) {
                 alert(`Erro ao salvar na tabela de contratos: ${contractError.message}\nVerifique se o SQL foi executado corretamente.`);
                 console.error('Erro contratos:', contractError);
+                setIsSaving(false);
+                return;
             } else {
                 // 3. Alimentar Agenda (Eventos)
                 try {
@@ -470,10 +472,14 @@ const ContractGenerator: React.FC = () => {
                                                 type="number"
                                                 className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] transition-all"
                                                 value={data.event.guests}
+                                                onFocus={(e) => e.target.select()}
                                                 onChange={(e) => {
                                                     const val = e.target.value === '' ? '' : parseInt(e.target.value);
-                                                    updateData('event', 'guests', val);
-                                                    updateData('payment', 'baseGuests', val);
+                                                    setData(prev => ({
+                                                        ...prev,
+                                                        event: { ...prev.event, guests: val },
+                                                        payment: { ...prev.payment, baseGuests: val }
+                                                    }));
                                                 }}
                                             />
                                         </div>
@@ -619,6 +625,7 @@ const ContractGenerator: React.FC = () => {
                                                 step="0.01"
                                                 className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] transition-all font-bold text-lg"
                                                 value={data.payment.pricePerPerson}
+                                                onFocus={(e) => e.target.select()}
                                                 onChange={(e) => updateData('payment', 'pricePerPerson', e.target.value === '' ? '' : parseFloat(e.target.value))}
                                             />
                                         </div>
@@ -628,6 +635,7 @@ const ContractGenerator: React.FC = () => {
                                                 type="number"
                                                 className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] transition-all"
                                                 value={data.payment.baseGuests}
+                                                onFocus={(e) => e.target.select()}
                                                 onChange={(e) => updateData('payment', 'baseGuests', e.target.value === '' ? '' : parseInt(e.target.value))}
                                             />
                                             <p className="text-[10px] text-[#5A2D0C]/60 mt-1 italic">Acima deste número: {formatCurrency(data.payment.pricePerPerson)} por excedente</p>
@@ -642,6 +650,7 @@ const ContractGenerator: React.FC = () => {
                                                 step="0.01"
                                                 className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] transition-all"
                                                 value={data.payment.deposit}
+                                                onFocus={(e) => e.target.select()}
                                                 onChange={(e) => updateData('payment', 'deposit', e.target.value === '' ? '' : parseFloat(e.target.value))}
                                             />
                                         </div>
@@ -1068,6 +1077,9 @@ const ContractGenerator: React.FC = () => {
                 @keyframes scale-up {
                     from { opacity: 0; transform: scale(0.9); }
                     to { opacity: 1; transform: scale(1); }
+                }
+                .animate-scale-up {
+                    animation: scale-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
                 }
                 @media print {
                     body * {
