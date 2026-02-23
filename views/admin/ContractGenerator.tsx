@@ -140,6 +140,13 @@ const ContractGenerator: React.FC = () => {
         window.print();
     };
 
+    const resetForm = () => {
+        setData(INITIAL_DATA);
+        setStep(0);
+        setSaveSuccess(false);
+        navigate('/admin/contratos/novo');
+    };
+
     const handleSave = async () => {
         if (!data.client.name) {
             alert('Por favor, preencha pelo menos o nome do cliente.');
@@ -908,14 +915,24 @@ const ContractGenerator: React.FC = () => {
                     </button>
                 ) : (
                     <div className="flex flex-col sm:flex-row gap-3">
-                        <button
-                            onClick={handleSave}
-                            disabled={isSaving}
-                            className="px-8 py-3 rounded-xl bg-[#5C2A0A] text-white font-bold text-sm flex items-center gap-2 hover:bg-[#3D1C07] transition-all shadow-xl shadow-[#5C2A0A]/20 disabled:opacity-50"
-                        >
-                            <span className="material-symbols-outlined text-lg">save</span>
-                            {isSaving ? 'Salvando...' : 'Salvar no Sistema'}
-                        </button>
+                        {saveSuccess ? (
+                            <button
+                                onClick={resetForm}
+                                className="px-8 py-3 rounded-xl bg-[#BC6E2E] text-white font-bold text-sm flex items-center gap-2 hover:bg-[#8F4114] transition-all shadow-xl shadow-[#BC6E2E]/20 animate-pulse"
+                            >
+                                <span className="material-symbols-outlined text-lg">add_circle</span>
+                                Criar Novo Contrato
+                            </button>
+                        ) : (
+                            <button
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                className="px-8 py-3 rounded-xl bg-[#5C2A0A] text-white font-bold text-sm flex items-center gap-2 hover:bg-[#3D1C07] transition-all shadow-xl shadow-[#5C2A0A]/20 disabled:opacity-50"
+                            >
+                                <span className="material-symbols-outlined text-lg">save</span>
+                                {isSaving ? 'Salvando...' : 'Salvar no Sistema'}
+                            </button>
+                        )}
                         <button
                             onClick={handlePrint}
                             className="px-8 py-3 rounded-xl bg-[#78B926] text-white font-bold text-sm flex items-center gap-2 hover:bg-[#5D8F1D] transition-all shadow-xl shadow-[#78B926]/20"
@@ -1049,12 +1066,7 @@ const ContractGenerator: React.FC = () => {
                             </button>
 
                             <button
-                                onClick={() => {
-                                    setData(INITIAL_DATA);
-                                    setStep(0);
-                                    setSaveSuccess(false);
-                                    navigate('/admin/contratos/novo');
-                                }}
+                                onClick={resetForm}
                                 className="w-full py-4 rounded-2xl bg-[#5C2A0A] text-white font-bold flex items-center justify-center gap-2 hover:bg-[#3D1C07] transition-all shadow-lg shadow-[#5C2A0A]/20"
                             >
                                 <span className="material-symbols-outlined">add_circle</span>
