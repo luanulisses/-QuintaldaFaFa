@@ -25,6 +25,7 @@ const AdminLayout: React.FC = () => {
         { name: 'Orçamentos', path: '/admin/orcamentos', icon: 'request_quote' },
         { name: 'Agenda', path: '/admin/agenda', icon: 'calendar_month' },
         { name: 'Fluxo de Caixa', path: '/admin/financeiro', icon: 'payments' },
+        { name: 'Contratos', path: '/admin/contratos', icon: 'description' },
         { name: 'Relatórios', path: '/admin/relatorios', icon: 'analytics' },
         { name: 'Clientes', path: '/admin/clientes', icon: 'groups' },
         { name: 'Fornecedores', path: '/admin/fornecedores', icon: 'local_shipping' },
