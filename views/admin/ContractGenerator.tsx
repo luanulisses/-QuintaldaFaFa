@@ -29,7 +29,7 @@ interface ContractData {
     payment: {
         pricePerPerson: number;
         baseGuests: number;
-        deposit: number;
+        deposit: number | string;
         depositDate: string;
         balanceDate: string;
         method: string;
@@ -59,7 +59,7 @@ const INITIAL_DATA: ContractData = {
     payment: {
         pricePerPerson: 60,
         baseGuests: 150,
-        deposit: 0,
+        deposit: '',
         depositDate: '',
         balanceDate: '',
         method: 'PIX',
@@ -112,7 +112,7 @@ const ContractGenerator: React.FC = () => {
     }, [id, searchParams]);
 
     const totalValue = Math.max(data.event.guests, data.payment.baseGuests) * data.payment.pricePerPerson;
-    const balanceValue = totalValue - data.payment.deposit;
+    const balanceValue = totalValue - Number(data.payment.deposit || 0);
 
     const handleNext = () => setStep(s => Math.min(s + 1, STEPS.length - 1));
     const handleBack = () => setStep(s => Math.max(s - 1, 0));
@@ -159,11 +159,20 @@ const ContractGenerator: React.FC = () => {
                 event_date: data.event.date
             };
 
-            let { data: leadData } = await supabase.from('leads').upsert([clientPayload], { onConflict: 'name,phone' }).select('id').maybeSingle();
+            // Tenta localizar o lead por telefone ou nome antes de criar/atualizar
+            let { data: leadData } = await supabase
+                .from('leads')
+                .select('id')
+                .or(`phone.eq.${data.client.phone},name.eq.${data.client.name}`)
+                .maybeSingle();
 
-            if (!leadData) {
-                const { data: rData } = await supabase.from('leads').insert([clientPayload]).select('id').maybeSingle();
-                if (rData) leadData = rData;
+            if (leadData) {
+                // Atualiza lead existente
+                await supabase.from('leads').update(clientPayload).eq('id', leadData.id);
+            } else {
+                // Cria novo lead
+                const { data: nData } = await supabase.from('leads').insert([clientPayload]).select('id').maybeSingle();
+                leadData = nData;
             }
 
             const finalLeadId = leadData?.id;
@@ -197,22 +206,19 @@ const ContractGenerator: React.FC = () => {
             } else {
                 // 3. Alimentar Agenda (Eventos)
                 try {
-                    // Mapeamento simples de tipo para o enum da agenda
-                    const typeMap: Record<string, string> = {
-                        'Aniversário': 'birthday',
-                        'Casamento': 'wedding',
-                        'Corporativo': 'corporate',
-                        'Infantil': 'birthday',
-                        'Formatura': 'other'
-                    };
+                    const agendaTypeRaw = data.event.type.toLowerCase();
+                    let agendaType = 'other';
+                    if (agendaTypeRaw.includes('aniver') || agendaTypeRaw.includes('infantil')) agendaType = 'birthday';
+                    else if (agendaTypeRaw.includes('casa')) agendaType = 'wedding';
+                    else if (agendaTypeRaw.includes('corp')) agendaType = 'corporate';
 
-                    const agendaType = typeMap[data.event.type] || 'other';
-                    const eventDate = data.event.date;
+                    const eventDate = data.event.date; // YYYY-MM-DD
                     const startTime = data.event.startTime || '12:00';
                     const endTime = data.event.endTime || '17:00';
+                    const eventTitle = `${data.event.type} - ${data.client.name}`;
 
                     const agendaPayload = {
-                        title: `${data.event.type} - ${data.client.name}`,
+                        title: eventTitle,
                         start_date: `${eventDate}T${startTime}:00`,
                         end_date: `${eventDate}T${endTime}:00`,
                         type: agendaType,
@@ -221,10 +227,31 @@ const ContractGenerator: React.FC = () => {
                         description: `Contrato: ${data.event.type}\nConvidados: ${data.event.guests}\nLocal: ${data.event.location}`
                     };
 
-                    // Tenta atualizar se já existir um evento para este lead nesta data, ou cria um novo
-                    await supabase.from('events').upsert([agendaPayload], { onConflict: 'title,start_date' });
+                    // Verifica se já existe um evento similar para evitar duplicatas sem depender de constraint unique
+                    const { data: existingEvent } = await supabase
+                        .from('events')
+                        .select('id')
+                        .eq('title', eventTitle)
+                        .eq('start_date', `${eventDate}T${startTime}:00`)
+                        .maybeSingle();
+
+                    if (existingEvent) {
+                        const { error: updateErr } = await supabase.from('events').update(agendaPayload).eq('id', existingEvent.id);
+                        if (updateErr) console.error('Erro ao atualizar na agenda:', updateErr);
+                    } else {
+                        const { error: insertErr } = await supabase.from('events').insert([agendaPayload]);
+                        if (insertErr) {
+                            console.error('Erro ao inserir na agenda:', insertErr);
+                            // Se falhar o insert por causa do constraint de enum, tentamos com 'other'
+                            if (insertErr.message?.includes('check constraint')) {
+                                await supabase.from('events').insert([{ ...agendaPayload, type: 'other' }]);
+                            } else {
+                                alert(`Atenção: Contrato salvo, mas não foi possível sincronizar com a agenda: ${insertErr.message}`);
+                            }
+                        }
+                    }
                 } catch (agendaErr) {
-                    console.error('Erro ao alimentar agenda:', agendaErr);
+                    console.error('Erro crítico ao alimentar agenda:', agendaErr);
                 }
 
                 // 4. Alimentar Fluxo de Caixa (Financeiro)
@@ -233,11 +260,12 @@ const ContractGenerator: React.FC = () => {
                     const financialMovements = [];
 
                     // Entrada do Sinal
-                    if (data.payment.deposit > 0) {
+                    const depositAmt = Number(data.payment.deposit || 0);
+                    if (depositAmt > 0) {
                         financialMovements.push({
                             type: 'Receita',
                             description: `Sinal - Contrato ${data.client.name} (${data.event.type})`,
-                            amount: data.payment.deposit,
+                            amount: depositAmt,
                             date: data.payment.depositDate || new Date().toISOString().split('T')[0],
                             category: 'Sinal'
                         });
@@ -615,7 +643,7 @@ const ContractGenerator: React.FC = () => {
                                                 step="0.01"
                                                 className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] transition-all"
                                                 value={data.payment.deposit}
-                                                onChange={(e) => updateData('payment', 'deposit', parseFloat(e.target.value) || 0)}
+                                                onChange={(e) => updateData('payment', 'deposit', e.target.value === '' ? '' : parseFloat(e.target.value))}
                                             />
                                         </div>
                                         <div className="group">
