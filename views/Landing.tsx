@@ -146,26 +146,21 @@ const Landing: React.FC = () => {
                         <Button variant="outline" size="lg" className="bg-white text-text-main border-white hover:bg-white/90 shadow-lg transform hover:scale-105 transition-all text-sm md:text-base py-3 md:py-4" onClick={() => scrollToSection('gallery')}>
                             Ver Galeria
                         </Button>
+                        <a
+                            href="https://www.google.com/maps/place/15%C2%B045'44.1%22S+47%C2%B029'34.9%22W/@-15.7622386,-47.4955887,17z/data=!3m1!4b1!4m4!3m3!8m2!3d-15.7622386!4d-47.4930138?hl=pt-BR&entry=ttu&g_ep=EgoyMDI2MDIxOC4wIKXMDSoASAFQAw%3D%3D"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block"
+                        >
+                            <Button size="lg" className="w-full bg-primary hover:bg-primary-dark text-white border-none shadow-lg transform hover:scale-105 transition-all text-sm md:text-base py-3 md:py-4 flex items-center justify-center gap-2">
+                                <span className="material-symbols-outlined text-sm md:text-base">location_on</span>
+                                Como chegar
+                            </Button>
+                        </a>
                     </div>
                 </div>
 
-                {/* Metrics Bar */}
-                <div className="absolute bottom-6 md:bottom-10 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-5xl bg-white/90 backdrop-blur-md rounded-2xl shadow-xl p-3 md:p-4 flex flex-col md:flex-row justify-around items-center gap-2 md:gap-4 border border-white/50 text-text-main">
-                    <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary text-xl md:text-2xl">groups</span>
-                        <span className="font-bold text-xs md:text-base">{getText('metric_capacity', '100...300 Pessoas')}</span>
-                    </div>
-                    <div className="hidden md:block w-px h-8 bg-gray-300"></div>
-                    <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary text-xl md:text-2xl">security</span>
-                        <span className="font-bold text-xs md:text-base">{getText('metric_privacy', 'Privativo')}</span>
-                    </div>
-                    <div className="hidden md:block w-px h-8 bg-gray-300"></div>
-                    <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-primary text-xl md:text-2xl">check_circle</span>
-                        <span className="font-bold text-xs md:text-base">{getText('metric_infrastructure', 'Infraestrutura Completa')}</span>
-                    </div>
-                </div>
+
             </section>
             {/* ===== O ESPAÇO Section ===== */}
             <section id="about" className="py-20 bg-white relative z-10">
