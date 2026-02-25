@@ -22,6 +22,7 @@ import AdminPackages from './views/admin/Packages';
 import AdminReports from './views/admin/Reports';
 import AdminContractGenerator from './views/admin/ContractGenerator';
 import AdminContracts from './views/admin/Contracts';
+import AdminNotaFiscal from './views/admin/NotaFiscal';
 import ProtectedRoute from './layouts/ProtectedRoute';
 
 const App: React.FC = () => {
@@ -50,6 +51,7 @@ const App: React.FC = () => {
                         <Route path="depoimentos" element={<AdminTestimonials />} />
                         <Route path="pacotes" element={<AdminPackages />} />
                         <Route path="contratos" element={<AdminContracts />} />
+                        <Route path="nota-fiscal" element={<AdminNotaFiscal />} />
                         <Route path="contratos/novo" element={<AdminContractGenerator />} />
                         <Route path="contratos/:id" element={<AdminContractGenerator />} />
                         <Route path="config" element={<PlaceholderView title="Configurações" />} />

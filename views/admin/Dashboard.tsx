@@ -98,7 +98,17 @@ const AdminDashboard: React.FC = () => {
             const totalRevenue = (revenueData || []).reduce((sum, r) => sum + Number(r.amount), 0);
             const totalExpenses = (expensesData || []).reduce((sum, r) => sum + Number(r.amount), 0);
 
-            setRecentLeads(leadsData || []);
+            // Group duplicates in recent leads to avoid visual noise
+            const groupedLeadsMap = new Map();
+            (leadsData || []).forEach(l => {
+                const key = `${l.name.trim().toLowerCase()}_${l.phone.replace(/\D/g, '')}_${l.event_date || ''}`;
+                if (!groupedLeadsMap.has(key)) {
+                    groupedLeadsMap.set(key, l);
+                }
+            });
+            const uniqueRecentLeads = Array.from(groupedLeadsMap.values());
+
+            setRecentLeads(uniqueRecentLeads);
             setUpcomingEvents(eventsData || []);
             setKpis({
                 eventsThisMonth: eventsCount || 0,

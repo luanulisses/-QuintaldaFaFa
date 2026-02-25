@@ -9,6 +9,10 @@ interface ContractData {
         phone: string;
         email: string;
         address: string;
+        neighborhood: string;
+        city: string;
+        state: string;
+        zipCode: string;
     };
     event: {
         type: string;
@@ -39,7 +43,7 @@ interface ContractData {
 }
 
 const INITIAL_DATA: ContractData = {
-    client: { name: '', cpf: '', phone: '', email: '', address: '' },
+    client: { name: '', cpf: '', phone: '', email: '', address: '', neighborhood: '', city: '', state: 'DF', zipCode: '' },
     event: {
         type: '',
         date: '',
@@ -82,7 +86,15 @@ const ContractGenerator: React.FC = () => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
+    const [newContractId, setNewContractId] = useState<string | null>(null);
     const [searchParams] = useSearchParams();
+
+    // Menu Dynamic Options State
+    const [mainDishOptions, setMainDishOptions] = useState(['Galeto Assado', 'Churrasco', 'Frango Grelhado', 'Porco Assado']);
+    const [sidesOptions, setSidesOptions] = useState(['Arroz', 'Macarrão', 'Salada', 'Farofa', 'Feijão', 'Vinagrete', 'Batata Frita']);
+    const [dessertOptions, setDessertOptions] = useState(['Bolo', 'Pudim', 'Docinhos', 'Frutas']);
+    const [drinksOptions, setDrinksOptions] = useState(['Não incluídas (por conta do cliente)', 'Água + Refrigerante', 'Open Bar']);
+
     const printRef = useRef<HTMLDivElement>(null);
     const { id } = useParams();
     const navigate = useNavigate();
@@ -99,12 +111,9 @@ const ContractGenerator: React.FC = () => {
                 if (contract && contract.contract_data) {
                     setData(contract.contract_data as ContractData);
 
-                    // Auto-trigger print if requested
+                    // Go to review step if print is requested, but don't auto-open dialog
                     if (searchParams.get('print') === 'true') {
                         setStep(STEPS.length - 1);
-                        setTimeout(() => {
-                            window.print();
-                        }, 800);
                     }
                 }
             };
@@ -145,6 +154,35 @@ const ContractGenerator: React.FC = () => {
         setStep(0);
         setSaveSuccess(false);
         navigate('/admin/contratos/novo');
+    };
+
+    const addMenuOption = (category: 'main' | 'sides' | 'dessert' | 'drinks') => {
+        const newItem = window.prompt('Digite o nome da nova opção:');
+        if (!newItem || newItem.trim() === '') return;
+
+        const cleanItem = newItem.trim();
+
+        if (category === 'main') {
+            if (!mainDishOptions.includes(cleanItem)) {
+                setMainDishOptions(prev => [...prev, cleanItem]);
+                updateData('menu', 'mainDish', cleanItem);
+            }
+        } else if (category === 'sides') {
+            if (!sidesOptions.includes(cleanItem)) {
+                setSidesOptions(prev => [...prev, cleanItem]);
+                toggleArrayItem('menu', 'sides', cleanItem);
+            }
+        } else if (category === 'dessert') {
+            if (!dessertOptions.includes(cleanItem)) {
+                setDessertOptions(prev => [...prev, cleanItem]);
+                toggleArrayItem('menu', 'dessert', cleanItem);
+            }
+        } else if (category === 'drinks') {
+            if (!drinksOptions.includes(cleanItem)) {
+                setDrinksOptions(prev => [...prev, cleanItem]);
+                updateData('menu', 'drinks', cleanItem);
+            }
+        }
     };
 
     const handleSave = async () => {
@@ -214,6 +252,9 @@ const ContractGenerator: React.FC = () => {
                 setIsSaving(false);
                 return;
             } else {
+                if (savedContract) {
+                    setNewContractId(savedContract.id);
+                }
                 // 3. Alimentar Agenda (Eventos)
                 try {
                     const agendaTypeRaw = data.event.type.toLowerCase();
@@ -392,7 +433,7 @@ const ContractGenerator: React.FC = () => {
                                             <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C] mb-1 group-focus-within:text-[#78B926]">Telefone / WhatsApp *</label>
                                             <input
                                                 type="text"
-                                                placeholder="(61) 9 0000-0000"
+                                                placeholder="(61) 99635-1010"
                                                 className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] focus:ring-4 focus:ring-[#78B926]/5 transition-all"
                                                 value={data.client.phone}
                                                 onChange={(e) => updateData('client', 'phone', e.target.value)}
@@ -411,15 +452,61 @@ const ContractGenerator: React.FC = () => {
                                         />
                                     </div>
 
-                                    <div className="group">
-                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C] mb-1 group-focus-within:text-[#78B926]">Endereço Completo</label>
-                                        <input
-                                            type="text"
-                                            placeholder="Rua, número, bairro, cidade - UF"
-                                            className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] focus:ring-4 focus:ring-[#78B926]/5 transition-all"
-                                            value={data.client.address}
-                                            onChange={(e) => updateData('client', 'address', e.target.value)}
-                                        />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="group">
+                                            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C] mb-1 group-focus-within:text-[#78B926] transition-colors">Logradouro (Rua, Nº, Compl.)</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Ex: Rua das Flores, 12, Bloco A"
+                                                className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] focus:ring-4 focus:ring-[#78B926]/5 transition-all"
+                                                value={data.client.address}
+                                                onChange={(e) => updateData('client', 'address', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="group">
+                                            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C] mb-1 group-focus-within:text-[#78B926] transition-colors">Bairro</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Ex: Setor Central"
+                                                className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] focus:ring-4 focus:ring-[#78B926]/5 transition-all"
+                                                value={data.client.neighborhood}
+                                                onChange={(e) => updateData('client', 'neighborhood', e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div className="group col-span-1 md:col-span-1">
+                                            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C] mb-1 group-focus-within:text-[#78B926] transition-colors">CEP</label>
+                                            <input
+                                                type="text"
+                                                placeholder="00000-000"
+                                                className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] focus:ring-4 focus:ring-[#78B926]/5 transition-all"
+                                                value={data.client.zipCode}
+                                                onChange={(e) => updateData('client', 'zipCode', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="group col-span-1 md:col-span-2">
+                                            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C] mb-1 group-focus-within:text-[#78B926] transition-colors">Cidade</label>
+                                            <input
+                                                type="text"
+                                                placeholder="Cidade"
+                                                className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] focus:ring-4 focus:ring-[#78B926]/5 transition-all"
+                                                value={data.client.city}
+                                                onChange={(e) => updateData('client', 'city', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="group col-span-2 md:col-span-1">
+                                            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C] mb-1 group-focus-within:text-[#78B926] transition-colors">UF</label>
+                                            <input
+                                                type="text"
+                                                placeholder="UF"
+                                                maxLength={2}
+                                                className="w-full bg-white border border-[#E2DED0] rounded-xl px-4 py-3 outline-none focus:border-[#78B926] focus:ring-4 focus:ring-[#78B926]/5 transition-all uppercase"
+                                                value={data.client.state}
+                                                onChange={(e) => updateData('client', 'state', e.target.value.toUpperCase())}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -530,9 +617,18 @@ const ContractGenerator: React.FC = () => {
 
                                 <div className="space-y-8">
                                     <div className="group">
-                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C] mb-3">Prato Principal *</label>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C]">Prato Principal *</label>
+                                            <button
+                                                onClick={() => addMenuOption('main')}
+                                                className="w-8 h-8 rounded-lg bg-[#5C2A0A]/10 text-[#5C2A0A] flex items-center justify-center hover:bg-[#5C2A0A] hover:text-white transition-all shadow-sm group/btn"
+                                                title="Adicionar outra opção"
+                                            >
+                                                <span className="material-symbols-outlined text-xl font-bold">add</span>
+                                            </button>
+                                        </div>
                                         <div className="flex flex-wrap gap-2">
-                                            {['Galeto Assado', 'Churrasco', 'Frango Grelhado', 'Porco Assado'].map(item => (
+                                            {mainDishOptions.map(item => (
                                                 <button
                                                     key={item}
                                                     onClick={() => updateData('menu', 'mainDish', item)}
@@ -548,9 +644,18 @@ const ContractGenerator: React.FC = () => {
                                     </div>
 
                                     <div className="group">
-                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C] mb-3">Acompanhamentos</label>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C]">Acompanhamentos</label>
+                                            <button
+                                                onClick={() => addMenuOption('sides')}
+                                                className="w-8 h-8 rounded-lg bg-[#BC6E2E]/10 text-[#BC6E2E] flex items-center justify-center hover:bg-[#BC6E2E] hover:text-white transition-all shadow-sm"
+                                                title="Adicionar outra opção"
+                                            >
+                                                <span className="material-symbols-outlined text-xl font-bold">add</span>
+                                            </button>
+                                        </div>
                                         <div className="flex flex-wrap gap-2">
-                                            {['Arroz', 'Macarrão', 'Salada', 'Farofa', 'Feijão', 'Vinagrete', 'Batata Frita'].map(item => (
+                                            {sidesOptions.map(item => (
                                                 <button
                                                     key={item}
                                                     onClick={() => toggleArrayItem('menu', 'sides', item)}
@@ -566,9 +671,18 @@ const ContractGenerator: React.FC = () => {
                                     </div>
 
                                     <div className="group">
-                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C] mb-3">Sobremesa</label>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C]">Sobremesa</label>
+                                            <button
+                                                onClick={() => addMenuOption('dessert')}
+                                                className="w-8 h-8 rounded-lg bg-[#EDB660]/10 text-[#EDB660] flex items-center justify-center hover:bg-[#EDB660] hover:text-white transition-all shadow-sm"
+                                                title="Adicionar outra opção"
+                                            >
+                                                <span className="material-symbols-outlined text-xl font-bold">add</span>
+                                            </button>
+                                        </div>
                                         <div className="flex flex-wrap gap-2">
-                                            {['Bolo', 'Pudim', 'Docinhos', 'Frutas'].map(item => (
+                                            {dessertOptions.map(item => (
                                                 <button
                                                     key={item}
                                                     onClick={() => toggleArrayItem('menu', 'dessert', item)}
@@ -584,13 +698,18 @@ const ContractGenerator: React.FC = () => {
                                     </div>
 
                                     <div className="group">
-                                        <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C] mb-3">Bebidas (incluídas no contrato?)</label>
+                                        <div className="flex items-center justify-between mb-3">
+                                            <label className="block text-[10px] font-bold uppercase tracking-wider text-[#5A2D0C]">Bebidas (incluídas no contrato?)</label>
+                                            <button
+                                                onClick={() => addMenuOption('drinks')}
+                                                className="w-8 h-8 rounded-lg bg-[#78B926]/10 text-[#78B926] flex items-center justify-center hover:bg-[#78B926] hover:text-white transition-all shadow-sm"
+                                                title="Adicionar outra opção"
+                                            >
+                                                <span className="material-symbols-outlined text-xl font-bold">add</span>
+                                            </button>
+                                        </div>
                                         <div className="flex flex-wrap gap-2">
-                                            {[
-                                                'Não incluídas (por conta do cliente)',
-                                                'Água + Refrigerante',
-                                                'Open Bar'
-                                            ].map(item => (
+                                            {drinksOptions.map(item => (
                                                 <button
                                                     key={item}
                                                     onClick={() => updateData('menu', 'drinks', item)}
@@ -940,6 +1059,31 @@ const ContractGenerator: React.FC = () => {
                             <span className="material-symbols-outlined text-lg">description</span>
                             Gerar Contrato (PDF)
                         </button>
+
+                        <button
+                            onClick={() => {
+                                const params = new URLSearchParams({
+                                    client_name: data.client.name,
+                                    client_document: data.client.cpf,
+                                    client_email: data.client.email,
+                                    client_phone: data.client.phone,
+                                    event_type: data.event.type,
+                                    event_date: data.event.date,
+                                    num_guests: data.event.guests.toString(),
+                                    value_per_guest: data.payment.pricePerPerson.toString(),
+                                    deposit_value: data.payment.deposit.toString(),
+                                    deposit_date: data.payment.depositDate || '',
+                                    total_value: String(totalValue),
+                                    contract_id: newContractId || id || '',
+                                    source: 'contract'
+                                });
+                                navigate(`/admin/nota-fiscal?${params.toString()}`);
+                            }}
+                            className="px-8 py-3 rounded-xl bg-[#EDB660] text-white font-bold text-sm flex items-center gap-2 hover:bg-[#D9A550] transition-all shadow-xl shadow-[#EDB660]/20"
+                        >
+                            <span className="material-symbols-outlined text-lg">receipt</span>
+                            Emitir Nota Fiscal
+                        </button>
                     </div>
                 )}
             </div>
@@ -948,21 +1092,31 @@ const ContractGenerator: React.FC = () => {
             <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-0 m-0 overflow-visible" id="contract-print">
                 <div className="max-w-[700px] mx-auto p-12 text-[#2D2420] text-justify leading-relaxed font-serif">
                     {/* Header */}
-                    <div className="flex flex-col items-center mb-10 border-b-2 border-[#5C2A0A] pb-6">
-                        <h1 className="text-3xl font-bold uppercase tracking-tighter text-[#5C2A0A]">Instrumento Particular de Prestação de Serviços</h1>
+                    <div className="flex flex-col items-center mb-6 border-b-2 border-[#5C2A0A] pb-6">
+                        <h1 className="text-3xl font-bold uppercase tracking-tighter text-[#5C2A0A] text-center">Instrumento Particular de Prestação de Serviços</h1>
                         <p className="text-lg mt-2 font-bold">QUINTAL DA FAFÁ - BUFFET E EVENTOS</p>
                     </div>
 
+                    {/* Identificação do Contrato */}
+                    <div className="mb-6 text-xs text-right text-[#5C2A0A]/70">
+                        <p>Brasília – DF, {new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                    </div>
+
                     <div className="space-y-6 text-sm">
+                        <h3 className="font-bold text-base uppercase border-b border-black pb-1">Das Partes</h3>
+
                         <p>
-                            <strong>CONTRATANTE:</strong> {data.client.name}, portador do CPF/CNPJ nº {data.client.cpf},
-                            residente em {data.client.address || '________________________________________________'},
-                            contato {data.client.phone}.
+                            <strong>CONTRATANTE:</strong> {data.client.name || '_________________________________'}, portador(a) do CPF/CNPJ nº {data.client.cpf || '______________'},
+                            residente em {data.client.address || '_____________________________'},
+                            {data.client.neighborhood ? ' ' + data.client.neighborhood + ',' : ' ________________,'}{' '}
+                            {data.client.city || '_______________'}-{(data.client.state || '__').toUpperCase()}, CEP: {data.client.zipCode || '_____-___'},
+                            telefone/WhatsApp: {data.client.phone || '(__) _____-____'}{data.client.email ? `, e-mail: ${data.client.email}` : ''}.
                         </p>
 
                         <p>
-                            <strong>CONTRATADA:</strong> Quintal da Fafá – 50.736.345 Maria de Fatima Bezerra Trindade Muniz, CNPJ: 50.736.345/0001-86, estabelecida no Núcleo Rural Rio Preto, Chácara 08, Térreo, Agrovila, Planaltina – DF, Brasília.
+                            <strong>CONTRATADA:</strong> Quintal da Fafá – Maria de Fatima Bezerra Trindade Muniz, inscrita no CNPJ sob o nº 50.736.345/0001-86, estabelecida no Núcleo Rural Rio Preto, Chácara 08, Térreo, Agrovila, Planaltina – DF, Brasília.
                         </p>
+
 
                         <h3 className="font-bold text-base uppercase border-b border-black pt-4">Cláusula 1ª – DO OBJETO DO CONTRATO</h3>
                         <p>
@@ -1063,6 +1217,31 @@ const ContractGenerator: React.FC = () => {
                             >
                                 <span className="material-symbols-outlined">list_alt</span>
                                 Voltar para a Lista
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    const params = new URLSearchParams({
+                                        client_name: data.client.name,
+                                        client_document: data.client.cpf,
+                                        client_email: data.client.email,
+                                        client_phone: data.client.phone,
+                                        event_type: data.event.type,
+                                        event_date: data.event.date,
+                                        num_guests: data.event.guests.toString(),
+                                        value_per_guest: data.payment.pricePerPerson.toString(),
+                                        deposit_value: data.payment.deposit.toString(),
+                                        deposit_date: data.payment.depositDate || '',
+                                        total_value: String(totalValue),
+                                        contract_id: newContractId || id || '',
+                                        source: 'contract'
+                                    });
+                                    navigate(`/admin/nota-fiscal?${params.toString()}`);
+                                }}
+                                className="w-full py-4 rounded-2xl bg-[#EDB660] text-white font-bold flex items-center justify-center gap-2 hover:bg-[#D9A550] transition-all shadow-lg shadow-[#EDB660]/20"
+                            >
+                                <span className="material-symbols-outlined">receipt</span>
+                                Emitir Nota Fiscal
                             </button>
 
                             <button

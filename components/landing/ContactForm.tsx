@@ -26,7 +26,7 @@ const getMinDate = (): string => {
 };
 
 // ⚠️ Número de WhatsApp do Quintal da Fafá (somente dígitos, com DDI 55)
-const WHATSAPP_NUMBER = '5561998274390';
+const WHATSAPP_NUMBER = '5561996351010';
 
 const ContactForm: React.FC = () => {
     const [loading, setLoading] = useState(false);
@@ -37,7 +37,7 @@ const ContactForm: React.FC = () => {
         name: '',
         phone: '',
         date: '',
-        guests: '100'
+        guests: '50'
     });
 
     // useMemo: calcula apenas uma vez ao montar o componente
@@ -69,6 +69,9 @@ const ContactForm: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Prevents multiple submissions
+        if (loading) return;
 
         const digits = formData.phone.replace(/\D/g, '');
         if (digits.length < 10) {
@@ -118,9 +121,10 @@ const ContactForm: React.FC = () => {
             ].join('\n');
             const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensagem)}`;
             window.open(url, '_blank');
-        } catch (error) {
-            console.error('Erro ao enviar:', error);
-            alert('Ocorreu um erro ao enviar. Tente novamente ou nos chame no WhatsApp.');
+        } catch (error: any) {
+            console.error('Erro detalhado ao enviar:', error);
+            const errorMsg = error.message || 'Erro desconhecido';
+            alert(`Ocorreu um erro ao enviar: ${errorMsg}. Verifique se a tabela de orçamentos está atualizada ou nos chame no WhatsApp.`);
         } finally {
             setLoading(false);
         }
@@ -207,11 +211,9 @@ const ContactForm: React.FC = () => {
                                         onChange={(e) => setFormData({ ...formData, guests: e.target.value })}
                                         className="w-full px-4 py-3 rounded-xl bg-white border border-[#D9EBC6] focus:border-[#78B926] focus:ring-2 focus:ring-[#78B926]/20 outline-none transition-all text-gray-600"
                                     >
-                                        <option value="100">100</option>
-                                        <option value="150">150</option>
-                                        <option value="200">200</option>
-                                        <option value="250">250</option>
-                                        <option value="300">300</option>
+                                        {[10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 125, 150, 175, 200, 250, 300, 350, 400, 450, 500].map(n => (
+                                            <option key={n} value={n.toString()}>{n}</option>
+                                        ))}
                                     </select>
                                 </div>
                             </div>

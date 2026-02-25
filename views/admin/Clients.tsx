@@ -50,13 +50,34 @@ const AdminClients: React.FC = () => {
 
             if (error) throw error;
 
+            // Agrupar por nome e telefone para não duplicar clientes
+            const groupedMap = new Map();
+
+            (data || []).forEach(d => {
+                const key = `${d.name.trim().toLowerCase()}_${d.phone.replace(/\D/g, '')}`;
+                const existing = groupedMap.get(key);
+
+                if (!existing) {
+                    groupedMap.set(key, { ...d, total_events: 1 });
+                } else {
+                    // Soma valores e pega data mais recente
+                    existing.contract_value = (existing.contract_value || 0) + (d.contract_value || 0);
+                    existing.total_events += 1;
+                    if (d.event_date && (!existing.event_date || d.event_date > existing.event_date)) {
+                        existing.event_date = d.event_date;
+                    }
+                }
+            });
+
+            const uniqueLeads = Array.from(groupedMap.values());
+
             // Mapear para interface de cliente
-            const mapped = (data || []).map(d => ({
+            const mapped = uniqueLeads.map(d => ({
                 id: d.id,
                 name: d.name,
                 phone: d.phone,
                 email: d.contact?.includes('@') ? d.contact : '',
-                total_events: 1, // Placeholder
+                total_events: d.total_events,
                 last_event_date: d.event_date,
                 notes: d.notes,
                 created_at: d.created_at,

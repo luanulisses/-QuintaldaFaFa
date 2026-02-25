@@ -74,7 +74,7 @@ insert into public.site_content (key, value, section, type) values
 ('hero_title', 'Seu evento com clima rústico e moderno', 'hero', 'text'),
 ('hero_subtitle', 'O espaço ideal para casamentos e confraternizações inesquecíveis.', 'hero', 'textarea'),
 ('hero_bg_image', 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80', 'hero', 'image'),
-('contact_phone', '6199827439', 'contact', 'text'),
+('contact_phone', '61996351010', 'contact', 'text'),
 ('contact_email', 'contato@quintaldafafa.com.br', 'contact', 'text'),
 ('footer_text', '© 2026 Quintal da Fafá. Todos os direitos reservados.', 'footer', 'text')
 on conflict (key) do nothing;

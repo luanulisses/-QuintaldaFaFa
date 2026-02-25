@@ -23,16 +23,17 @@ const AdminLayout: React.FC = () => {
     const menuItems = [
         { name: 'Visão Geral', path: '/admin', icon: 'dashboard', end: true },
         { name: 'Orçamentos', path: '/admin/orcamentos', icon: 'request_quote' },
-        { name: 'Agenda', path: '/admin/agenda', icon: 'calendar_month' },
-        { name: 'Fluxo de Caixa', path: '/admin/financeiro', icon: 'payments' },
-        { name: 'Contratos', path: '/admin/contratos', icon: 'description' },
-        { name: 'Relatórios', path: '/admin/relatorios', icon: 'analytics' },
         { name: 'Clientes', path: '/admin/clientes', icon: 'groups' },
+        { name: 'Contratos', path: '/admin/contratos', icon: 'description' },
+        { name: 'Recibos e NF', path: '/admin/nota-fiscal', icon: 'receipt_long' },
+        { name: 'Fluxo de Caixa', path: '/admin/financeiro', icon: 'payments' },
+        { name: 'Agenda', path: '/admin/agenda', icon: 'calendar_month' },
         { name: 'Fornecedores', path: '/admin/fornecedores', icon: 'local_shipping' },
         { name: 'Conteúdo Site', path: '/admin/conteudo', icon: 'web' },
         { name: 'Galeria', path: '/admin/galeria', icon: 'photo_library' },
         { name: 'Depoimentos', path: '/admin/depoimentos', icon: 'reviews' },
         { name: 'Pacotes', path: '/admin/pacotes', icon: 'inventory_2' },
+        { name: 'Relatórios', path: '/admin/relatorios', icon: 'analytics' },
         { name: 'Configurações', path: '/admin/config', icon: 'settings' },
     ];
 
