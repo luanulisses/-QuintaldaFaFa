@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { useSiteContent } from '../../lib/hooks/useSiteContent';
 
 interface ContractData {
     client: {
@@ -81,11 +82,13 @@ const STEPS = [
 ];
 
 const ContractGenerator: React.FC = () => {
+    const { getText } = useSiteContent();
     const [step, setStep] = useState(0);
     const [data, setData] = useState<ContractData>(INITIAL_DATA);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
+    const [isQuoteMode, setIsQuoteMode] = useState(false);
     const [newContractId, setNewContractId] = useState<string | null>(null);
     const [searchParams] = useSearchParams();
 
@@ -185,7 +188,8 @@ const ContractGenerator: React.FC = () => {
         }
     };
 
-    const handleSave = async () => {
+    const handleSave = async (saveType: 'contract' | 'quote' = 'contract') => {
+        setIsQuoteMode(saveType === 'quote');
         if (!data.client.name) {
             alert('Por favor, preencha pelo menos o nome do cliente.');
             setStep(0);
@@ -199,8 +203,8 @@ const ContractGenerator: React.FC = () => {
                 name: data.client.name,
                 phone: data.client.phone,
                 contact: data.client.phone || data.client.email,
-                status: 'Fechado',
-                notes: `Contrato gerado para ${data.event.type} em ${data.event.date}. ${data.payment.observations}`,
+                status: saveType === 'contract' ? 'Fechado' : 'Em Negociação',
+                notes: `${saveType === 'contract' ? 'Contrato' : 'Orçamento'} gerado para ${data.event.type} em ${data.event.date}. ${data.payment.observations}`,
                 contract_value: totalValue,
                 event_date: data.event.date
             };
@@ -230,7 +234,9 @@ const ContractGenerator: React.FC = () => {
                 client_cpf: data.client.cpf,
                 event_date: data.event.date,
                 total_value: totalValue,
-                contract_data: data
+                contract_data: data,
+                type: saveType,
+                expires_at: saveType === 'quote' ? new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString() : null
             };
 
             if (id && id !== 'novo') {
@@ -255,59 +261,61 @@ const ContractGenerator: React.FC = () => {
                 if (savedContract) {
                     setNewContractId(savedContract.id);
                 }
-                // 3. Alimentar Agenda (Eventos)
-                try {
-                    const agendaTypeRaw = data.event.type.toLowerCase();
-                    let agendaType = 'other';
-                    if (agendaTypeRaw.includes('aniver') || agendaTypeRaw.includes('infantil')) agendaType = 'birthday';
-                    else if (agendaTypeRaw.includes('casa')) agendaType = 'wedding';
-                    else if (agendaTypeRaw.includes('corp')) agendaType = 'corporate';
+                // 3. Alimentar Agenda (Eventos) - APENAS SE FOR CONTRATO
+                if (saveType === 'contract') {
+                    try {
+                        const agendaTypeRaw = data.event.type.toLowerCase();
+                        let agendaType = 'other';
+                        if (agendaTypeRaw.includes('aniver') || agendaTypeRaw.includes('infantil')) agendaType = 'birthday';
+                        else if (agendaTypeRaw.includes('casa')) agendaType = 'wedding';
+                        else if (agendaTypeRaw.includes('corp')) agendaType = 'corporate';
 
-                    const eventDate = data.event.date; // YYYY-MM-DD
-                    const startTime = data.event.startTime || '12:00';
-                    const endTime = data.event.endTime || '17:00';
-                    const eventTitle = `${data.event.type} - ${data.client.name}`;
+                        const eventDate = data.event.date; // YYYY-MM-DD
+                        const startTime = data.event.startTime || '12:00';
+                        const endTime = data.event.endTime || '17:00';
+                        const eventTitle = `${data.event.type} - ${data.client.name}`;
 
-                    const agendaPayload = {
-                        title: eventTitle,
-                        start_date: `${eventDate}T${startTime}:00`,
-                        end_date: `${eventDate}T${endTime}:00`,
-                        type: agendaType,
-                        status: 'confirmed',
-                        client_id: finalLeadId,
-                        description: `Contrato: ${data.event.type}\nConvidados: ${data.event.guests}\nLocal: ${data.event.location}`
-                    };
+                        const agendaPayload = {
+                            title: eventTitle,
+                            start_date: `${eventDate}T${startTime}:00`,
+                            end_date: `${eventDate}T${endTime}:00`,
+                            type: agendaType,
+                            status: 'confirmed',
+                            client_id: finalLeadId,
+                            description: `Contrato: ${data.event.type}\nConvidados: ${data.event.guests}\nLocal: ${data.event.location}`
+                        };
 
-                    // Verifica se já existe um evento similar para evitar duplicatas sem depender de constraint unique
-                    const { data: existingEvent } = await supabase
-                        .from('events')
-                        .select('id')
-                        .eq('title', eventTitle)
-                        .eq('start_date', `${eventDate}T${startTime}:00`)
-                        .maybeSingle();
+                        // Verifica se já existe um evento similar para evitar duplicatas sem depender de constraint unique
+                        const { data: existingEvent } = await supabase
+                            .from('events')
+                            .select('id')
+                            .eq('title', eventTitle)
+                            .eq('start_date', `${eventDate}T${startTime}:00`)
+                            .maybeSingle();
 
-                    if (existingEvent) {
-                        const { error: updateErr } = await supabase.from('events').update(agendaPayload).eq('id', existingEvent.id);
-                        if (updateErr) console.error('Erro ao atualizar na agenda:', updateErr);
-                    } else {
-                        const { error: insertErr } = await supabase.from('events').insert([agendaPayload]);
-                        if (insertErr) {
-                            console.error('Erro ao inserir na agenda:', insertErr);
-                            // Se falhar o insert por causa do constraint de enum, tentamos com 'other'
-                            if (insertErr.message?.includes('check constraint')) {
-                                await supabase.from('events').insert([{ ...agendaPayload, type: 'other' }]);
-                            } else {
-                                alert(`Atenção: Contrato salvo, mas não foi possível sincronizar com a agenda: ${insertErr.message}`);
+                        if (existingEvent) {
+                            const { error: updateErr } = await supabase.from('events').update(agendaPayload).eq('id', existingEvent.id);
+                            if (updateErr) console.error('Erro ao atualizar na agenda:', updateErr);
+                        } else {
+                            const { error: insertErr } = await supabase.from('events').insert([agendaPayload]);
+                            if (insertErr) {
+                                console.error('Erro ao inserir na agenda:', insertErr);
+                                // Se falhar o insert por causa do constraint de enum, tentamos com 'other'
+                                if (insertErr.message?.includes('check constraint')) {
+                                    await supabase.from('events').insert([{ ...agendaPayload, type: 'other' }]);
+                                } else {
+                                    alert(`Atenção: Contrato salvo, mas não foi possível sincronizar com a agenda: ${insertErr.message}`);
+                                }
                             }
                         }
+                    } catch (agendaErr) {
+                        console.error('Erro crítico ao alimentar agenda:', agendaErr);
                     }
-                } catch (agendaErr) {
-                    console.error('Erro crítico ao alimentar agenda:', agendaErr);
                 }
 
-                // 4. Alimentar Fluxo de Caixa (Financeiro)
+                // 4. Alimentar Fluxo de Caixa (Financeiro) - APENAS SE FOR CONTRATO
                 // Só adicionamos movimentos financeiros se for um novo contrato para evitar duplicidade
-                if (!id || id === 'novo') {
+                if (saveType === 'contract' && (!id || id === 'novo')) {
                     const financialMovements = [];
 
                     // Entrada do Sinal
@@ -345,7 +353,12 @@ const ContractGenerator: React.FC = () => {
                 }
 
                 setSaveSuccess(true);
-                // Removido o alert e o navigate automático para mostrar a nova tela de sucesso
+                // Se for orçamento, já abre a janela de impressão automaticamente
+                if (saveType === 'quote') {
+                    setTimeout(() => {
+                        handlePrint();
+                    }, 500);
+                }
             }
 
         } catch (err) {
@@ -1043,14 +1056,24 @@ const ContractGenerator: React.FC = () => {
                                 Criar Novo Contrato
                             </button>
                         ) : (
-                            <button
-                                onClick={handleSave}
-                                disabled={isSaving}
-                                className="px-8 py-3 rounded-xl bg-[#5C2A0A] text-white font-bold text-sm flex items-center gap-2 hover:bg-[#3D1C07] transition-all shadow-xl shadow-[#5C2A0A]/20 disabled:opacity-50"
-                            >
-                                <span className="material-symbols-outlined text-lg">save</span>
-                                {isSaving ? 'Salvando...' : 'Salvar no Sistema'}
-                            </button>
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <button
+                                    onClick={() => handleSave('quote')}
+                                    disabled={isSaving}
+                                    className="px-8 py-3 rounded-xl bg-[#BC6E2E] text-white font-bold text-sm flex items-center gap-2 hover:bg-[#8F4114] transition-all shadow-xl shadow-[#BC6E2E]/20 disabled:opacity-50"
+                                >
+                                    <span className="material-symbols-outlined text-lg">description</span>
+                                    {isSaving ? 'Processando...' : 'Gerar Orçamento'}
+                                </button>
+                                <button
+                                    onClick={() => handleSave('contract')}
+                                    disabled={isSaving}
+                                    className="px-8 py-3 rounded-xl bg-[#5C2A0A] text-white font-bold text-sm flex items-center gap-2 hover:bg-[#3D1C07] transition-all shadow-xl shadow-[#5C2A0A]/20 disabled:opacity-50"
+                                >
+                                    <span className="material-symbols-outlined text-lg">save</span>
+                                    {isSaving ? 'Salvando...' : 'Salvar Contrato'}
+                                </button>
+                            </div>
                         )}
                         <button
                             onClick={handlePrint}
@@ -1090,111 +1113,263 @@ const ContractGenerator: React.FC = () => {
 
             {/* PRINT ONLY VIEW */}
             <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-0 m-0 overflow-visible" id="contract-print">
-                <div className="max-w-[700px] mx-auto p-12 text-[#2D2420] text-justify leading-relaxed font-serif">
-                    {/* Header */}
-                    <div className="flex flex-col items-center mb-6 border-b-2 border-[#5C2A0A] pb-6">
-                        <h1 className="text-3xl font-bold uppercase tracking-tighter text-[#5C2A0A] text-center">Instrumento Particular de Prestação de Serviços</h1>
-                        <p className="text-lg mt-2 font-bold">QUINTAL DA FAFÁ - BUFFET E EVENTOS</p>
-                    </div>
-
-                    {/* Identificação do Contrato */}
-                    <div className="mb-6 text-xs text-right text-[#5C2A0A]/70">
-                        <p>Brasília – DF, {new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-                    </div>
-
-                    <div className="space-y-6 text-sm">
-                        <h3 className="font-bold text-base uppercase border-b border-black pb-1">Das Partes</h3>
-
-                        <p>
-                            <strong>CONTRATANTE:</strong> {data.client.name || '_________________________________'}, portador(a) do CPF/CNPJ nº {data.client.cpf || '______________'},
-                            residente em {data.client.address || '_____________________________'},
-                            {data.client.neighborhood ? ' ' + data.client.neighborhood + ',' : ' ________________,'}{' '}
-                            {data.client.city || '_______________'}-{(data.client.state || '__').toUpperCase()}, CEP: {data.client.zipCode || '_____-___'},
-                            telefone/WhatsApp: {data.client.phone || '(__) _____-____'}{data.client.email ? `, e-mail: ${data.client.email}` : ''}.
-                        </p>
-
-                        <p>
-                            <strong>CONTRATADA:</strong> Quintal da Fafá – Maria de Fatima Bezerra Trindade Muniz, inscrita no CNPJ sob o nº 50.736.345/0001-86, estabelecida no Núcleo Rural Rio Preto, Chácara 08, Térreo, Agrovila, Planaltina – DF, Brasília.
-                        </p>
-
-
-                        <h3 className="font-bold text-base uppercase border-b border-black pt-4">Cláusula 1ª – DO OBJETO DO CONTRATO</h3>
-                        <p>
-                            O presente contrato tem por objeto a prestação de serviços de buffet e locação de espaço para o evento denominado
-                            <strong> {data.event.type}</strong>, a realizar-se no dia <strong>{formatDate(data.event.date)}</strong>,
-                            com início às <strong>{data.event.startTime}</strong> e término às <strong>{data.event.endTime}</strong>,
-                            no local: <strong>{data.event.location}</strong>. A estrutura inclusa compreende: {data.event.structure.join(', ')}.
-                        </p>
-
-                        <h3 className="font-bold text-base uppercase border-b border-black pt-4">Cláusula 2ª – DO CARDÁPIO E QUANTIDADE DE CONVIDADOS</h3>
-                        <p>
-                            O presente contrato é celebrado com base na quantidade de <strong>{data.event.guests} pessoas</strong> definida na seção de Dados do Evento, ao valor de <strong>{formatCurrency(data.payment.pricePerPerson)} por pessoa</strong> acordado.
-                            O valor total contratado é fixo e não sofrerá qualquer redução, independentemente do número de convidados efetivamente presentes no dia do evento — caso compareçam menos pessoas do que o contratado, o valor permanece integralmente devido.
-                            Caso o número de convidados venha a ser superior ao estabelecido, será acrescido ao valor total o montante correspondente às pessoas excedentes, calculado ao mesmo valor por pessoa fechado neste contrato. O cardápio poderá ser personalizado mediante solicitação prévia e acordo entre as partes.
-                        </p>
-                        <p>
-                            <strong>Resumo do Cardápio:</strong> Prato Principal: {data.menu.mainDish}; Acompanhamentos: {data.menu.sides.join(', ')}; Sobremesas: {data.menu.dessert.join(', ') || 'Nenhuma selecionada'}; Bebidas: {data.menu.drinks}.
-                        </p>
-                        {data.menu.observations && (
-                            <p><strong>Observações:</strong> {data.menu.observations}</p>
-                        )}
-
-                        <h3 className="font-bold text-base uppercase border-b border-black pt-4">Cláusula 3ª – DOS VALORES E CONDIÇÕES DE PAGAMENTO</h3>
-                        <p>
-                            O valor total estimado para o evento é de <strong>{formatCurrency(totalValue)}</strong>.
-                        </p>
-                        <p>
-                            <strong>Sinal:</strong> Pago no valor de {formatCurrency(data.payment.deposit)} em {formatDate(data.payment.depositDate)}.
-                        </p>
-                        <p>
-                            <strong>Saldo Devedor:</strong> {formatCurrency(balanceValue)} a ser quitado até {formatDate(data.payment.balanceDate)} via {data.payment.method}.
-                        </p>
-                        {data.payment.observations && (
-                            <p><strong>Condições Adicionais:</strong> {data.payment.observations}</p>
-                        )}
-
-                        <h3 className="font-bold text-base uppercase border-b border-black pt-4">Cláusula 4ª – DO CANCELAMENTO E REAGENDAMENTO</h3>
-                        <p>
-                            Em caso de cancelamento pelo CONTRATANTE com menos de 15 dias de antecedência, o sinal pago não será restituído. Reagendamentos poderão ser realizados com pelo menos 30 dias de antecedência, sujeitos à disponibilidade da CONTRATADA.
-                        </p>
-
-                        <h3 className="font-bold text-base uppercase border-b border-black pt-4">Cláusula 5ª – DAS RESPONSABILIDADES</h3>
-                        <p>
-                            A CONTRATADA se responsabiliza pela qualidade e pontualidade dos serviços prestados. O CONTRATANTE é responsável pelo comportamento dos convidados e por eventuais danos causados ao espaço.
-                        </p>
-
-                        <h3 className="font-bold text-base uppercase border-b border-black pt-4">Cláusula 6ª – DO FORO</h3>
-                        <p>
-                            Fica eleito o foro da Comarca de Brasília – DF para dirimir quaisquer controvérsias oriundas deste contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja.
-                        </p>
-
-                        <div className="pt-20 space-y-12">
-                            <div className="grid grid-cols-2 gap-20">
-                                <div className="text-center">
-                                    <div className="border-t border-black mb-1"></div>
-                                    <p className="font-bold uppercase text-[10px]">Contratante: {data.client.name}</p>
-                                </div>
-                                <div className="text-center">
-                                    <div className="border-t border-black mb-1"></div>
-                                    <p className="font-bold uppercase text-[10px]">Contratada: Quintal da Fafá</p>
+                {isQuoteMode ? (
+                    <div className="quote-container min-h-screen">
+                        {/* TOPBAR (Visible only on some prints if needed, but normally no-print) */}
+                        <div className="quote-topbar no-print">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center font-bold">QF</div>
+                                <div className="text-left">
+                                    <div className="font-bold uppercase tracking-tighter">Quintal da Fafá</div>
+                                    <div className="text-[10px] opacity-80 uppercase tracking-widest text-left">Gerador de Orçamento</div>
                                 </div>
                             </div>
-
-                            <div className="grid grid-cols-2 gap-20">
-                                <div className="text-center">
-                                    <div className="border-t border-black mb-1"></div>
-                                    <p className="font-bold uppercase text-[10px]">Testemunha 1</p>
-                                </div>
-                                <div className="text-center">
-                                    <div className="border-t border-black mb-1"></div>
-                                    <p className="font-bold uppercase text-[10px]">Testemunha 2</p>
-                                </div>
+                            <div className="text-right">
+                                <div className="text-sm font-bold">Orçamento #{(newContractId || id || 'NOVO').substring(0, 8)}</div>
+                                <div className="text-[10px] opacity-70">Válido por 10 dias</div>
                             </div>
                         </div>
 
-                        <p className="text-center pt-8 text-xs opacity-60">Brasília, {new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                        <div className="quote-wrap">
+                            {/* MAIN CONTENT */}
+                            <div className="space-y-5">
+                                <div className="quote-card">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="quote-icon text-xl">📄</div>
+                                            <div className="text-left">
+                                                <h2 className="font-bold text-lg uppercase tracking-tight">Orçamento de Evento</h2>
+                                                <p className="text-xs text-slate-500">Revise os detalhes da sua celebração</p>
+                                            </div>
+                                        </div>
+                                        <div className="quote-badge">PRÉVIA</div>
+                                    </div>
+                                    <div className="quote-grid2">
+                                        <div className="quote-kv text-left"><span>Data Emissão</span><strong>{new Date().toLocaleDateString('pt-BR')}</strong></div>
+                                        <div className="quote-kv text-left"><span>Validade</span><strong>{new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toLocaleDateString('pt-BR')}</strong></div>
+                                    </div>
+                                </div>
+
+                                <div className="quote-card">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="quote-icon">👤</div>
+                                        <h3 className="font-bold uppercase text-sm">Dados do Cliente</h3>
+                                    </div>
+                                    <div className="quote-grid2">
+                                        <div className="quote-kv text-left"><span>Nome</span><strong>{data.client.name}</strong></div>
+                                        <div className="quote-kv text-left"><span>CPF/CNPJ</span><strong>{data.client.cpf || '—'}</strong></div>
+                                        <div className="quote-kv text-left"><span>Telefone</span><strong>{data.client.phone || '—'}</strong></div>
+                                        <div className="quote-kv text-left"><span>E-mail</span><strong>{data.client.email || '—'}</strong></div>
+                                    </div>
+                                    <div className="quote-kv mt-3 text-left"><span>Endereço</span><strong>{data.client.address || '—'}, {data.client.neighborhood || ''} - {data.client.city}/{data.client.state}</strong></div>
+                                </div>
+
+                                <div className="quote-card">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="quote-icon">🎉</div>
+                                        <h3 className="font-bold uppercase text-sm">Sobre o Evento</h3>
+                                    </div>
+                                    <div className="quote-grid2">
+                                        <div className="quote-kv text-left"><span>Tipo de Evento</span><strong>{data.event.type}</strong></div>
+                                        <div className="quote-kv text-left"><span>Data</span><strong>{formatDate(data.event.date)}</strong></div>
+                                        <div className="quote-kv text-left"><span>Horário</span><strong>{data.event.startTime} às {data.event.endTime}</strong></div>
+                                        <div className="quote-kv text-left"><span>Convidados</span><strong>{data.event.guests} pessoas</strong></div>
+                                    </div>
+                                    <div className="quote-kv mt-3 text-left"><span>Local</span><strong>{data.event.location}</strong></div>
+                                </div>
+
+                                <div className="quote-card">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="quote-icon">✅</div>
+                                        <h3 className="font-bold uppercase text-sm">Estrutura e Serviços Inclusos</h3>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 text-left">
+                                        {data.event.structure.map((item, idx) => (
+                                            <div key={idx} className="flex items-center gap-2 text-sm font-medium">
+                                                <span className="text-green-600">✓</span> {item}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="quote-card">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="quote-icon">🍽️</div>
+                                        <h3 className="font-bold uppercase text-sm">Experiência Gastronômica</h3>
+                                    </div>
+                                    <div className="space-y-4">
+                                        <div className="quote-kv"><span>Prato Principal</span><strong>{data.menu.mainDish}</strong></div>
+
+                                        <div className="grid grid-cols-1 gap-3">
+                                            <div className="text-left">
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Acompanhamentos</span>
+                                                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-sm font-medium">
+                                                    {data.menu.sides.map((s, i) => (
+                                                        <span key={i} className="flex items-center gap-1"><span className="text-amber-500">•</span> {s}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="text-left">
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Sobremesas</span>
+                                                <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-sm font-medium">
+                                                    {data.menu.dessert.map((s, i) => (
+                                                        <span key={i} className="flex items-center gap-1"><span className="text-amber-500">•</span> {s}</span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div className="text-left">
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Bebidas</span>
+                                                <div className="text-sm font-bold mt-1">{data.menu.drinks}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* SIDEBAR */}
+                            <div className="quote-sidebar text-left">
+                                <div className="quote-total-box">
+                                    <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest mb-1 text-slate-500">
+                                        <span className="material-symbols-outlined text-sm">payments</span> Total Estimado
+                                    </div>
+                                    <div className="quote-total-val">{formatCurrency(totalValue)}</div>
+                                </div>
+
+                                <div className="quote-card text-left">
+                                    <h3 className="font-bold text-xs uppercase mb-3 flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-sm">info</span> Termos Rápidos
+                                    </h3>
+                                    <ul className="text-[11px] space-y-2 text-slate-600 leading-tight">
+                                        <li>• Orçamento válido por <strong>10 dias</strong>.</li>
+                                        <li>• Reserva de data confirmada apenas após pagamento do sinal.</li>
+                                        <li>• Valores podem variar caso o número de convidados seja alterado.</li>
+                                        <li>• Quebras ou danos ao local são de responsabilidade do contratante.</li>
+                                    </ul>
+                                </div>
+
+                                <div className="p-4 border-2 border-dashed border-slate-200 rounded-xl text-center">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase mb-2">Assinatura Digital (Aceite)</p>
+                                    <div className="h-20 bg-slate-50 flex items-center justify-center text-slate-300">
+                                        <span className="material-symbols-outlined text-4xl">edit_note</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <div className="max-w-[700px] mx-auto p-12 text-[#2D2420] text-justify leading-relaxed font-serif">
+
+                        {/* Identificação do Contrato */}
+                        <div className="mb-6 text-xs text-right text-[#5C2A0A]/70">
+                            <p>Brasília – DF, {new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                        </div>
+
+                        <div className="space-y-6 text-sm">
+                            <h3 className="font-bold text-base uppercase border-b border-black pb-1">Das Partes</h3>
+
+                            <p>
+                                <strong>CONTRATANTE:</strong> {data.client.name || '_________________________________'}, portador(a) do CPF/CNPJ nº {data.client.cpf || '______________'},
+                                residente em {data.client.address || '_____________________________'},
+                                {data.client.neighborhood ? ' ' + data.client.neighborhood + ',' : ' ________________,'}{' '}
+                                {data.client.city || '_______________'}-{(data.client.state || '__').toUpperCase()}, CEP: {data.client.zipCode || '_____-___'},
+                                telefone/WhatsApp: {data.client.phone || '(__) _____-____'}{data.client.email ? `, e-mail: ${data.client.email}` : ''}.
+                            </p>
+
+                            <p>
+                                <strong>CONTRATADA:</strong> Quintal da Fafá – Maria de Fatima Bezerra Trindade Muniz, inscrita no CNPJ sob o nº 50.736.345/0001-86, estabelecida no Núcleo Rural Rio Preto, Chácara 08, Térreo, Agrovila, Planaltina – DF, Brasília.
+                            </p>
+
+
+                            <h3 className="font-bold text-base uppercase border-b border-black pt-4">Cláusula 1ª – DO OBJETO DO CONTRATO</h3>
+                            <p>
+                                O presente contrato tem por objeto a prestação de serviços de buffet e locação de espaço para o evento denominado
+                                <strong> {data.event.type}</strong>, a realizar-se no dia <strong>{formatDate(data.event.date)}</strong>,
+                                com início às <strong>{data.event.startTime}</strong> e término às <strong>{data.event.endTime}</strong>,
+                                no local: <strong>{data.event.location}</strong>. A estrutura inclusa compreende: {data.event.structure.join(', ')}.
+                            </p>
+
+                            <h3 className="font-bold text-base uppercase border-b border-black pt-4">Cláusula 2ª – DO CARDÁPIO E QUANTIDADE DE CONVIDADOS</h3>
+                            <p>
+                                O presente contrato é celebrado com base na quantidade de <strong>{data.event.guests} pessoas</strong> definida na seção de Dados do Evento, ao valor de <strong>{formatCurrency(data.payment.pricePerPerson)} por pessoa</strong> acordado.
+                                O valor total contratado é fixo e não sofrerá qualquer redução, independentemente do número de convidados efetivamente presentes no dia do evento — caso compareçam menos pessoas do que o contratado, o valor permanece integralmente devido.
+                                Caso o número de convidados venha a ser superior ao estabelecido, será acrescido ao valor total o montante correspondente às pessoas excedentes, calculado ao mesmo valor por pessoa fechado neste contrato. O cardápio poderá ser personalizado mediante solicitação prévia e acordo entre as partes.
+                            </p>
+                            <p>
+                                <strong>Resumo do Cardápio:</strong> Prato Principal: {data.menu.mainDish}; Acompanhamentos: {data.menu.sides.join(', ')}; Sobremesas: {data.menu.dessert.join(', ') || 'Nenhuma selecionada'}; Bebidas: {data.menu.drinks}.
+                            </p>
+                            {data.menu.observations && (
+                                <p><strong>Observações:</strong> {data.menu.observations}</p>
+                            )}
+
+                            <h3 className="font-bold text-base uppercase border-b border-black pt-4">Cláusula 3ª – DOS VALORES E CONDIÇÕES DE PAGAMENTO</h3>
+                            <p>
+                                O valor total estimado para o evento é de <strong>{formatCurrency(totalValue)}</strong>.
+                            </p>
+                            <p>
+                                <strong>Sinal:</strong> Pago no valor de {formatCurrency(data.payment.deposit)} em {formatDate(data.payment.depositDate)}.
+                            </p>
+                            <p>
+                                <strong>Saldo Devedor:</strong> {formatCurrency(balanceValue)} a ser quitado até {formatDate(data.payment.balanceDate)} via {data.payment.method}.
+                            </p>
+                            {data.payment.observations && (
+                                <p><strong>Condições Adicionais:</strong> {data.payment.observations}</p>
+                            )}
+
+                            <div className="bg-gray-100 p-4 rounded-lg border border-gray-300 mt-4">
+                                <p className="text-xs font-bold text-center">
+                                    * ESTE DOCUMENTO TEM VALIDADE DE 10 DIAS A CONTAR DA DATA DE EMISSÃO. *
+                                </p>
+                                <p className="text-[10px] text-center opacity-70 mt-1">
+                                    A reserva da data só é garantida mediante assinatura do contrato e confirmação do pagamento do sinal.
+                                </p>
+                            </div>
+
+                            <h3 className="font-bold text-base uppercase border-b border-black pt-4">Cláusula 4ª – DO CANCELAMENTO E REAGENDAMENTO</h3>
+                            <p>
+                                Em caso de cancelamento pelo CONTRATANTE com menos de 15 dias de antecedência, o sinal pago não será restituído. Reagendamentos poderão ser realizados com pelo menos 30 dias de antecedência, sujeitos à disponibilidade da CONTRATADA.
+                            </p>
+
+                            <h3 className="font-bold text-base uppercase border-b border-black pt-4">Cláusula 5ª – DAS RESPONSABILIDADES</h3>
+                            <p>
+                                A CONTRATADA se responsabiliza pela qualidade e pontualidade dos serviços prestados. O CONTRATANTE é responsável pelo comportamento dos convidados e por eventuais danos causados ao espaço.
+                            </p>
+
+                            <h3 className="font-bold text-base uppercase border-b border-black pt-4">Cláusula 6ª – DO FORO</h3>
+                            <p>
+                                Fica eleito o foro da Comarca de Brasília – DF para dirimir quaisquer controvérsias oriundas deste contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja.
+                            </p>
+
+                            <div className="pt-20 space-y-12">
+                                <div className="grid grid-cols-2 gap-20">
+                                    <div className="text-center">
+                                        <div className="border-t border-black mb-1"></div>
+                                        <p className="font-bold uppercase text-[10px]">Contratante: {data.client.name}</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="border-t border-black mb-1"></div>
+                                        <p className="font-bold uppercase text-[10px]">Contratada: Quintal da Fafá</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-20">
+                                    <div className="text-center">
+                                        <div className="border-t border-black mb-1"></div>
+                                        <p className="font-bold uppercase text-[10px]">Testemunha 1</p>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="border-t border-black mb-1"></div>
+                                        <p className="font-bold uppercase text-[10px]">Testemunha 2</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p className="text-center pt-8 text-xs opacity-60">Brasília, {new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* SUCCESS MODAL */}
@@ -1206,8 +1381,12 @@ const ContractGenerator: React.FC = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <h2 className="text-3xl font-display font-bold text-[#2D2420]">Contrato Salvo!</h2>
-                            <p className="text-[#5A2D0C]/70">O contrato foi registrado com sucesso no sistema e na agenda.</p>
+                            <h2 className="text-3xl font-display font-bold text-[#2D2420]">{isQuoteMode ? 'Orçamento Salvo!' : 'Contrato Salvo!'}</h2>
+                            <p className="text-[#5A2D0C]/70">
+                                {isQuoteMode
+                                    ? 'O orçamento foi registrado com sucesso. Lembre-se que ele não bloqueia a agenda automaticamente.'
+                                    : 'O contrato foi registrado com sucesso no sistema e na agenda.'}
+                            </p>
                         </div>
 
                         <div className="flex flex-col gap-3 pt-4">
@@ -1249,7 +1428,7 @@ const ContractGenerator: React.FC = () => {
                                 className="w-full py-4 rounded-2xl bg-[#5C2A0A] text-white font-bold flex items-center justify-center gap-2 hover:bg-[#3D1C07] transition-all shadow-lg shadow-[#5C2A0A]/20"
                             >
                                 <span className="material-symbols-outlined">add_circle</span>
-                                Fazer Novo Contrato
+                                {isQuoteMode ? 'Fazer Novo Orçamento' : 'Fazer Novo Contrato'}
                             </button>
 
                             <button
@@ -1265,6 +1444,24 @@ const ContractGenerator: React.FC = () => {
             )}
 
             <style>{`
+                :root {
+                    --bg: #fbf7f2;
+                    --card: #ffffff;
+                    --text: #2b2a28;
+                    --muted: #6f6a63;
+                    --line: #e9e1d7;
+                    --brand: #6a3b1f;
+                    --brand-2: #8a5a33;
+                    --accent: #78B926;
+                    --accent-2: #eaf6e5;
+                    --warn: #f4c44f;
+                    --shadow: 0 6px 18px rgba(20, 12, 6, .08);
+                    --radius: 14px;
+                    --radius-sm: 10px;
+                    --pad: 16px;
+                    --max: 1200px;
+                }
+
                 @keyframes scale-up {
                     from { opacity: 0; transform: scale(0.9); }
                     to { opacity: 1; transform: scale(1); }
@@ -1285,13 +1482,115 @@ const ContractGenerator: React.FC = () => {
                         top: 0;
                         width: 100%;
                     }
+                    .no-print { display: none !important; }
                 }
-                .no-scrollbar::-webkit-scrollbar {
-                    display: none;
+
+                /* Quote Template Specific Styles */
+                .quote-container { 
+                    background: var(--bg); 
+                    color: var(--text); 
+                    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+                    font-size: 13px;
                 }
-                .no-scrollbar {
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
+                .quote-topbar { 
+                    background: var(--brand); 
+                    color: #fff; 
+                    padding: 8px 25px; 
+                    display: flex; 
+                    justify-content: space-between; 
+                    align-items: center;
+                }
+                .quote-wrap { 
+                    max-width: 800px; 
+                    margin: 0 auto; 
+                    padding: 15px; 
+                    display: grid; 
+                    grid-template-columns: 1fr 280px; 
+                    gap: 15px; 
+                    align-items: start;
+                }
+                .quote-card { 
+                    background: var(--card); 
+                    border: 1px solid var(--line); 
+                    border-radius: var(--radius); 
+                    padding: 12px; 
+                    margin-bottom: 12px; 
+                    box-shadow: none; 
+                    break-inside: avoid;
+                }
+                .quote-icon { 
+                    min-width: 28px; 
+                    height: 28px; 
+                    border-radius: 6px; 
+                    background: rgba(106, 59, 31, 0.05); 
+                    color: var(--brand); 
+                    display: grid; 
+                    place-items: center; 
+                    font-size: 14px;
+                }
+                .quote-grid2 { 
+                    display: grid; 
+                    grid-template-columns: 1fr 1fr; 
+                    gap: 10px; 
+                }
+                .quote-kv { 
+                    padding: 6px 10px; 
+                    border: 1px solid var(--line); 
+                    border-radius: 8px; 
+                    background: #fff;
+                    text-align: left;
+                }
+                .quote-kv span { 
+                    font-size: 9px; 
+                    color: var(--muted); 
+                    font-weight: 700; 
+                    text-transform: uppercase; 
+                    letter-spacing: 0.05em;
+                }
+                .quote-kv strong { 
+                    display: block; 
+                    font-size: 12px; 
+                    margin-top: 1px; 
+                    color: var(--text);
+                }
+                .quote-badge { 
+                    padding: 3px 8px; 
+                    border-radius: 4px; 
+                    font-size: 9px; 
+                    font-weight: 800; 
+                    background: var(--accent-2); 
+                    color: var(--accent); 
+                    text-transform: uppercase;
+                }
+                .quote-total-box { 
+                    background: #fdfdfd; 
+                    border: 2px solid var(--brand); 
+                    padding: 15px; 
+                    border-radius: 12px; 
+                    text-align: center;
+                }
+                .quote-total-val { 
+                    font-size: 28px; 
+                    font-weight: 800; 
+                    color: var(--brand); 
+                    letter-spacing: -0.02em;
+                }
+                .quote-sidebar { 
+                    display: flex; 
+                    flex-direction: column; 
+                    gap: 12px; 
+                    text-align: left;
+                }
+                
+                @media print {
+                    .quote-container { background: white; width: 100%; font-size: 11px; }
+                    .quote-wrap { max-width: 100%; width: 100%; margin: 0; padding: 10px; grid-template-columns: 1fr 240px; }
+                    .quote-card { box-shadow: none; border: 1px solid #eee; margin-bottom: 8px; padding: 10px; }
+                    .quote-kv { border-color: #eee; padding: 4px 8px; }
+                    .quote-topbar { -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 5px 15px; }
+                    .quote-total-val { font-size: 24px; }
+                    .quote-icon { width: 24px; height: 24px; }
+                    h3 { font-size: 12px !important; margin-bottom: 5px !important; }
                 }
             `}</style>
         </div>
