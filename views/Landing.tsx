@@ -51,6 +51,15 @@ const Landing: React.FC = () => {
 
     return (
         <div className="font-body text-text-main bg-background w-full flex-1 flex flex-col">
+            {/* Arraiá 2026 Announcement Bar */}
+            <div className="bg-[#E85D2F] text-white py-2 px-4 text-center z-[60] relative flex items-center justify-center gap-4 shadow-md">
+                <span className="hidden md:inline text-xs font-bold tracking-widest uppercase">✨ Vendas Abertas para o Arraiá 2026! ✨</span>
+                <span className="md:hidden text-[10px] font-bold uppercase">🎉 Arraiá 2026: Garanta seu ingresso!</span>
+                <a href="/arraia-2026" className="bg-[#EDD68A] text-[#5C2E0A] px-3 py-1 rounded-full text-[10px] font-black hover:bg-white transition-all">
+                    COMPRAR AGORA
+                </a>
+            </div>
+
             {/* Navigation */}
             <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-6'}`}>
                 {/* ... existing nav content ... */}
@@ -76,6 +85,7 @@ const Landing: React.FC = () => {
                         <button onClick={() => scrollToSection('about')} className="hover:text-accent transition-colors">O Espaço</button>
                         <button onClick={() => scrollToSection('gallery')} className="hover:text-accent transition-colors">Galeria</button>
                         <button onClick={() => scrollToSection('plans')} className="hover:text-accent transition-colors">Pacotes</button>
+                        <a href="/arraia-2026" className="text-[#E85D2F] font-bold hover:text-accent transition-colors">Arraiá 2026 🌽</a>
                         <button onClick={() => scrollToSection('contact')}>
                             <Button variant={scrolled ? 'primary' : 'outline'} size="sm" className={!scrolled ? 'border-white text-white hover:bg-white/20' : ''}>
                                 Solicitar Orçamento
@@ -99,6 +109,7 @@ const Landing: React.FC = () => {
                         <button onClick={() => scrollToSection('about')}>O Espaço</button>
                         <button onClick={() => scrollToSection('gallery')}>Galeria</button>
                         <button onClick={() => scrollToSection('plans')}>Pacotes</button>
+                        <a href="/arraia-2026" className="text-[#E85D2F] font-bold">Arraiá 2026 🌽</a>
                         <button onClick={() => scrollToSection('contact')}>
                             <Button size="sm">Solicitar Orçamento</Button>
                         </button>

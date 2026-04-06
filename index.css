@@ -125,22 +125,63 @@ h6 {
   }
 }
 
-/* Animations */
+
+/* ============================================================ */
+/* ANIMATIONS — keyframes FORA do @theme (Tailwind v4 correto) */
+/* ============================================================ */
+
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.8s ease-out forwards;
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(50px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.88); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes float {
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-14px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(217,152,31,0); }
+  50%       { box-shadow: 0 0 24px 6px rgba(217,152,31,0.35); }
+}
+
+@keyframes bandeirola-swing {
+  0%   { transform: rotate(-12deg); }
+  50%  { transform: rotate(12deg); }
+  100% { transform: rotate(-12deg); }
+}
+
+@keyframes bandeirola-sway {
+  0%   { transform: skewX(-4deg) rotate(-8deg); }
+  50%  { transform: skewX(4deg)  rotate(8deg); }
+  100% { transform: skewX(-4deg) rotate(-8deg); }
+}
+
+/* Utility classes usáveis direto no JSX */
+.animate-fade-in    { animation: fadeIn  0.8s ease-out forwards; }
+.animate-slide-up   { animation: slideUp 0.9s cubic-bezier(0.16,1,0.3,1) forwards; }
+.animate-scale-in   { animation: scaleIn 0.7s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+.animate-float      { animation: float   4s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 2.5s ease-in-out infinite; }
+
+/* Delays convenientes */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
 
 /* Glassmorphism */
 .glass {

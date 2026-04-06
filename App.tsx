@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Landing from './views/Landing';
 import FullGallery from './views/FullGallery';
+import Arraia2026 from './views/Arraia2026';
 
 // Admin Imports
 // Admin Imports
@@ -23,6 +24,9 @@ import AdminReports from './views/admin/Reports';
 import AdminContractGenerator from './views/admin/ContractGenerator';
 import AdminContracts from './views/admin/Contracts';
 import AdminNotaFiscal from './views/admin/NotaFiscal';
+import CheckinScanner from './views/admin/CheckinScanner';
+import ArraiaLista from './views/admin/ArraiaLista';
+import Portaria from './views/admin/Portaria';
 import ProtectedRoute from './layouts/ProtectedRoute';
 
 const App: React.FC = () => {
@@ -32,6 +36,7 @@ const App: React.FC = () => {
                 {/* Public Routes */}
                 <Route path="/" element={<Landing />} />
                 <Route path="/galeria" element={<FullGallery />} />
+                <Route path="/arraia-2026" element={<Arraia2026 />} />
                 <Route path="/admin/login" element={<LoggedOutView />} />
 
                 {/* Admin Routes (Protected) */}
@@ -54,6 +59,10 @@ const App: React.FC = () => {
                         <Route path="nota-fiscal" element={<AdminNotaFiscal />} />
                         <Route path="contratos/novo" element={<AdminContractGenerator />} />
                         <Route path="contratos/:id" element={<AdminContractGenerator />} />
+                        <Route path="notas" element={<AdminNotaFiscal />} />
+                        <Route path="checkin" element={<CheckinScanner />} />
+                        <Route path="arraia-lista" element={<ArraiaLista />} />
+                        <Route path="portaria" element={<Portaria />} />
                         <Route path="config" element={<PlaceholderView title="Configurações" />} />
                     </Route>
                 </Route>

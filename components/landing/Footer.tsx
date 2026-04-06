@@ -33,7 +33,7 @@ const Footer: React.FC = () => {
                         <ul className="space-y-3 text-sm text-white/80">
                             <li className="flex items-center gap-2">
                                 <span className="material-symbols-outlined text-accent text-lg">call</span>
-                                (11) 99999-9999
+                                (61) 99635-1010
                             </li>
                             <li className="flex items-center gap-2">
                                 <span className="material-symbols-outlined text-accent text-lg">mail</span>
