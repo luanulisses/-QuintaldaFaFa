@@ -826,7 +826,7 @@ const Arraia2026: React.FC = () => {
                         },
                         {
                             q: 'Qual é o horário do evento?',
-                            a: 'O evento começa às 20h do dia 06 de junho. A entrada antecipada a partir das 19h30 para quem tiver ingresso. Estimativa de encerramento: 01h.'
+                            a: 'O evento começa às 20h do dia 06 de junho. A entrada antecipada a partir das 19h30 para quem tiver ingresso.'
                         },
                         {
                             q: 'O local é coberto?',
