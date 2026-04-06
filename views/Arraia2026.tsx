@@ -13,7 +13,7 @@ const Arraia2026: React.FC = () => {
 
     // Form State
     const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
-    const [qty, setQty] = useState({ geral: 0, passaporte: 0, combo: 0, pescaria: 0, brinquedos: 0 });
+    const [qty, setQty] = useState({ geral: 0, meia: 0, passaporte: 0, combo: 0, pescaria: 0, brinquedos: 0 });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [purchaseError, setPurchaseError] = useState<string | null>(null);
 
@@ -38,10 +38,11 @@ const Arraia2026: React.FC = () => {
     const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
     const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-    const currentPrices = { geral: 20, passaporte: 20, combo: 40, pescaria: 10, brinquedos: 10 };
+    const currentPrices = { geral: 20, meia: 10, passaporte: 20, combo: 40, pescaria: 10, brinquedos: 10 };
 
     const total = (
         (qty.geral * currentPrices.geral) +
+        (qty.meia * currentPrices.meia) +
         (qty.passaporte * currentPrices.passaporte) +
         (qty.combo * currentPrices.combo) +
         (qty.pescaria * currentPrices.pescaria) +
@@ -112,6 +113,7 @@ const Arraia2026: React.FC = () => {
     const formatItems = (q: typeof qty) => {
         const labels = { 
             geral: 'Ingresso Geral', 
+            meia: 'Meia-Entrada (6-12 anos)',
             passaporte: 'Passaporte Kids', 
             combo: 'Combo',
             pescaria: 'Pescaria',
@@ -639,6 +641,10 @@ const Arraia2026: React.FC = () => {
                                         <span className="text-[#7a5235]">Passaporte Kids</span>
                                         <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 20</span>
                                     </div>
+                                    <div className="flex justify-between items-center border-b border-dashed border-[#5C2E0A]/20 pb-2">
+                                        <span className="text-[#7a5235]">Meia (6 a 12 anos)</span>
+                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 10</span>
+                                    </div>
                                     <div className="bg-gradient-to-r from-[#A84B18] to-[#E85D2F] p-4 rounded-xl flex justify-between items-center text-white">
                                         <span className="font-bold">Combo (Geral + Kids)</span>
                                         <span className="font-display text-2xl font-bold">R$ 40</span>
@@ -657,6 +663,10 @@ const Arraia2026: React.FC = () => {
                                         <span>Kids</span>
                                         <span>R$ 25</span>
                                     </div>
+                                    <div className="flex justify-between">
+                                        <span>Meia (6-12)</span>
+                                        <span>R$ 12</span>
+                                    </div>
                                     <div className="flex justify-between font-bold border-t border-black/10 pt-1">
                                         <span>Combo</span>
                                         <span>R$ 50</span>
@@ -673,6 +683,10 @@ const Arraia2026: React.FC = () => {
                                     <div className="flex justify-between">
                                         <span>Kids</span>
                                         <span>R$ 25</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Meia (6-12)</span>
+                                        <span>R$ 15</span>
                                     </div>
                                     <div className="flex justify-between font-bold border-t border-black/10 pt-1">
                                         <span>Combo</span>
@@ -724,6 +738,7 @@ const Arraia2026: React.FC = () => {
                                     
                                     {[
                                         { id: 'geral', label: 'Geral', price: currentPrices.geral },
+                                        { id: 'meia', label: 'Meia-Entrada (6-12 anos)', price: currentPrices.meia },
                                         { id: 'passaporte', label: 'Passaporte Kids', price: currentPrices.passaporte },
                                         { id: 'combo', label: 'Combo', price: currentPrices.combo },
                                         { id: 'pescaria', label: 'Pescaria', price: currentPrices.pescaria },
