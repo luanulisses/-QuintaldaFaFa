@@ -359,7 +359,7 @@ const Arraia2026: React.FC = () => {
                         Arraiá do <br className="hidden sm:block"/> <em className="italic text-[#D9981F] not-italic font-display">Quintal da Fafá</em>
                     </h1>
                     <p className="font-display text-xl md:text-3xl text-[#EDD68A]/80 italic">
-                        Forró, sertanejo e o melhor milho do Cerrado!
+                        Celebre a tradição junina com música, alegria e diversão!
                     </p>
 
                     <div className="flex gap-2 sm:gap-4 justify-center py-8">
