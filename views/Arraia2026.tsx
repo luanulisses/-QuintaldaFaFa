@@ -288,7 +288,7 @@ const Arraia2026: React.FC = () => {
                     <a href="#comprar" className="hover:text-[#D9981F] transition-colors">Preços</a>
                     <a href="#local" className="hover:text-[#D9981F] transition-colors">Local</a>
                 </div>
-                <a href="#comprar">
+                <a href="#checkout-form">
                     <button className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] px-5 py-2 rounded-full font-black text-sm transition-all transform hover:scale-105 shadow-lg">
                         COMPRAR INGRESSO
                     </button>
@@ -380,7 +380,7 @@ const Arraia2026: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-4 justify-center animate-slide-up" style={{ animationDelay: '0.4s' }}>
-                        <a href="#comprar">
+                        <a href="#checkout-form">
                             <Button size="lg" className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] font-bold border-none shadow-xl transform hover:-translate-y-1 transition-all">
                                 🎟️ GARANTIR MEU INGRESSO
                             </Button>
@@ -678,7 +678,7 @@ const Arraia2026: React.FC = () => {
                         </div>
 
                         {/* Checkout Form */}
-                        <form onSubmit={handlePurchase} className="bg-[#1C0C04] text-[#EDD68A] p-10 rounded-[40px] shadow-2xl space-y-6">
+                        <form id="checkout-form" onSubmit={handlePurchase} className="bg-[#1C0C04] text-[#EDD68A] p-10 rounded-[40px] shadow-2xl space-y-6" style={{ scrollMarginTop: '100px' }}>
                             <h3 className="font-display text-3xl font-bold mb-6">Seus Dados</h3>
                             <div className="space-y-4">
                                 <div>
