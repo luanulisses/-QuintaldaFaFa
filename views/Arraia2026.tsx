@@ -428,19 +428,19 @@ const Arraia2026: React.FC = () => {
                         { 
                             icon: '/images/karlito_tremendao_band.png', 
                             title: 'Karlito Tremendão', 
-                            desc: '"Xote & Baião · O Arrasta Povão" — O rei do arrasta-pé trazendo toda a energia do Nordeste!',
+                            desc: '"Forró & Pisadinha" — O trio mais arretado da região com o melhor do piseiro.',
                             objPos: 'object-top'
                         },
                         { 
                             icon: '/images/bacurau_arretado_band.png', 
                             title: 'Bacurau Arretado', 
-                            desc: '"Forró & Pisadinha" — O trio mais arretado da região com o melhor do piseiro.',
+                            desc: '"Xote & Baião · O Arrasta Povão" — O rei do arrasta-pé trazendo toda a energia do Nordeste!',
                             objPos: 'object-top'
                         },
                         { 
                             icon: '/images/gastronomia_tipica.jpg', 
                             title: 'Gastronomia Típica', 
-                            desc: 'Caldo de milho, pamonha, pastel, churrasquinho, choripan, galinhada e carreteiro.',
+                            desc: 'Caldo de milho, pamonha, pastel, churrasquinho e mais. (Clique para ver cardápio e preços 📋)',
                             objPos: 'object-center',
                             isClickable: true,
                             type: 'gastronomia'
@@ -448,7 +448,7 @@ const Arraia2026: React.FC = () => {
                         { 
                             icon: '/images/bebidas_tipica.jpg', 
                             title: 'Bebidas Festivas', 
-                            desc: 'Cervejas geladas, refrigerantes, sucos, Red Bull, drinks especiais e destilados.',
+                            desc: 'Cervejas geladas, drinks, Red Bull e sucos. (Clique para ver cardápio e preços 🥤)',
                             objPos: 'object-center',
                             isClickable: true,
                             type: 'bebidas'
@@ -480,6 +480,11 @@ const Arraia2026: React.FC = () => {
                                     alt={card.title}
                                     className={`w-full h-full object-cover ${card.objPos} transition-transform hover:scale-110 duration-500`}
                                 />
+                                {(card as any).isClickable && (
+                                    <div className="absolute top-4 right-4 bg-[#D9981F] text-[#1C0C04] text-[10px] font-black py-1 px-3 rounded-full animate-bounce shadow-lg">
+                                        VER PREÇOS 📋
+                                    </div>
+                                )}
                             </div>
                             <div className="p-6">
                                 <h3 className="font-display text-xl font-bold text-[#5C2E0A] mb-3">{card.title}</h3>

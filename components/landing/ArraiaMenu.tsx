@@ -60,7 +60,7 @@ const ArraiaMenu: React.FC<ArraiaMenuProps> = ({ isOpen, onClose, type }) => {
             icon: '🥤',
             items: [
                 { name: 'Refrigerante', desc: '', price: 'R$ 6,00', icon: '🥤' },
-                { name: 'Suco em Caixinha', desc: '', price: 'R$ 10,00', icon: '🧃' },
+                { name: 'Suco caixa de 1 litro', desc: '', price: 'R$ 10,00', icon: '🧃' },
                 { name: 'Red Bull', desc: 'energético', price: 'R$ 20,00', icon: '⚡' },
                 { name: 'Água com gás', desc: '', price: 'R$ 5,00', icon: '💧' },
                 { name: 'Água sem gás', desc: '', price: 'R$ 5,00', icon: '💧' },
