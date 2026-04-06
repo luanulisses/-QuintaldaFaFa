@@ -803,7 +803,7 @@ const Arraia2026: React.FC = () => {
                         },
                         {
                             q: 'Como funciona o acesso no dia do evento?',
-                            a: 'Após a compra, você recebe um QR Code único e criptografado por e-mail e WhatsApp. Na entrada, basta apresentar o QR Code (pode ser no celular ou impresso). Crianças com Passaporte recebem uma pulseira colorida inviolável para acesso livre aos brinquedos.'
+                            a: 'Após a confirmação do pagamento, seu nome e os detalhes da compra são incluídos automaticamente em nossa lista oficial. Você receberá um comprovante com seu número da lista (ex: ARRAIA-XXX) por e-mail e WhatsApp. Na portaria do evento, basta informar seu nome e apresentar o número da lista para conferência e liberação da entrada.'
                         },
                         {
                             q: 'Posso transferir ou devolver meu ingresso?',
