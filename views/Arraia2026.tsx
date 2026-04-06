@@ -428,7 +428,7 @@ const Arraia2026: React.FC = () => {
                         { 
                             icon: '/images/karlito_tremendao_band.png', 
                             title: 'Karlito Tremendão', 
-                            desc: '"Forró & Pisadinha" — O trio mais arretado da região com o melhor do piseiro.',
+                            desc: 'Forró & Pisadinha" — O mais arretado da região com o melhor do piseiro.',
                             objPos: 'object-top'
                         },
                         { 
