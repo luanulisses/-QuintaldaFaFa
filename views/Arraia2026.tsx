@@ -276,8 +276,11 @@ const Arraia2026: React.FC = () => {
             )}
 
             {/* Navigation */}
-            <nav className="bg-[#1C0C04]/95 backdrop-blur-md py-4 px-6 sticky top-0 z-50 flex justify-between items-center border-b border-[#D9981F]/20">
-                <span className="font-display font-bold text-xl text-[#EDD68A]">🌽 Quintal da Fafá</span>
+            <nav className="bg-[#1C0C04]/95 backdrop-blur-md py-4 px-4 md:px-6 sticky top-0 z-50 flex justify-between items-center border-b border-[#D9981F]/20">
+                <span className="font-display font-bold text-lg md:text-xl text-[#EDD68A] flex items-center gap-2">
+                    <span className="hidden xs:inline">🌽</span> 
+                    <span className="truncate max-w-[120px] xs:max-w-none">Quintal da Fafá</span>
+                </span>
                 <div className="hidden md:flex items-center gap-6 text-[#EDD68A]/80 text-sm font-bold uppercase tracking-wider">
                     <a href="#atracoes" className="hover:text-[#D9981F] transition-colors">Atrações</a>
                     <a href="#passaporte" className="hover:text-[#D9981F] transition-colors">Passaporte</a>
@@ -350,28 +353,28 @@ const Arraia2026: React.FC = () => {
                     <span className="inline-block py-2 px-6 rounded-full bg-[#E85D2F] text-white text-xs font-bold tracking-widest uppercase shadow-lg">
                         🎉 06 de Junho de 2026 · Planaltina — DF
                     </span>
-                    <h1 className="font-display text-5xl md:text-8xl font-bold text-[#EDD68A] leading-none drop-shadow-2xl">
-                        Arraiá do <br/> <em className="italic text-[#D9981F] not-italic font-display">Quintal da Fafá</em>
+                    <h1 className="font-display text-4xl sm:text-6xl md:text-8xl font-bold text-[#EDD68A] leading-tight md:leading-none drop-shadow-2xl px-2">
+                        Arraiá do <br className="hidden sm:block"/> <em className="italic text-[#D9981F] not-italic font-display">Quintal da Fafá</em>
                     </h1>
                     <p className="font-display text-xl md:text-3xl text-[#EDD68A]/80 italic">
                         Forró, sertanejo e o melhor milho do Cerrado!
                     </p>
 
-                    <div className="flex gap-4 justify-center py-8">
-                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-[#EDD68A]/30 min-w-[90px]">
-                            <span className="block text-3xl md:text-5xl font-display font-bold text-[#EDD68A]">{timeLeft.days}</span>
+                    <div className="flex gap-2 sm:gap-4 justify-center py-8">
+                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 md:p-6 border border-[#EDD68A]/30 min-w-[70px] sm:min-w-[90px]">
+                            <span className="block text-2xl sm:text-3xl md:text-5xl font-display font-bold text-[#EDD68A]">{timeLeft.days}</span>
                             <span className="text-[10px] uppercase font-bold text-[#EDD68A]/60">Dias</span>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-[#EDD68A]/30 min-w-[90px]">
-                            <span className="block text-3xl md:text-5xl font-display font-bold text-[#EDD68A]">{timeLeft.hours}</span>
+                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 md:p-6 border border-[#EDD68A]/30 min-w-[70px] sm:min-w-[90px]">
+                            <span className="block text-2xl sm:text-3xl md:text-5xl font-display font-bold text-[#EDD68A]">{timeLeft.hours}</span>
                             <span className="text-[10px] uppercase font-bold text-[#EDD68A]/60">Horas</span>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-[#EDD68A]/30 min-w-[90px]">
-                            <span className="block text-3xl md:text-5xl font-display font-bold text-[#EDD68A]">{timeLeft.minutes}</span>
+                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 md:p-6 border border-[#EDD68A]/30 min-w-[70px] sm:min-w-[90px]">
+                            <span className="block text-2xl sm:text-3xl md:text-5xl font-display font-bold text-[#EDD68A]">{timeLeft.minutes}</span>
                             <span className="text-[10px] uppercase font-bold text-[#EDD68A]/60">Min</span>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-6 border border-[#EDD68A]/30 min-w-[90px]">
-                            <span className="block text-3xl md:text-5xl font-display font-bold text-[#EDD68A]">{timeLeft.seconds}</span>
+                        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 md:p-6 border border-[#EDD68A]/30 min-w-[70px] sm:min-w-[90px]">
+                            <span className="block text-2xl sm:text-3xl md:text-5xl font-display font-bold text-[#EDD68A]">{timeLeft.seconds}</span>
                             <span className="text-[10px] uppercase font-bold text-[#EDD68A]/60">Seg</span>
                         </div>
                     </div>
@@ -604,7 +607,7 @@ const Arraia2026: React.FC = () => {
             </section>
 
             {/* Pricing / Buy Section */}
-            <section id="comprar" className="py-24 bg-[#F0DFBB]">
+            <section id="comprar" className="py-24 bg-[#F0DFBB]" style={{ scrollMarginTop: '80px' }}>
                 <div className="container mx-auto px-6 max-w-6xl">
                     <div className="text-center mb-16">
                         <span className="text-[#A84B18] text-xs font-bold tracking-[0.2em] uppercase mb-2 block">Garanta seu lugar</span>
