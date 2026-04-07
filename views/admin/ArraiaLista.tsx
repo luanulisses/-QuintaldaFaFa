@@ -43,6 +43,13 @@ const ArraiaLista: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState<Purchase | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const fetchPurchases = useCallback(async () => {
         const { data } = await supabase
@@ -148,60 +155,76 @@ const ArraiaLista: React.FC = () => {
     };
 
     return (
-        <div style={{ fontFamily: 'Inter, sans-serif', background: '#FDF6EC', minHeight: '100vh', padding: '24px' }}>
+        <div style={{ fontFamily: 'Inter, sans-serif', background: '#FDF6EC', minHeight: '100vh', padding: isMobile ? '16px' : '24px' }}>
             {/* Header */}
-            <div style={{ marginBottom: '24px' }}>
-                <h1 style={{ fontSize: '28px', fontWeight: 900, color: '#5C2E0A', margin: 0 }}>
-                    🌽 Lista de Inscritos — Arraiá 2026
+            <div style={{ marginBottom: isMobile ? '16px' : '24px' }}>
+                <h1 style={{ fontSize: isMobile ? '22px' : '28px', fontWeight: 900, color: '#5C2E0A', margin: 0, lineHeight: 1.2 }}>
+                    🌽 Lista Arraiá 2026
                 </h1>
-                <p style={{ color: '#7a5235', fontSize: '14px', marginTop: '4px' }}>Atualiza automaticamente a cada 15 segundos</p>
+                <p style={{ color: '#7a5235', fontSize: isMobile ? '12px' : '14px', marginTop: '4px' }}>Atualiza a cada 15s</p>
             </div>
 
             {/* Stats Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px', marginBottom: '20px' }}>
                 {[
-                    { label: 'Total Inscritos', value: stats.total, color: '#5C2E0A' },
+                    { label: 'Total', value: stats.total, color: '#5C2E0A' },
                     { label: 'Pagos ✅', value: stats.paid, color: '#10B981' },
-                    { label: 'Aguardando PIX', value: stats.pending, color: '#F59E0B' },
-                    { label: 'Check-in Feito', value: stats.checkedIn, color: '#A84B18' },
-                    { label: 'Receita Total', value: `R$ ${stats.revenue.toFixed(2).replace('.', ',')}`, color: '#D9981F' },
+                    { label: 'Pendente ⏳', value: stats.pending, color: '#F59E0B' },
+                    { label: 'Check-in 🚪', value: stats.checkedIn, color: '#A84B18' },
+                    { label: 'Receita', value: `R$ ${stats.revenue.toFixed(0)}`, color: '#D9981F', fullWidth: true },
                 ].map((s, i) => (
-                    <div key={i} style={{ background: 'white', borderRadius: '16px', padding: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', borderLeft: `4px solid ${s.color}` }}>
-                        <p style={{ fontSize: '11px', fontWeight: 700, color: '#7a5235', textTransform: 'uppercase', margin: '0 0 6px 0', letterSpacing: '0.05em' }}>{s.label}</p>
-                        <p style={{ fontSize: '24px', fontWeight: 900, color: s.color, margin: 0 }}>{s.value}</p>
+                    <div key={i} style={{ 
+                        background: 'white', 
+                        borderRadius: '12px', 
+                        padding: isMobile ? '12px' : '16px', 
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.06)', 
+                        borderLeft: `4px solid ${s.color}`,
+                        gridColumn: (s as any).fullWidth && isMobile ? 'span 2' : 'auto'
+                    }}>
+                        <p style={{ fontSize: isMobile ? '9px' : '11px', fontWeight: 700, color: '#7a5235', textTransform: 'uppercase', margin: '0 0 4px 0', letterSpacing: '0.05em' }}>{s.label}</p>
+                        <p style={{ fontSize: isMobile ? '18px' : '24px', fontWeight: 900, color: s.color, margin: 0 }}>{s.value}</p>
                     </div>
                 ))}
             </div>
 
-            {/* Filters + Search */}
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+            {/* Filters + Search Row 1: Search */}
+            <div style={{ marginBottom: '12px' }}>
                 <input
-                    placeholder="🔍 Buscar por nome, e-mail ou Nº lista..."
+                    placeholder="🔍 Buscar nome, e-mail ou Nº lista..."
                     value={search}
                     onChange={e => setSearch(e.target.value)}
-                    style={{ flex: '1', minWidth: '200px', padding: '10px 16px', borderRadius: '12px', border: '1px solid #e0cdb0', fontSize: '14px', background: 'white' }}
+                    style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid #e0cdb0', fontSize: '14px', background: 'white', boxSizing: 'border-box' }}
                 />
+            </div>
+
+            {/* Filters + Buttons Row 2: Scrollable Horizontal Filters */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', overflowX: 'auto', paddingBottom: '8px', whiteSpace: 'nowrap', WebkitOverflowScrolling: 'touch' }}>
                 {(['all', 'pending', 'approved', 'checked_in'] as const).map(f => (
                     <button key={f} onClick={() => setFilter(f)}
-                        style={{ padding: '10px 16px', borderRadius: '12px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '13px',
+                        style={{ padding: '8px 14px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '12px',
                             background: filter === f ? '#5C2E0A' : 'white',
                             color: filter === f ? '#EDD68A' : '#5C2E0A',
                             boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+                            flexShrink: 0
                         }}>
-                        {f === 'all' ? 'Todos' : f === 'checked_in' ? 'Check-in ✅' : STATUS_LABELS[f]?.label}
+                        {f === 'all' ? 'Todos' : f === 'checked_in' ? 'Check-in' : STATUS_LABELS[f]?.label.split(' ')[0]}
                     </button>
                 ))}
+            </div>
+
+            {/* Row 3: Utility Buttons */}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
                 <button onClick={exportCSV}
-                    style={{ padding: '10px 16px', borderRadius: '12px', background: '#D9981F', color: '#1C0C04', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    style={{ flex: 1, padding: '10px', borderRadius: '12px', background: '#D9981F', color: '#1C0C04', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>download</span> CSV
                 </button>
                 <button onClick={handleResetList}
-                    style={{ padding: '10px 16px', borderRadius: '12px', background: '#FFF5F5', color: '#E53E3E', border: '1px solid #FED7D7', cursor: 'pointer', fontWeight: 700, fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>delete_sweep</span> Limpar Tudo
+                    style={{ flex: 1, padding: '10px', borderRadius: '12px', background: '#FFF5F5', color: '#E53E3E', border: '1px solid #FED7D7', cursor: 'pointer', fontWeight: 700, fontSize: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>delete_sweep</span> Limpar
                 </button>
                 <button onClick={fetchPurchases}
-                    style={{ padding: '10px 16px', borderRadius: '12px', background: '#f0e0c0', color: '#5C2E0A', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '13px' }}>
-                    🔄 Atualizar
+                    style={{ padding: '10px 14px', borderRadius: '12px', background: '#f0e0c0', color: '#5C2E0A', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '12px' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>refresh</span>
                 </button>
             </div>
 
@@ -209,15 +232,16 @@ const ArraiaLista: React.FC = () => {
             {loading ? (
                 <p style={{ textAlign: 'center', color: '#7a5235', padding: '40px' }}>Carregando...</p>
             ) : (
-                <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
-                        <thead>
-                            <tr style={{ background: '#5C2E0A', color: '#EDD68A' }}>
-                                {['Nº Lista', 'Nome', 'Telefone', 'Ingressos', 'Total', 'Status', 'Check-in', 'Ações'].map(h => (
-                                    <th key={h} style={{ padding: '12px 16px', textAlign: h === 'Ações' ? 'right' : 'left', fontWeight: 700, fontSize: '11px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{h}</th>
-                                ))}
-                            </tr>
-                        </thead>
+                <div style={{ background: 'white', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', border: '1px solid #e0cdb0' }}>
+                    <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', minWidth: isMobile ? '800px' : 'none' }}>
+                            <thead>
+                                <tr style={{ background: '#5C2E0A', color: '#EDD68A' }}>
+                                    {['Nº Lista', 'Nome', 'Telefone', 'Ingressos', 'Total', 'Status', 'Check-in', 'Ações'].map(h => (
+                                        <th key={h} style={{ padding: '12px 16px', textAlign: h === 'Ações' ? 'right' : 'left', fontWeight: 700, fontSize: '11px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
                         <tbody>
                             {filtered.length === 0 ? (
                                 <tr><td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: '#7a5235' }}>Nenhum resultado encontrado</td></tr>
@@ -270,11 +294,12 @@ const ArraiaLista: React.FC = () => {
                             ))}
                         </tbody>
                     </table>
-                    <div style={{ padding: '12px 16px', borderTop: '1px solid #f5ece0', fontSize: '12px', color: '#7a5235' }}>
-                        Exibindo {filtered.length} de {purchases.length} registros
-                    </div>
                 </div>
-            )}
+                <div style={{ padding: '12px 16px', borderTop: '1px solid #f5ece0', fontSize: '12px', color: '#7a5235' }}>
+                    Exibindo {filtered.length} de {purchases.length} registros
+                </div>
+            </div>
+        )}
 
             {/* Modal de Edição */}
             {editing && (
