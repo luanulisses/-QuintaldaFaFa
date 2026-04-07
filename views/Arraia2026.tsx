@@ -451,7 +451,7 @@ const Arraia2026: React.FC = () => {
                             icon: '/images/bacurau_arretado_band.png', 
                             title: 'Bacurau Arretado', 
                             desc: '"Xote & Baião · O Arrasta Povão" — O rei do arrasta-pé trazendo toda a energia do Nordeste!',
-                            objPos: 'object-center'
+                            objPos: 'object-top'
                         },
                         { 
                             icon: '/images/gastronomia_tipica.jpg', 
