@@ -451,7 +451,8 @@ const Arraia2026: React.FC = () => {
                             icon: '/images/bacurau_arretado_band.png', 
                             title: 'Bacurau Arretado', 
                             desc: '"Xote & Baião · O Arrasta Povão" — O rei do arrasta-pé trazendo toda a energia do Nordeste!',
-                            objPos: 'object-center'
+                            objPos: 'object-contain',
+                            objBg: '#1a0a02'
                         },
                         { 
                             icon: '/images/gastronomia_tipica.jpg', 
@@ -490,11 +491,11 @@ const Arraia2026: React.FC = () => {
                             className={`bg-white rounded-3xl overflow-hidden border border-[#5C2E0A]/5 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all animate-scale-in ${(card as any).isClickable ? 'cursor-pointer ring-offset-2 hover:ring-2 hover:ring-[#D9981F]' : ''}`} 
                             style={{ animationDelay: `${i * 0.1}s` }}
                         >
-                            <div className="overflow-hidden h-52 w-full">
+                            <div className="overflow-hidden h-52 w-full" style={{ background: (card as any).objBg || 'transparent' }}>
                                 <img
                                     src={card.icon}
                                     alt={card.title}
-                                    className={`w-full h-full object-cover ${card.objPos} transition-transform hover:scale-110 duration-500`}
+                                    className={`w-full h-full ${(card as any).objBg ? 'object-contain' : 'object-cover'} ${card.objPos} transition-transform hover:scale-105 duration-500`}
                                 />
                                 {(card as any).isClickable && (
                                     <div className="absolute top-4 right-4 bg-[#D9981F] text-[#1C0C04] text-[10px] font-black py-1 px-3 rounded-full animate-bounce shadow-lg">
