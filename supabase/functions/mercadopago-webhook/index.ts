@@ -23,8 +23,9 @@ function formatListNumber(seq: number): string {
 function formatItems(items: Record<string, number>): string {
   const labels: Record<string, string> = {
     geral: "Ingresso Geral",
+    meia: "Meia-Entrada (6-12 anos)",
     passaporte: "Passaporte Kids",
-    combo: "Combo (Geral + Kids)",
+    combo: "Combo (Geral + Kids + Meia)",
   };
   return Object.entries(items)
     .filter(([, qty]) => qty > 0)
@@ -120,7 +121,7 @@ Deno.serve(async (req) => {
     if (RESEND_API_KEY) {
       const resend = new Resend(RESEND_API_KEY);
       await resend.emails.send({
-        from: "Arraiá Quintal da Fafá <ingressos@quintaldafafa.com.br>",
+        from: "Quintal da Fafá <pix@quintaldafafa.com.br>",
         to: purchase.customer_email,
         subject: `🎫 Ingresso Confirmado! Seu número: ${listNumber}`,
         html: `

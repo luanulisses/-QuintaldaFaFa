@@ -179,6 +179,34 @@ const AdminDashboard: React.FC = () => {
 
     return (
         <div className="space-y-8">
+            {/* Arraiá 2026 Special Actions */}
+            <div className="bg-orange-50 p-6 rounded-2xl shadow-sm border border-orange-200">
+                <h2 className="font-display text-lg font-bold text-orange-900 mb-4 flex items-center gap-2">
+                    <span className="material-symbols-outlined">celebration</span>
+                    Arraiá 2026 (Gestão de Ingressos)
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Link to="/admin/arraia-lista" className="flex items-center gap-4 p-4 rounded-xl bg-white hover:shadow-md border border-orange-100 hover:border-orange-300 transition-all group">
+                        <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span className="material-symbols-outlined">list_alt</span>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-orange-900 group-hover:text-orange-600 transition-colors">Lista de Convidados</h3>
+                            <p className="text-xs text-orange-700/70">Ver todos os pagamentos e exportar CSV</p>
+                        </div>
+                    </Link>
+                    <Link to="/admin/portaria" className="flex items-center gap-4 p-4 rounded-xl bg-white hover:shadow-md border border-orange-100 hover:border-orange-300 transition-all group">
+                        <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span className="material-symbols-outlined">qr_code_scanner</span>
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-orange-900 group-hover:text-orange-600 transition-colors">Portaria (Check-in)</h3>
+                            <p className="text-xs text-orange-700/70">Interface otimizada para a entrada do evento</p>
+                        </div>
+                    </Link>
+                </div>
+            </div>
+
             {/* Quick Actions */}
             <div className="bg-white p-6 rounded-2xl shadow-sm border border-primary/10">
                 <h2 className="font-display text-lg font-bold text-text-main mb-4">Gestão de Conteúdo (Acesso Rápido)</h2>

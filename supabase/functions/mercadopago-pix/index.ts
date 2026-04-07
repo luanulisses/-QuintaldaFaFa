@@ -1,7 +1,9 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { Resend } from "https://esm.sh/resend@3.1.0";
 
 const MP_ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN");
+const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
@@ -89,6 +91,39 @@ Deno.serve(async (req) => {
         pix_expiration: expiresAt,
       })
       .eq("id", purchase.id);
+
+    // 4. Enviar E-mail de PIX Gerado
+    if (RESEND_API_KEY) {
+      try {
+        const resend = new Resend(RESEND_API_KEY);
+        const totalMod = Number(total_amount).toFixed(2).replace(".", ",");
+        
+        await resend.emails.send({
+          from: "Quintal da Fafá <pix@quintaldafafa.com.br>",
+          to: customer_email,
+          subject: "Seu PIX foi gerado 🎉",
+          html: `
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 12px; padding: 24px;">
+              <h2 style="color: #5C2E0A;">Olá, ${customer_name.split(" ")[0]}!</h2>
+              <p>Seu pedido para o <strong>Arraiá do Quintal da Fafá 2026</strong> foi recebido.</p>
+              <div style="background: #FDF6EC; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin: 0; font-size: 14px; color: #7a5235;">Valor do PIX:</p>
+                <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: bold; color: #D9981F;">R$ ${totalMod}</p>
+              </div>
+              <p style="margin-top: 24px; font-weight: bold; color: #5C2E0A;">Código PIX Copia e Cola:</p>
+              <div style="background: #eee; padding: 12px; border-radius: 4px; font-family: monospace; font-size: 11px; word-break: break-all; border: 1px solid #ccc; color: #333;">
+                ${pixData?.qr_code || "Acesse o site para copiar o código"}
+              </div>
+              <p style="font-size: 13px; color: #666; margin-top: 16px;">O pagamento expira em 30 minutos. Após pagar, a confirmação é automática.</p>
+              <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
+              <p style="font-size: 12px; color: #999;">Quintal da Fafá — Planaltina, DF</p>
+            </div>
+          `
+        });
+      } catch (err) {
+        console.error("Resend error:", err.message);
+      }
+    }
 
     return new Response(JSON.stringify({
       purchase_id: purchase.id,

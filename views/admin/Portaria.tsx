@@ -6,7 +6,7 @@ interface Purchase {
     list_number: string;
     customer_name: string;
     customer_phone: string;
-    items: { geral?: number; passaporte?: number; combo?: number };
+    items: { geral?: number; meia?: number; passaporte?: number; combo?: number; pescaria?: number; brinquedos?: number };
     total_amount: number;
     payment_status: string;
     checked_in: boolean;
@@ -14,10 +14,17 @@ interface Purchase {
 }
 
 const formatItems = (items: Purchase['items']) => {
-    const labels: Record<string, string> = { geral: 'Ingresso Geral', passaporte: 'Passaporte Kids', combo: 'Combo' };
+    const labels: Record<string, string> = { 
+        geral: 'Ingresso Geral', 
+        meia: 'Meia-Entrada',
+        passaporte: 'Passaporte Kids', 
+        combo: 'Combo Premium',
+        pescaria: 'Ficha Pescaria',
+        brinquedos: 'Brinquedo Individual'
+    };
     return Object.entries(items || {})
         .filter(([, v]) => (v as number) > 0)
-        .map(([k, v]) => `${v}x ${labels[k]}`)
+        .map(([k, v]) => `${v}x ${labels[k] || k}`)
         .join('\n');
 };
 

@@ -265,13 +265,27 @@ const Arraia2026: React.FC = () => {
                         <div className="px-8 py-6">
                             <p className="text-[#6b4226] text-sm leading-relaxed">
                                 <strong>{pixData.itemsText}</strong><br/>
-                                O comprovante foi enviado para seu e-mail e WhatsApp. 🌽
+                                O comprovante foi enviado para seu e-mail. 🌽
                             </p>
                             <div className="mt-4 bg-[#FDF6EC] rounded-2xl p-4 text-left">
                                 <p className="text-[#5C2E0A] font-bold text-sm">📋 Na portaria, informe:</p>
                                 <p className="text-[#7a5235] text-sm mt-1">{pixData.listNumber} + seu nome</p>
                             </div>
-                            <p className="text-[#7a5235] text-xs mt-4">📍 06/06 · Planaltina-DF · Portaria abre 19h30</p>
+
+                            {/* WhatsApp Button - Clean Layout */}
+                            <button
+                                onClick={() => {
+                                    const cleanPhone = formData.phone.replace(/\D/g, '');
+                                    const msg = `Olá! Sou ${pixData.customerName}. Arraiá do Quintal da Fafá 2026! 🌽\n\n📌 *MEU NÚMERO NA LISTA: ${pixData.listNumber}*\n🛒 Itens: ${pixData.itemsText}\n\nGuarde esta mensagem para a portaria!`;
+                                    window.open(`https://wa.me/55${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+                                }}
+                                className="mt-6 w-full bg-[#25D366] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#128C7E] transition-all shadow-lg hover:shadow-xl transform active:scale-95"
+                            >
+                                <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.246 2.248 3.484 5.232 3.484 8.412-.003 6.557-5.338 11.892-11.893 11.892-1.997 0-3.951-.5-5.688-1.448l-6.309 1.656zm6.222-4.115l.346.206c1.546.916 3.332 1.4 5.171 1.402 5.273 0 9.56-4.287 9.563-9.563 0-2.558-1-4.962-2.813-6.777-1.813-1.814-4.217-2.813-6.775-2.814-5.275 0-9.563 4.288-9.566 9.564 0 1.819.519 3.591 1.502 5.122l.226.352-1.005 3.67 3.755-.985zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.199-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.299.191 1.761.122.457-.069 1.405-.574 1.604-1.129.198-.555.198-1.031.149-1.13z"/></svg>
+                                <span>RECEBER NO WHATSAPP</span>
+                            </button>
+
+                            <p className="text-[#7a5235] text-[10px] mt-4 opacity-60">📍 06/06 · Planaltina-DF · Portaria abre 19h30</p>
                         </div>
                     </div>
                 </div>
