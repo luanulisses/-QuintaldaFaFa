@@ -125,6 +125,13 @@ const Arraia2026: React.FC = () => {
     const handlePurchase = async (e: React.FormEvent) => {
         e.preventDefault();
         if (total === 0) { setPurchaseError('Selecione pelo menos um ingresso.'); return; }
+        
+        const hasEntryTicket = qty.geral > 0 || qty.meia > 0 || qty.combo > 0;
+        if ((qty.pescaria > 0 || qty.brinquedos > 0) && !hasEntryTicket) {
+            setPurchaseError('Você precisa adquirir pelo menos um ingresso de entrada (Geral, Meia ou Combo) para adicionar fichas adicionais.');
+            return;
+        }
+
         try {
             setIsSubmitting(true);
             setPurchaseError(null);
