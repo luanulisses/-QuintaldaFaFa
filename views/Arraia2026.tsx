@@ -576,11 +576,11 @@ const Arraia2026: React.FC = () => {
                     {/* Interactive Photo Stack */}
                     <div className="relative h-[400px] sm:h-[450px] lg:h-[500px] flex items-center justify-center order-1 lg:order-1 mb-12 lg:mb-0">
                         {galleryPreview.length > 0 ? (
-                            <div className="relative w-full max-w-[280px] sm:max-w-sm">
+                            <Link to="/galeria" className="relative w-full max-w-[280px] sm:max-w-sm block group cursor-pointer" title="Ver Galeria Completa">
                                 {galleryPreview.slice(0, 3).map((item, i) => (
                                     <div 
                                         key={item.id}
-                                        className="absolute top-0 left-0 w-full h-[280px] sm:h-[350px] lg:h-[400px] bg-white p-3 sm:p-4 pb-10 sm:pb-12 rounded-xl shadow-2xl border-4 sm:border-8 border-white transition-all duration-500 hover:z-50 hover:scale-105 cursor-pointer"
+                                        className="absolute top-0 left-0 w-full h-[280px] sm:h-[350px] lg:h-[400px] bg-white p-3 sm:p-4 pb-10 sm:pb-12 rounded-xl shadow-2xl border-4 sm:border-8 border-white transition-all duration-500 group-hover:-translate-y-4 group-hover:rotate-0 group-hover:z-50"
                                         style={{ 
                                             transform: `rotate(${(i - 1) * 8}deg) translateY(${i * 12}px) translateX(${i * 5}px)`,
                                             zIndex: 3 - i,
@@ -594,14 +594,14 @@ const Arraia2026: React.FC = () => {
                                         </div>
                                     </div>
                                 ))}
-                            </div>
+                            </Link>
                         ) : (
                             /* Placeholder if no images found yet */
-                            <div className="w-56 h-72 sm:w-64 sm:h-80 bg-white p-4 pb-12 rounded-xl shadow-2xl border-8 border-white rotate-6 animate-float">
+                            <Link to="/galeria" className="w-56 h-72 sm:w-64 sm:h-80 bg-white p-4 pb-12 rounded-xl shadow-2xl border-8 border-white rotate-6 animate-float hover:scale-105 transition-transform cursor-pointer">
                                 <div className="w-full h-full bg-[#F0DFBB] rounded-sm flex items-center justify-center text-4xl">
                                     📸
                                 </div>
-                            </div>
+                            </Link>
                         )}
                     </div>
 
@@ -616,14 +616,14 @@ const Arraia2026: React.FC = () => {
                         </p>
                         
                         <div className="flex flex-wrap gap-4 pt-4 justify-center lg:justify-start">
-                            <div className="flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D9981F]/20 shadow-sm">
+                            <Link to="/galeria" className="flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D9981F]/20 shadow-sm hover:bg-white hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
                                 <span className="text-xl">📸</span>
                                 <span className="text-sm font-bold text-[#5C2E0A]">Edição 2024</span>
-                            </div>
-                            <div className="flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D9981F]/20 shadow-sm">
+                            </Link>
+                            <Link to="/galeria" className="flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D9981F]/20 shadow-sm hover:bg-white hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
                                 <span className="text-xl">🎉</span>
                                 <span className="text-sm font-bold text-[#5C2E0A]">Edição 2025</span>
-                            </div>
+                            </Link>
                         </div>
 
                         <Link to="/galeria" className="inline-block mt-8">
