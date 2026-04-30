@@ -18,7 +18,7 @@ const MusicPlayer: React.FC = () => {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-[60] flex items-center gap-3">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[60] flex items-center gap-2 sm:gap-3">
             {/* Som Bars Animation */}
             {isPlaying && (
                 <div className="flex items-end gap-[2px] h-4 mb-1">
@@ -37,7 +37,7 @@ const MusicPlayer: React.FC = () => {
 
             <button
                 onClick={togglePlay}
-                className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all transform hover:scale-110 active:scale-95 border-2 ${
+                className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-2xl transition-all transform hover:scale-110 active:scale-95 border-2 ${
                     isPlaying 
                     ? 'bg-[#D9981F] border-[#EDD68A] text-[#1C0C04]' 
                     : 'bg-[#1C0C04]/80 backdrop-blur-md border-[#D9981F]/40 text-[#EDD68A]'
@@ -45,9 +45,9 @@ const MusicPlayer: React.FC = () => {
                 title={isPlaying ? "Pausar música" : "Tocar música junina"}
             >
                 {isPlaying ? (
-                    <span className="material-symbols-outlined text-3xl">volume_up</span>
+                    <span className="material-symbols-outlined text-2xl sm:text-3xl">volume_up</span>
                 ) : (
-                    <span className="material-symbols-outlined text-3xl">volume_off</span>
+                    <span className="material-symbols-outlined text-2xl sm:text-3xl">volume_off</span>
                 )}
             </button>
 

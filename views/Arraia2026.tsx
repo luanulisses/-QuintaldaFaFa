@@ -321,7 +321,7 @@ const Arraia2026: React.FC = () => {
             <nav className="bg-[#1C0C04]/95 backdrop-blur-md py-4 px-4 md:px-6 sticky top-0 z-50 flex justify-between items-center border-b border-[#D9981F]/20">
                 <span className="font-display font-bold text-lg md:text-xl text-[#EDD68A] flex items-center gap-2">
                     <span className="hidden xs:inline">🌽</span> 
-                    <span className="truncate max-w-[120px] xs:max-w-none">Quintal da Fafá</span>
+                    <span className="truncate max-w-[180px] sm:max-w-none">Quintal da Fafá</span>
                 </span>
                 <div className="hidden md:flex items-center gap-6 text-[#EDD68A]/80 text-sm font-bold uppercase tracking-wider">
                     <a href="#atracoes" className="hover:text-[#D9981F] transition-colors">Atrações</a>
@@ -395,7 +395,7 @@ const Arraia2026: React.FC = () => {
                     <span className="inline-block py-2 px-6 rounded-full bg-[#E85D2F] text-white text-xs font-bold tracking-widest uppercase shadow-lg">
                         🎉 06 de Junho de 2026 · Planaltina — DF
                     </span>
-                    <h1 className="font-display text-4xl sm:text-6xl md:text-8xl font-bold text-[#EDD68A] leading-tight md:leading-none drop-shadow-2xl px-2">
+                    <h1 className="font-display text-3xl sm:text-6xl md:text-8xl font-bold text-[#EDD68A] leading-tight md:leading-none drop-shadow-2xl px-2">
                         Arraiá do <br className="hidden sm:block"/> <em className="italic text-[#D9981F] not-italic font-display">Quintal da Fafá</em>
                     </h1>
                     <p className="font-display text-xl md:text-3xl text-[#EDD68A]/80 italic">
@@ -454,10 +454,10 @@ const Arraia2026: React.FC = () => {
                     </div>
 
                     {/* Memory Badge */}
-                    <div className="mt-12 flex justify-center animate-fade-in delay-500">
+                    <div className="mt-8 sm:mt-12 flex justify-center animate-fade-in delay-500 scale-90 sm:scale-100">
                         <a href="#memorias" className="group">
-                            <div className="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl flex items-center gap-4 hover:bg-white/20 transition-all hover:-translate-y-1 shadow-lg">
-                                <div className="w-12 h-12 bg-white rounded-lg p-1 rotate-[-6deg] group-hover:rotate-[0deg] transition-transform shadow-md overflow-hidden">
+                            <div className="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl flex items-center gap-3 sm:gap-4 hover:bg-white/20 transition-all hover:-translate-y-1 shadow-lg max-w-[90vw] sm:max-w-none">
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-lg p-1 rotate-[-6deg] group-hover:rotate-[0deg] transition-transform shadow-md flex-shrink-0 overflow-hidden">
                                     {galleryPreview.length > 0 ? (
                                         <img src={galleryPreview[0].url} className="w-full h-full object-cover rounded-sm" alt="Memory" />
                                     ) : (
@@ -465,10 +465,10 @@ const Arraia2026: React.FC = () => {
                                     )}
                                 </div>
                                 <div className="text-left">
-                                    <p className="text-[#EDD68A] text-[10px] font-bold uppercase tracking-widest opacity-60">Relembre</p>
-                                    <p className="text-[#EDD68A] font-display font-bold">Reviva Momentos Inesquecíveis ✨</p>
+                                    <p className="text-[#EDD68A] text-[9px] sm:text-[10px] font-bold uppercase tracking-widest opacity-60">Relembre</p>
+                                    <p className="text-[#EDD68A] font-display font-bold text-xs sm:text-base">Reviva Momentos Inesquecíveis ✨</p>
                                 </div>
-                                <span className="material-symbols-outlined text-[#EDD68A] opacity-40 group-hover:opacity-100 transition-opacity">arrow_downward</span>
+                                <span className="material-symbols-outlined text-[#EDD68A] opacity-40 group-hover:opacity-100 transition-opacity text-sm sm:text-xl">arrow_downward</span>
                             </div>
                         </a>
                     </div>
@@ -572,8 +572,8 @@ const Arraia2026: React.FC = () => {
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#D9981F]/10 rounded-full blur-3xl animate-float"></div>
                 <div className="absolute -bottom-10 -right-10 w-60 h-60 bg-[#A84B18]/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
 
-                <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                    <div className="relative z-10 space-y-8 order-2 lg:order-1">
+                <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                    <div className="relative z-10 space-y-8 order-1 lg:order-1 text-center lg:text-left">
                         <span className="text-[#A84B18] text-xs font-bold tracking-[0.2em] uppercase block">Nossa História</span>
                         <h2 className="font-display text-4xl md:text-6xl font-bold text-[#5C2E0A] leading-tight">
                             Reviva Momentos <br/> <span className="text-[#D9981F]">Inesquecíveis</span> ✨
@@ -602,30 +602,30 @@ const Arraia2026: React.FC = () => {
                     </div>
 
                     {/* Interactive Photo Stack */}
-                    <div className="relative h-[400px] sm:h-[500px] flex items-center justify-center order-1 lg:order-2">
+                    <div className="relative h-[400px] sm:h-[450px] lg:h-[500px] flex items-center justify-center order-2 lg:order-2 mt-12 lg:mt-0">
                         {galleryPreview.length > 0 ? (
-                            <div className="relative w-full max-w-sm">
+                            <div className="relative w-full max-w-[280px] sm:max-w-sm">
                                 {galleryPreview.slice(0, 3).map((item, i) => (
                                     <div 
                                         key={item.id}
-                                        className="absolute top-0 left-0 w-full h-[300px] sm:h-[400px] bg-white p-4 pb-12 rounded-xl shadow-2xl border-8 border-white transition-all duration-500 hover:z-50 hover:scale-105 cursor-pointer"
+                                        className="absolute top-0 left-0 w-full h-[280px] sm:h-[350px] lg:h-[400px] bg-white p-3 sm:p-4 pb-10 sm:pb-12 rounded-xl shadow-2xl border-4 sm:border-8 border-white transition-all duration-500 hover:z-50 hover:scale-105 cursor-pointer"
                                         style={{ 
-                                            transform: `rotate(${(i - 1) * 10}deg) translateY(${i * 10}px)`,
+                                            transform: `rotate(${(i - 1) * 8}deg) translateY(${i * 12}px) translateX(${i * 5}px)`,
                                             zIndex: 3 - i,
-                                            boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
+                                            boxShadow: '0 15px 30px rgba(0,0,0,0.2)'
                                         }}
                                     >
                                         <img src={item.url} alt="Gallery Preview" className="w-full h-full object-cover rounded-sm" />
-                                        <div className="absolute bottom-4 left-6 right-6 flex justify-between items-center">
-                                            <span className="font-display italic text-[#5C2E0A] text-sm">{item.caption || 'Arraiá Quintal'}</span>
-                                            <span className="text-xs text-[#D9981F] font-bold">✨</span>
+                                        <div className="absolute bottom-2 sm:bottom-4 left-4 sm:left-6 right-4 sm:right-6 flex justify-between items-center">
+                                            <span className="font-display italic text-[#5C2E0A] text-[10px] sm:text-sm truncate mr-2">{item.caption || 'Arraiá Quintal'}</span>
+                                            <span className="text-[10px] sm:text-xs text-[#D9981F] font-bold flex-shrink-0">✨</span>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
                             /* Placeholder if no images found yet */
-                            <div className="w-64 h-80 bg-white p-4 pb-12 rounded-xl shadow-2xl border-8 border-white rotate-6 animate-float">
+                            <div className="w-56 h-72 sm:w-64 sm:h-80 bg-white p-4 pb-12 rounded-xl shadow-2xl border-8 border-white rotate-6 animate-float">
                                 <div className="w-full h-full bg-[#F0DFBB] rounded-sm flex items-center justify-center text-4xl">
                                     📸
                                 </div>
