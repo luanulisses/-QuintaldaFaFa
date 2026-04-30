@@ -26,6 +26,8 @@ function formatItems(items: Record<string, number>): string {
     meia: "Meia-Entrada (6-12 anos)",
     passaporte: "Passaporte Kids",
     combo: "Combo (Geral + Kids + Meia)",
+    pescaria: "Pescaria",
+    brinquedos: "Brinquedo Individual",
   };
   return Object.entries(items)
     .filter(([, qty]) => qty > 0)

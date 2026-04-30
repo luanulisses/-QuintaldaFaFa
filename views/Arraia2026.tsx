@@ -5,6 +5,9 @@ import Section from '../components/landing/Section';
 import Footer from '../components/landing/Footer';
 import FaqAccordion from '../components/landing/FaqAccordion';
 import ArraiaMenu from '../components/landing/ArraiaMenu';
+import MusicPlayer from '../components/landing/MusicPlayer';
+import { useGallery, GalleryItem } from '../lib/hooks/useGallery';
+import { Link } from 'react-router-dom';
 
 const Arraia2026: React.FC = () => {
     const [timeLeft, setTimeLeft] = useState<{ days: number, hours: number, minutes: number, seconds: number }>({
@@ -33,6 +36,8 @@ const Arraia2026: React.FC = () => {
     const [pixTimeLeft, setPixTimeLeft] = useState(30 * 60);
     const [copied, setCopied] = useState(false);
     const [menuType, setMenuType] = useState<'gastronomia' | 'bebidas' | null>(null);
+    const [galleryPreview, setGalleryPreview] = useState<GalleryItem[]>([]);
+    const { fetchGalleryImages } = useGallery();
     const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
@@ -50,6 +55,20 @@ const Arraia2026: React.FC = () => {
     );
 
     const eventDate = new Date('2026-06-06T20:00:00').getTime();
+
+    useEffect(() => {
+        const loadPreview = async () => {
+            try {
+                const images = await fetchGalleryImages();
+                // Filter images from 2024 and 2025 specifically if possible, 
+                // but for now just take the latest 3-6
+                setGalleryPreview(images.slice(0, 6));
+            } catch (err) {
+                console.error('Error fetching gallery preview:', err);
+            }
+        };
+        loadPreview();
+    }, []);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -433,6 +452,26 @@ const Arraia2026: React.FC = () => {
                             </button>
                         </a>
                     </div>
+
+                    {/* Memory Badge */}
+                    <div className="mt-12 flex justify-center animate-fade-in delay-500">
+                        <a href="#memorias" className="group">
+                            <div className="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl flex items-center gap-4 hover:bg-white/20 transition-all hover:-translate-y-1 shadow-lg">
+                                <div className="w-12 h-12 bg-white rounded-lg p-1 rotate-[-6deg] group-hover:rotate-[0deg] transition-transform shadow-md overflow-hidden">
+                                    {galleryPreview.length > 0 ? (
+                                        <img src={galleryPreview[0].url} className="w-full h-full object-cover rounded-sm" alt="Memory" />
+                                    ) : (
+                                        <div className="w-full h-full bg-[#F0DFBB] rounded-sm flex items-center justify-center">📸</div>
+                                    )}
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-[#EDD68A] text-[10px] font-bold uppercase tracking-widest opacity-60">Relembre</p>
+                                    <p className="text-[#EDD68A] font-display font-bold">Reviva Momentos Inesquecíveis ✨</p>
+                                </div>
+                                <span className="material-symbols-outlined text-[#EDD68A] opacity-40 group-hover:opacity-100 transition-opacity">arrow_downward</span>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </section>
 
@@ -473,6 +512,14 @@ const Arraia2026: React.FC = () => {
                             icon: '/images/bebidas_tipica.jpg', 
                             title: 'Bebidas Festivas', 
                             desc: 'Cervejas geladas, drinks, Red Bull e sucos. (Clique para ver cardápio e preços 🥤)',
+                            objPos: 'object-center',
+                            isClickable: true,
+                            type: 'bebidas'
+                        },
+                        { 
+                            icon: '/images/biela_bier.png', 
+                            title: 'Cervejaria Biela Bier', 
+                            desc: 'Chopp Pilsen e de Vinho artesanais. (Clique para ver o cardápio 🍺)',
                             objPos: 'object-center',
                             isClickable: true,
                             type: 'bebidas'
@@ -519,6 +566,74 @@ const Arraia2026: React.FC = () => {
                 </div>
             </Section>
 
+            {/* Gallery CTA Section */}
+            <section id="memorias" className="py-24 bg-[#FFF6F0] overflow-hidden relative">
+                {/* Decorative Elements */}
+                <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#D9981F]/10 rounded-full blur-3xl animate-float"></div>
+                <div className="absolute -bottom-10 -right-10 w-60 h-60 bg-[#A84B18]/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
+
+                <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                    <div className="relative z-10 space-y-8 order-2 lg:order-1">
+                        <span className="text-[#A84B18] text-xs font-bold tracking-[0.2em] uppercase block">Nossa História</span>
+                        <h2 className="font-display text-4xl md:text-6xl font-bold text-[#5C2E0A] leading-tight">
+                            Reviva Momentos <br/> <span className="text-[#D9981F]">Inesquecíveis</span> ✨
+                        </h2>
+                        <p className="text-[#6b4226] text-lg leading-relaxed">
+                            O Arraiá do Quintal da Fafá é mais que uma festa, é um encontro de gerações. 
+                            Confira a alegria das edições de <strong>2024 e 2025</strong> e prepare-se para o que vem por aí!
+                        </p>
+                        
+                        <div className="flex flex-wrap gap-4 pt-4">
+                            <div className="flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D9981F]/20 shadow-sm">
+                                <span className="text-xl">📸</span>
+                                <span className="text-sm font-bold text-[#5C2E0A]">Edição 2024</span>
+                            </div>
+                            <div className="flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D9981F]/20 shadow-sm">
+                                <span className="text-xl">🎉</span>
+                                <span className="text-sm font-bold text-[#5C2E0A]">Edição 2025</span>
+                            </div>
+                        </div>
+
+                        <Link to="/galeria" className="inline-block mt-8">
+                            <button className="bg-[#5C2E0A] text-[#EDD68A] px-10 py-5 rounded-3xl font-black text-lg shadow-2xl hover:bg-[#A84B18] transition-all transform hover:-translate-y-2 active:scale-95 animate-shine">
+                                EXPLORAR GALERIA COMPLETA →
+                            </button>
+                        </Link>
+                    </div>
+
+                    {/* Interactive Photo Stack */}
+                    <div className="relative h-[400px] sm:h-[500px] flex items-center justify-center order-1 lg:order-2">
+                        {galleryPreview.length > 0 ? (
+                            <div className="relative w-full max-w-sm">
+                                {galleryPreview.slice(0, 3).map((item, i) => (
+                                    <div 
+                                        key={item.id}
+                                        className="absolute top-0 left-0 w-full h-[300px] sm:h-[400px] bg-white p-4 pb-12 rounded-xl shadow-2xl border-8 border-white transition-all duration-500 hover:z-50 hover:scale-105 cursor-pointer"
+                                        style={{ 
+                                            transform: `rotate(${(i - 1) * 10}deg) translateY(${i * 10}px)`,
+                                            zIndex: 3 - i,
+                                            boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
+                                        }}
+                                    >
+                                        <img src={item.url} alt="Gallery Preview" className="w-full h-full object-cover rounded-sm" />
+                                        <div className="absolute bottom-4 left-6 right-6 flex justify-between items-center">
+                                            <span className="font-display italic text-[#5C2E0A] text-sm">{item.caption || 'Arraiá Quintal'}</span>
+                                            <span className="text-xs text-[#D9981F] font-bold">✨</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            /* Placeholder if no images found yet */
+                            <div className="w-64 h-80 bg-white p-4 pb-12 rounded-xl shadow-2xl border-8 border-white rotate-6 animate-float">
+                                <div className="w-full h-full bg-[#F0DFBB] rounded-sm flex items-center justify-center text-4xl">
+                                    📸
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </section>
 
             {/* Passaporte Section */}
             <section id="passaporte" className="py-24 bg-[#5C2E0A] text-[#EDD68A] overflow-hidden">
@@ -917,6 +1032,8 @@ const Arraia2026: React.FC = () => {
                 type={menuType || 'gastronomia'}
                 onClose={() => setMenuType(null)} 
             />
+
+            <MusicPlayer />
         </div>
     );
 };

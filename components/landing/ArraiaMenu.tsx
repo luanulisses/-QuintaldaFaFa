@@ -67,6 +67,14 @@ const ArraiaMenu: React.FC<ArraiaMenuProps> = ({ isOpen, onClose, type }) => {
             ]
         },
         {
+            title: 'CERVEJARIA BIELA',
+            icon: '🍺',
+            items: [
+                { name: 'Chopp Pilsen', desc: 'Biela Bier - 300ml', price: 'R$ 10,00', icon: '🍺' },
+                { name: 'Chopp de Vinho', desc: 'Biela Bier - 300ml', price: 'R$ 10,00', icon: '🍷' },
+            ]
+        },
+        {
             title: 'DRINKS & DESTILADOS',
             icon: '🥃',
             items: [
