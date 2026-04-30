@@ -573,36 +573,8 @@ const Arraia2026: React.FC = () => {
                 <div className="absolute -bottom-10 -right-10 w-60 h-60 bg-[#A84B18]/10 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }}></div>
 
                 <div className="container mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-                    <div className="relative z-10 space-y-8 order-1 lg:order-1 text-center lg:text-left">
-                        <span className="text-[#A84B18] text-xs font-bold tracking-[0.2em] uppercase block">Nossa História</span>
-                        <h2 className="font-display text-4xl md:text-6xl font-bold text-[#5C2E0A] leading-tight">
-                            Reviva Momentos <br/> <span className="text-[#D9981F]">Inesquecíveis</span> ✨
-                        </h2>
-                        <p className="text-[#6b4226] text-lg leading-relaxed">
-                            O Arraiá do Quintal da Fafá é mais que uma festa, é um encontro de gerações. 
-                            Confira a alegria das edições de <strong>2024 e 2025</strong> e prepare-se para o que vem por aí!
-                        </p>
-                        
-                        <div className="flex flex-wrap gap-4 pt-4">
-                            <div className="flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D9981F]/20 shadow-sm">
-                                <span className="text-xl">📸</span>
-                                <span className="text-sm font-bold text-[#5C2E0A]">Edição 2024</span>
-                            </div>
-                            <div className="flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D9981F]/20 shadow-sm">
-                                <span className="text-xl">🎉</span>
-                                <span className="text-sm font-bold text-[#5C2E0A]">Edição 2025</span>
-                            </div>
-                        </div>
-
-                        <Link to="/galeria" className="inline-block mt-8">
-                            <button className="bg-[#5C2E0A] text-[#EDD68A] px-10 py-5 rounded-3xl font-black text-lg shadow-2xl hover:bg-[#A84B18] transition-all transform hover:-translate-y-2 active:scale-95 animate-shine">
-                                EXPLORAR GALERIA COMPLETA →
-                            </button>
-                        </Link>
-                    </div>
-
                     {/* Interactive Photo Stack */}
-                    <div className="relative h-[400px] sm:h-[450px] lg:h-[500px] flex items-center justify-center order-2 lg:order-2 mt-12 lg:mt-0">
+                    <div className="relative h-[400px] sm:h-[450px] lg:h-[500px] flex items-center justify-center order-1 lg:order-1 mb-12 lg:mb-0">
                         {galleryPreview.length > 0 ? (
                             <div className="relative w-full max-w-[280px] sm:max-w-sm">
                                 {galleryPreview.slice(0, 3).map((item, i) => (
@@ -631,6 +603,34 @@ const Arraia2026: React.FC = () => {
                                 </div>
                             </div>
                         )}
+                    </div>
+
+                    <div className="relative z-10 space-y-8 order-2 lg:order-2 text-center lg:text-left">
+                        <span className="text-[#A84B18] text-xs font-bold tracking-[0.2em] uppercase block">Nossa História</span>
+                        <h2 className="font-display text-4xl md:text-6xl font-bold text-[#5C2E0A] leading-tight">
+                            Reviva Momentos <br/> <span className="text-[#D9981F]">Inesquecíveis</span> ✨
+                        </h2>
+                        <p className="text-[#6b4226] text-lg leading-relaxed">
+                            O Arraiá do Quintal da Fafá é mais que uma festa, é um encontro de gerações. 
+                            Confira a alegria das edições de <strong>2024 e 2025</strong> e prepare-se para o que vem por aí!
+                        </p>
+                        
+                        <div className="flex flex-wrap gap-4 pt-4 justify-center lg:justify-start">
+                            <div className="flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D9981F]/20 shadow-sm">
+                                <span className="text-xl">📸</span>
+                                <span className="text-sm font-bold text-[#5C2E0A]">Edição 2024</span>
+                            </div>
+                            <div className="flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full border border-[#D9981F]/20 shadow-sm">
+                                <span className="text-xl">🎉</span>
+                                <span className="text-sm font-bold text-[#5C2E0A]">Edição 2025</span>
+                            </div>
+                        </div>
+
+                        <Link to="/galeria" className="inline-block mt-8">
+                            <button className="bg-[#5C2E0A] text-[#EDD68A] px-10 py-5 rounded-3xl font-black text-lg shadow-2xl hover:bg-[#A84B18] transition-all transform hover:-translate-y-2 active:scale-95 animate-shine">
+                                EXPLORAR GALERIA COMPLETA →
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </section>
