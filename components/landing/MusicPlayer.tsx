@@ -53,11 +53,14 @@ const MusicPlayer: React.FC = () => {
 
             <audio 
                 ref={audioRef}
-                src="https://cdn.pixabay.com/audio/2022/05/27/audio_10f0f5b5f5.mp3" 
                 loop
                 preload="auto"
                 crossOrigin="anonymous"
-            />
+            >
+                <source src="/musica_junina.mp3.mp3" type="audio/mpeg" />
+                <source src="/musica_junina.mp3" type="audio/mpeg" />
+                <source src="https://cdn.pixabay.com/audio/2022/05/27/audio_10f0f5b5f5.mp3" type="audio/mpeg" />
+            </audio>
         </div>
     );
 };
