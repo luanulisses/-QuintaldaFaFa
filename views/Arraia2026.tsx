@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import Button from '../components/landing/Button';
 import Section from '../components/landing/Section';
@@ -8,6 +8,9 @@ import ArraiaMenu from '../components/landing/ArraiaMenu';
 import MusicPlayer from '../components/landing/MusicPlayer';
 import { useGallery, GalleryItem } from '../lib/hooks/useGallery';
 import { Link } from 'react-router-dom';
+import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
+
+initMercadoPago(import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY, { locale: 'pt-BR' });
 
 const Arraia2026: React.FC = () => {
     const [timeLeft, setTimeLeft] = useState<{ days: number, hours: number, minutes: number, seconds: number }>({
@@ -17,6 +20,7 @@ const Arraia2026: React.FC = () => {
     // Form State
     const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
     const [qty, setQty] = useState({ geral: 0, meia: 0, passaporte: 0, combo: 0, pescaria: 0, brinquedos: 0 });
+    const [paymentMethod, setPaymentMethod] = useState<'pix' | 'credit_card'>('pix');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [purchaseError, setPurchaseError] = useState<string | null>(null);
 
@@ -32,7 +36,7 @@ const Arraia2026: React.FC = () => {
         total: number;
     };
     const [pixData, setPixData] = useState<PixState | null>(null);
-    const [pixStep, setPixStep] = useState<'idle' | 'pix' | 'success'>('idle');
+    const [pixStep, setPixStep] = useState<'idle' | 'pix' | 'loading_cc' | 'success'>('idle');
     const [pixTimeLeft, setPixTimeLeft] = useState(30 * 60);
     const [copied, setCopied] = useState(false);
     const [menuType, setMenuType] = useState<'gastronomia' | 'bebidas' | null>(null);
@@ -53,6 +57,18 @@ const Arraia2026: React.FC = () => {
         (qty.pescaria * currentPrices.pescaria) +
         (qty.brinquedos * currentPrices.brinquedos)
     );
+
+    const mpInitialization = useMemo(() => ({ amount: total }), [total]);
+    
+    const mpCustomization = useMemo(() => ({
+        paymentMethods: { 
+            maxInstallments: 3, 
+            creditCard: 'all' as const,
+            types: {
+                excluded: ['ticket', 'bank_transfer', 'atm', 'debitCard', 'wallet_purchase', 'onboarding_credits'] as any
+            }
+        }
+    }), []);
 
     const eventDate = new Date('2026-06-06T20:00:00').getTime();
 
@@ -143,6 +159,7 @@ const Arraia2026: React.FC = () => {
 
     const handlePurchase = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (paymentMethod !== 'pix') return;
         if (total === 0) { setPurchaseError('Selecione pelo menos um ingresso.'); return; }
         
         const hasEntryTicket = qty.geral > 0 || qty.meia > 0 || qty.combo > 0;
@@ -192,6 +209,127 @@ const Arraia2026: React.FC = () => {
             setIsSubmitting(false);
         }
     };
+
+    const getPaymentErrorMessage = (statusDetail: string) => {
+        switch (statusDetail) {
+            case "cc_rejected_high_risk":
+                return "Pagamento recusado pela análise de segurança. Tente outro cartão ou escolha PIX.";
+            case "cc_rejected_insufficient_amount":
+                return "Cartão sem limite disponível.";
+            case "cc_rejected_bad_filled_card_number":
+                return "Número do cartão inválido.";
+            case "cc_rejected_bad_filled_date":
+                return "Data de validade inválida.";
+            case "cc_rejected_bad_filled_security_code":
+                return "Código de segurança inválido.";
+            case "cc_rejected_blacklist":
+                return "Pagamento recusado. Entre em contato com o banco.";
+            case "cc_rejected_other_reason":
+                return "Pagamento não autorizado. Tente outro cartão.";
+            default:
+                return "Não foi possível processar o pagamento. Tente novamente.";
+        }
+    };
+
+    const onCardPaymentSubmit = useCallback((cardFormData: any) => {
+        return new Promise<void>(async (resolve, reject) => {
+            if (total === 0) { 
+                setPurchaseError('Selecione pelo menos um ingresso.'); 
+                reject();
+                return; 
+            }
+            if (!formData.name || !formData.email || !formData.phone) {
+                setPurchaseError('Preencha seus dados de contato primeiro.');
+                reject();
+                return;
+            }
+
+            const hasEntryTicket = qty.geral > 0 || qty.meia > 0 || qty.combo > 0;
+            if ((qty.pescaria > 0 || qty.brinquedos > 0) && !hasEntryTicket) {
+                setPurchaseError('Você precisa adquirir pelo menos um ingresso de entrada (Geral, Meia ou Combo) para adicionar fichas adicionais.');
+                reject();
+                return;
+            }
+
+            console.log("💳 Payload MP recebido no front:", cardFormData);
+            
+            // AbortController para timeout de 15 segundos
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+            try {
+                setIsSubmitting(true);
+                setPurchaseError(null);
+
+                const payload = {
+                    customer_name: formData.name,
+                    customer_email: formData.email,
+                    customer_phone: formData.phone,
+                    items: qty,
+                    total_amount: total,
+                    ...cardFormData,
+                };
+
+                const res = await fetch(`${SUPABASE_URL}/functions/v1/mercadopago-cc`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    },
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                const result = await res.json();
+                console.log("☁️ Resposta da Edge Function:", result);
+
+                if (!res.ok) throw new Error(result.error || 'Erro ao processar cartão');
+
+                if (result.status === 'approved') {
+                    setPixData({
+                        purchaseId: result.purchase_id,
+                        qrCodeBase64: '',
+                        copyPaste: '',
+                        expiresAt: new Date(),
+                        customerName: formData.name,
+                        itemsText: formatItems(qty),
+                        total,
+                    });
+                    setPixStep('loading_cc');
+                    startPolling(result.purchase_id);
+                    resolve();
+                } else if (result.status === 'in_process') {
+                    setPurchaseError('Pagamento em análise pelo Mercado Pago. Você receberá a confirmação por e-mail se aprovado.');
+                    resolve();
+                } else if (result.status === 'rejected') {
+                    const msg = getPaymentErrorMessage(result.status_detail);
+                    setPurchaseError(msg);
+                    reject(new Error(msg));
+                } else {
+                    const msg = 'Pagamento não aprovado. Tente novamente.';
+                    setPurchaseError(msg);
+                    reject(new Error(msg));
+                }
+
+            } catch (err: any) {
+                console.error("❌ Erro na requisição de pagamento:", err);
+                let msg = 'Ocorreu um erro inesperado ao processar seu pagamento. Tente novamente mais tarde.';
+                if (err.name === 'AbortError') {
+                    msg = 'A conexão com o servidor demorou muito. Por favor, tente novamente.';
+                }
+                setPurchaseError(msg);
+                reject(new Error(msg));
+            } finally {
+                setIsSubmitting(false);
+            }
+        });
+    }, [total, formData, qty, SUPABASE_URL, SUPABASE_ANON_KEY, startPolling]);
+
+    const handleCardPaymentSubmit = useCallback((param: any) => {
+        return onCardPaymentSubmit(param.formData);
+    }, [onCardPaymentSubmit]);
 
     const copyPixCode = () => {
         if (pixData?.copyPaste) {
@@ -266,6 +404,17 @@ const Arraia2026: React.FC = () => {
                                 <p className="text-red-500 font-bold mt-3 text-sm">⚠️ PIX expirado. Recarregue a página para tentar novamente.</p>
                             )}
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ===== Loading CC Screen ===== */}
+            {pixStep === 'loading_cc' && pixData && (
+                <div className="fixed inset-0 z-[100] bg-[#1C0C04]/95 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white rounded-[32px] max-w-md w-full overflow-hidden shadow-2xl p-10 text-center">
+                        <div className="animate-spin w-16 h-16 border-4 border-[#D9981F] border-t-transparent rounded-full mx-auto mb-6"></div>
+                        <h2 className="text-[#5C2E0A] font-display text-2xl font-bold mb-2">Processando...</h2>
+                        <p className="text-[#7a5235] text-sm">Aguardando confirmação do pagamento. Não feche esta tela.</p>
                     </div>
                 </div>
             )}
@@ -908,7 +1057,6 @@ const Arraia2026: React.FC = () => {
                                     <span className="font-display text-xl">Total do Pedido</span>
                                     <span className="font-display text-3xl font-black text-[#D9981F]">R$ {total.toFixed(2)}</span>
                                 </div>
-                                {purchaseError && <p className="text-red-400 text-xs mb-4">{purchaseError}</p>}
                                     <div className="bg-red-500/10 border border-red-500/30 p-5 rounded-2xl mb-6 flex flex-col gap-2">
                                         <div className="flex items-center gap-2 text-red-500 mb-1">
                                             <span className="material-symbols-outlined text-sm">warning</span>
@@ -920,15 +1068,65 @@ const Arraia2026: React.FC = () => {
                                             ❌ <strong>Pós-Prazo:</strong> Não há reembolso após o dia 30/05.
                                         </p>
                                     </div>
-                                    <button 
-                                        type="submit" 
-                                        disabled={isSubmitting || total === 0}
-                                        className="w-full bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] py-5 rounded-2xl font-black text-lg transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        {isSubmitting ? '⏳ GERANDO PIX...' : '⚡ GERAR PIX — R$ ' + total.toFixed(2).replace('.', ',')}
-                                    </button>
+                                    
+                                    {/* Método de Pagamento Selector */}
+                                    <div className="mb-6">
+                                        <label className="block text-[10px] uppercase font-bold tracking-widest mb-3 opacity-60">Forma de Pagamento</label>
+                                        <div className="flex gap-4">
+                                            <button 
+                                                type="button" 
+                                                onClick={() => setPaymentMethod('pix')}
+                                                className={`flex-1 py-3 rounded-xl font-bold border-2 transition-all ${paymentMethod === 'pix' ? 'border-[#D9981F] bg-[#D9981F]/10 text-[#D9981F]' : 'border-white/20 text-white/60 hover:border-white/40'}`}
+                                            >
+                                                PIX
+                                            </button>
+                                            <button 
+                                                type="button" 
+                                                onClick={() => setPaymentMethod('credit_card')}
+                                                className={`flex-1 py-3 rounded-xl font-bold border-2 transition-all ${paymentMethod === 'credit_card' ? 'border-[#D9981F] bg-[#D9981F]/10 text-[#D9981F]' : 'border-white/20 text-white/60 hover:border-white/40'}`}
+                                            >
+                                                Cartão de Crédito
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {paymentMethod === 'pix' ? (
+                                        <>
+                                            {purchaseError && <p className="text-red-400 font-bold text-center mb-4">{purchaseError}</p>}
+                                            <button 
+                                                type="submit" 
+                                                disabled={isSubmitting || total === 0}
+                                                className="w-full bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] py-5 rounded-2xl font-black text-lg transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {isSubmitting ? '⏳ GERANDO PIX...' : '⚡ GERAR PIX — R$ ' + total.toFixed(2).replace('.', ',')}
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <div className="mt-6 bg-white rounded-2xl p-4 overflow-hidden text-black flex flex-col gap-2">
+                                            {total > 0 && formData.name && formData.email && formData.phone ? (
+                                                <>
+                                                    <Payment 
+                                                        initialization={mpInitialization}
+                                                        customization={mpCustomization}
+                                                        onSubmit={handleCardPaymentSubmit}
+                                                        locale="pt-BR"
+                                                    />
+                                                    {purchaseError && (
+                                                        <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 text-center font-bold text-sm mt-2 shadow-sm animate-pulse">
+                                                            ⚠️ {purchaseError}
+                                                        </div>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <div className="text-center p-6 text-gray-500 text-sm font-bold">
+                                                    Preencha seus dados de contato e adicione ingressos para liberar o pagamento com cartão.
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
                                     <p className="text-center mt-4 text-[10px] opacity-40 uppercase tracking-widest">
-                                        🔒 Pagamento seguro via PIX · Mercado Pago
+                                        🔒 Pagamento seguro via PIX & Cartão · Mercado Pago
                                     </p>
                                 </div>
                         </form>
