@@ -168,52 +168,53 @@ const FullGallery: React.FC = () => {
             </main>
 
             {/* Lightbox Modal */}
-            {/* Lightbox Modal via Portal approach (manual since we don't have createPortal import yet, but we'll use fixed z-index at root level) */}
+            {/* Lightbox Modal - Bulletproof Structure */}
             {selectedItem && (
                 <div 
-                    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4 sm:p-10"
-                    style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
-                    onClick={closeLightbox}
+                    className="fixed inset-0 z-[99999]" 
+                    style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, margin: 0, padding: 0 }}
                 >
-                    {/* Backdrop blur as a separate layer to avoid clipping issues */}
-                    <div className="absolute inset-0 backdrop-blur-xl opacity-50 pointer-events-none"></div>
-
-                    {/* Navigation Buttons - Force visibility with high z-index */}
-                    <button 
-                        className="absolute top-6 right-6 text-white/80 hover:text-white z-[10001] transition-transform hover:scale-110 active:scale-95"
-                        onClick={closeLightbox}
-                        title="Fechar"
-                    >
-                        <span className="material-symbols-outlined text-5xl">close</span>
-                    </button>
-
-                    <button 
-                        className="absolute left-4 sm:left-10 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-white/5 hover:bg-white/10 text-white flex items-center justify-center z-[10001] transition-all"
-                        onClick={prevPhoto}
-                        title="Anterior"
-                    >
-                        <span className="material-symbols-outlined text-4xl sm:text-6xl">chevron_left</span>
-                    </button>
-
-                    <button 
-                        className="absolute right-4 sm:right-10 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-white/5 hover:bg-white/10 text-white flex items-center justify-center z-[10001] transition-all"
-                        onClick={nextPhoto}
-                        title="Próximo"
-                    >
-                        <span className="material-symbols-outlined text-4xl sm:text-6xl">chevron_right</span>
-                    </button>
-
-                    {/* Main Content Area */}
+                    {/* Dark Background */}
                     <div 
-                        className="relative z-[10000] flex flex-col items-center max-w-full max-h-full"
-                        onClick={(e) => e.stopPropagation()}
+                        className="absolute inset-0 bg-black/95 backdrop-blur-md cursor-pointer"
+                        onClick={closeLightbox}
+                    ></div>
+
+                    {/* Close Button */}
+                    <button 
+                        className="absolute top-4 right-4 sm:top-8 sm:right-8 z-[100000] text-white/80 hover:text-white p-2"
+                        onClick={closeLightbox}
                     >
-                        {/* The Polaroid Frame */}
+                        <span className="material-symbols-outlined text-4xl sm:text-5xl drop-shadow-lg">close</span>
+                    </button>
+
+                    {/* Prev Button */}
+                    <button 
+                        className="absolute left-2 sm:left-8 top-1/2 -translate-y-1/2 z-[100000] text-white/80 hover:text-white p-2 bg-black/20 rounded-full hover:bg-black/40"
+                        onClick={prevPhoto}
+                    >
+                        <span className="material-symbols-outlined text-4xl sm:text-6xl drop-shadow-lg">chevron_left</span>
+                    </button>
+
+                    {/* Next Button */}
+                    <button 
+                        className="absolute right-2 sm:right-8 top-1/2 -translate-y-1/2 z-[100000] text-white/80 hover:text-white p-2 bg-black/20 rounded-full hover:bg-black/40"
+                        onClick={nextPhoto}
+                    >
+                        <span className="material-symbols-outlined text-4xl sm:text-6xl drop-shadow-lg">chevron_right</span>
+                    </button>
+
+                    {/* Centered Content Wrapper (pointer-events-none allows clicking background) */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[100000] p-4 sm:p-12 overflow-hidden">
+                        
+                        {/* The Frame (pointer-events-auto to catch clicks) */}
                         <div 
-                            className="bg-white p-2 sm:p-5 pb-12 sm:pb-24 rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform-gpu transition-transform duration-300 ease-out"
+                            className="bg-white p-3 sm:p-5 pb-16 sm:pb-24 shadow-2xl relative pointer-events-auto"
                             style={{
                                 transform: `scale(${zoom}) translate(${offset.x}px, ${offset.y}px)`,
-                                cursor: zoom > 1 ? 'grab' : 'zoom-in'
+                                transition: zoom === 1 ? 'transform 0.3s ease-out' : 'none',
+                                cursor: zoom > 1 ? 'grab' : 'zoom-in',
+                                border: '1px solid #ddd'
                             }}
                             onDoubleClick={handleZoom}
                             onMouseDown={(e) => { if (zoom > 1) setDragStart({ x: e.clientX, y: e.clientY }); }}
@@ -225,37 +226,46 @@ const FullGallery: React.FC = () => {
                                     setDragStart({ x: e.clientX, y: e.clientY });
                                 }
                             }}
+                            onWheel={(e) => {
+                                e.stopPropagation();
+                                if (e.deltaY < 0) setZoom(z => Math.min(z + 0.2, 4));
+                                if (e.deltaY > 0) setZoom(z => Math.max(z - 0.2, 1));
+                            }}
                         >
+                            {/* The Image */}
                             <img 
                                 src={selectedItem.url} 
-                                alt="Foto do Arraiá" 
-                                className="max-w-[85vw] max-h-[60vh] sm:max-h-[65vh] object-contain rounded-[1px]"
+                                alt={selectedItem.caption || 'Foto do evento'} 
+                                className="max-w-[85vw] max-h-[65vh] object-contain border border-gray-100"
                                 draggable={false}
                                 loading="eager"
+                                style={{ display: 'block' }}
                             />
                             
-                            {/* Polaroid Info */}
-                            <div className="absolute bottom-0 left-0 right-0 h-12 sm:h-24 flex items-center justify-between px-6 sm:px-12">
+                            {/* Legend Area */}
+                            <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-24 flex items-center justify-between px-4 sm:px-8 bg-white">
                                 <div className="flex flex-col">
-                                    <span className="font-display italic text-[#4a2a10] text-sm sm:text-3xl leading-none mb-1">
+                                    <span className="font-display italic text-[#4a2a10] text-lg sm:text-2xl font-bold">
                                         {selectedItem.caption || 'Arraiá da Fafá'}
                                     </span>
-                                    <span className="text-[9px] sm:text-xs text-[#a84b18]/60 font-bold uppercase tracking-[0.3em]">
-                                        Momento Eternizado
+                                    <span className="text-[10px] sm:text-xs text-[#a84b18] uppercase tracking-widest font-semibold mt-1">
+                                        Momento Inesquecível
                                     </span>
                                 </div>
-                                <div className="text-[#4a2a10]/20 font-black text-xl sm:text-4xl italic">
+                                <div className="text-[#4a2a10]/30 font-black text-2xl sm:text-4xl italic">
                                     {filteredItems.findIndex(i => i.id === selectedItem.id) + 1}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Interaction Tips - Simplified */}
-                        <div className="mt-10 flex gap-10 text-white/20 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] animate-pulse">
-                            <span className="flex items-center gap-2"><span className="material-symbols-outlined text-sm">zoom_in</span> Double clique p/ Zoom</span>
-                            <span className="flex items-center gap-2"><span className="material-symbols-outlined text-sm">open_with</span> Arraste p/ Mover</span>
-                        </div>
                     </div>
+
+                    {/* Interaction Tips */}
+                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-6 text-white/50 text-[10px] sm:text-xs uppercase font-bold tracking-widest z-[100000] pointer-events-none">
+                        <span className="hidden sm:flex items-center gap-1"><span className="material-symbols-outlined text-sm">zoom_in</span> 2x Clique: Zoom</span>
+                        <span className="hidden sm:flex items-center gap-1"><span className="material-symbols-outlined text-sm">pan_tool</span> Arraste p/ Mover</span>
+                    </div>
+
                 </div>
             )}
 
