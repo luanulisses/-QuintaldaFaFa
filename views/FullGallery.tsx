@@ -11,7 +11,7 @@ const FullGallery: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [filterId, setFilterId] = useState('all');
 
-    const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+    const [selectedItem, setSelectedItem] = useState<GalleryItem | null>(null);
     const [zoom, setZoom] = useState(1);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -39,22 +39,25 @@ const FullGallery: React.FC = () => {
         ? items
         : items.filter(item => item.gallery_id === filterId);
 
-    const openLightbox = (idx: number) => {
-        setSelectedIdx(idx);
+    const openLightbox = (item: GalleryItem) => {
+        console.log('Opening lightbox for:', item.url);
+        setSelectedItem(item);
         setZoom(1);
         setOffset({ x: 0, y: 0 });
         document.body.style.overflow = 'hidden';
     };
 
     const closeLightbox = () => {
-        setSelectedIdx(null);
+        setSelectedItem(null);
         document.body.style.overflow = 'auto';
     };
 
     const nextPhoto = (e?: React.MouseEvent) => {
         e?.stopPropagation();
-        if (selectedIdx !== null) {
-            setSelectedIdx((selectedIdx + 1) % filteredItems.length);
+        if (selectedItem) {
+            const currentIdx = filteredItems.findIndex(i => i.id === selectedItem.id);
+            const nextIdx = (currentIdx + 1) % filteredItems.length;
+            setSelectedItem(filteredItems[nextIdx]);
             setZoom(1);
             setOffset({ x: 0, y: 0 });
         }
@@ -62,8 +65,10 @@ const FullGallery: React.FC = () => {
 
     const prevPhoto = (e?: React.MouseEvent) => {
         e?.stopPropagation();
-        if (selectedIdx !== null) {
-            setSelectedIdx((selectedIdx - 1 + filteredItems.length) % filteredItems.length);
+        if (selectedItem) {
+            const currentIdx = filteredItems.findIndex(i => i.id === selectedItem.id);
+            const prevIdx = (currentIdx - 1 + filteredItems.length) % filteredItems.length;
+            setSelectedItem(filteredItems[prevIdx]);
             setZoom(1);
             setOffset({ x: 0, y: 0 });
         }
@@ -71,7 +76,7 @@ const FullGallery: React.FC = () => {
 
     const handleZoom = (e: React.MouseEvent) => {
         e.stopPropagation();
-        setZoom(prev => prev === 1 ? 2.5 : 1);
+        setZoom(prev => prev === 1 ? 2 : 1);
         setOffset({ x: 0, y: 0 });
     };
 
@@ -137,7 +142,7 @@ const FullGallery: React.FC = () => {
                         {filteredItems.map((item, idx) => (
                             <div
                                 key={item.id || idx}
-                                onClick={() => openLightbox(idx)}
+                                onClick={() => openLightbox(item)}
                                 className="group relative overflow-hidden rounded-2xl aspect-square shadow-md bg-white animate-fade-in cursor-zoom-in"
                                 style={{ animationDelay: `${idx * 30}ms` }}
                             >
@@ -163,54 +168,46 @@ const FullGallery: React.FC = () => {
             </main>
 
             {/* Lightbox Modal */}
-            {selectedIdx !== null && filteredItems[selectedIdx] && (
+            {selectedItem && (
                 <div 
-                    className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-8 transition-all animate-fade-in"
+                    className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-8 animate-fade-in"
                     onClick={closeLightbox}
                 >
-                    {/* Close Button */}
+                    {/* UI Controls - Absolute fixed to screen */}
                     <button 
-                        className="absolute top-4 right-4 sm:top-8 sm:right-8 text-white/50 hover:text-white z-[110] transition-colors p-2"
+                        className="absolute top-4 right-4 sm:top-8 sm:right-8 text-white/70 hover:text-white z-[120] p-2"
                         onClick={closeLightbox}
                     >
                         <span className="material-symbols-outlined text-4xl">close</span>
                     </button>
 
-                    {/* Navigation Buttons - Hidden on small screens or adjusted */}
                     <button 
-                        className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center z-[110] transition-all backdrop-blur-md border border-white/10 group"
+                        className="absolute left-2 sm:left-8 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center z-[120] backdrop-blur-sm border border-white/10"
                         onClick={prevPhoto}
                     >
-                        <span className="material-symbols-outlined text-2xl sm:text-4xl group-hover:-translate-x-1 transition-transform">chevron_left</span>
-                    </button>
-                    <button 
-                        className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center z-[110] transition-all backdrop-blur-md border border-white/10 group"
-                        onClick={nextPhoto}
-                    >
-                        <span className="material-symbols-outlined text-2xl sm:text-4xl group-hover:translate-x-1 transition-transform">chevron_right</span>
+                        <span className="material-symbols-outlined text-4xl">chevron_left</span>
                     </button>
 
-                    {/* Image Container with Frame */}
+                    <button 
+                        className="absolute right-2 sm:right-8 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center z-[120] backdrop-blur-sm border border-white/10"
+                        onClick={nextPhoto}
+                    >
+                        <span className="material-symbols-outlined text-4xl">chevron_right</span>
+                    </button>
+
+                    {/* The Frame and Photo */}
                     <div 
-                        className="relative flex flex-col items-center max-w-full max-h-full"
+                        className="relative z-[110] flex flex-col items-center select-none"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div 
-                            className="bg-white p-2 sm:p-4 pb-12 sm:pb-20 rounded-sm shadow-2xl relative transition-transform duration-300 origin-center"
+                            className="bg-white p-2 sm:p-4 pb-12 sm:pb-20 rounded-sm shadow-2xl transition-transform duration-300"
                             style={{
                                 transform: `scale(${zoom}) translate(${offset.x}px, ${offset.y}px)`,
                                 cursor: zoom > 1 ? 'grab' : 'zoom-in'
                             }}
-                            onWheel={(e) => {
-                                e.stopPropagation();
-                                if (e.deltaY < 0) setZoom(z => Math.min(z + 0.2, 4));
-                                if (e.deltaY > 0) setZoom(z => Math.max(z - 0.2, 1));
-                            }}
-                            onMouseDown={(e) => {
-                                if (zoom > 1) {
-                                    setDragStart({ x: e.clientX, y: e.clientY });
-                                }
-                            }}
+                            onDoubleClick={handleZoom}
+                            onMouseDown={(e) => { if (zoom > 1) setDragStart({ x: e.clientX, y: e.clientY }); }}
                             onMouseMove={(e) => {
                                 if (zoom > 1 && e.buttons === 1) {
                                     const dx = (e.clientX - dragStart.x) / zoom;
@@ -219,38 +216,36 @@ const FullGallery: React.FC = () => {
                                     setDragStart({ x: e.clientX, y: e.clientY });
                                 }
                             }}
-                            onDoubleClick={handleZoom}
                         >
                             <img 
-                                src={filteredItems[selectedIdx].url} 
-                                alt="Zoomed view" 
-                                className="max-w-[85vw] max-h-[65vh] sm:max-h-[75vh] object-contain rounded-sm select-none"
+                                src={selectedItem.url} 
+                                alt="Visualização" 
+                                className="max-w-[90vw] max-h-[60vh] sm:max-h-[70vh] object-contain rounded-sm shadow-inner"
                                 draggable={false}
                             />
                             
-                            {/* Polaroid Label Area */}
-                            <div className="absolute bottom-0 left-0 right-0 h-12 sm:h-20 flex items-center justify-between px-4 sm:px-8 opacity-90">
+                            <div className="absolute bottom-0 left-0 right-0 h-12 sm:h-20 flex items-center justify-between px-6 sm:px-10">
                                 <div className="flex flex-col">
-                                    <span className="font-display italic text-[#5C2E0A] text-sm sm:text-xl leading-tight">
-                                        {filteredItems[selectedIdx].caption || 'Quintal da Fafá'}
+                                    <span className="font-display italic text-[#5C2E0A] text-sm sm:text-2xl leading-tight">
+                                        {selectedItem.caption || 'Arraiá Quintal'}
                                     </span>
-                                    <span className="text-[10px] text-[#A84B18] font-bold uppercase tracking-widest opacity-60">
-                                        Memórias Inesquecíveis
+                                    <span className="text-[10px] sm:text-xs text-[#A84B18] font-bold uppercase tracking-[0.2em] opacity-40">
+                                        Momento Inesquecível
                                     </span>
                                 </div>
-                                <div className="bg-[#5C2E0A] text-[#EDD68A] px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold">
-                                    {selectedIdx + 1} / {filteredItems.length}
+                                <div className="text-[#5C2E0A]/40 font-bold text-xs sm:text-base">
+                                    #{filteredItems.findIndex(i => i.id === selectedItem.id) + 1}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Interaction Tips */}
-                        <div className="mt-6 flex gap-6 text-white/40 text-[10px] sm:text-xs font-medium uppercase tracking-widest pointer-events-none">
+                        {/* Help Text */}
+                        <div className="mt-8 flex gap-8 text-white/30 text-[10px] uppercase font-bold tracking-widest">
                             <span className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">mouse</span> Scroll p/ Zoom
+                                <span className="material-symbols-outlined text-sm">zoom_in</span> Double clique p/ Zoom
                             </span>
                             <span className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">touch_app</span> Double clique p/ Zoom
+                                <span className="material-symbols-outlined text-sm">swipe</span> Arraste p/ Mover
                             </span>
                         </div>
                     </div>
