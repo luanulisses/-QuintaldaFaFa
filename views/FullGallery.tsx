@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useGallery, GalleryItem, Gallery as GalleryType } from '../lib/hooks/useGallery';
 import Footer from '../components/landing/Footer';
@@ -168,8 +169,8 @@ const FullGallery: React.FC = () => {
             </main>
 
             {/* Lightbox Modal */}
-            {/* Lightbox Modal - Bulletproof Structure */}
-            {selectedItem && (
+            {/* Lightbox Modal - Bulletproof Structure with React Portals */}
+            {selectedItem && createPortal(
                 <div 
                     className="fixed inset-0 z-[99999]" 
                     style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, margin: 0, padding: 0 }}
@@ -266,7 +267,8 @@ const FullGallery: React.FC = () => {
                         <span className="hidden sm:flex items-center gap-1"><span className="material-symbols-outlined text-sm">pan_tool</span> Arraste p/ Mover</span>
                     </div>
 
-                </div>
+                </div>,
+                document.body
             )}
 
             <Footer />
