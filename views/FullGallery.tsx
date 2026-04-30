@@ -163,90 +163,95 @@ const FullGallery: React.FC = () => {
             </main>
 
             {/* Lightbox Modal */}
-            {selectedIdx !== null && (
+            {selectedIdx !== null && filteredItems[selectedIdx] && (
                 <div 
-                    className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 sm:p-8 transition-all animate-fade-in"
+                    className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-8 transition-all animate-fade-in"
                     onClick={closeLightbox}
-                    onWheel={(e) => {
-                        if (e.deltaY < 0) setZoom(z => Math.min(z + 0.1, 4));
-                        if (e.deltaY > 0) setZoom(z => Math.max(z - 0.1, 1));
-                    }}
                 >
                     {/* Close Button */}
                     <button 
-                        className="absolute top-6 right-6 text-white/70 hover:text-white z-[110] transition-colors"
+                        className="absolute top-4 right-4 sm:top-8 sm:right-8 text-white/50 hover:text-white z-[110] transition-colors p-2"
                         onClick={closeLightbox}
                     >
                         <span className="material-symbols-outlined text-4xl">close</span>
                     </button>
 
-                    {/* Navigation Buttons */}
+                    {/* Navigation Buttons - Hidden on small screens or adjusted */}
                     <button 
-                        className="absolute left-4 sm:left-10 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center z-[110] transition-all backdrop-blur-md border border-white/10 group"
+                        className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center z-[110] transition-all backdrop-blur-md border border-white/10 group"
                         onClick={prevPhoto}
                     >
-                        <span className="material-symbols-outlined text-3xl group-hover:-translate-x-1 transition-transform">chevron_left</span>
+                        <span className="material-symbols-outlined text-2xl sm:text-4xl group-hover:-translate-x-1 transition-transform">chevron_left</span>
                     </button>
                     <button 
-                        className="absolute right-4 sm:right-10 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center z-[110] transition-all backdrop-blur-md border border-white/10 group"
+                        className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-14 sm:h-14 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center z-[110] transition-all backdrop-blur-md border border-white/10 group"
                         onClick={nextPhoto}
                     >
-                        <span className="material-symbols-outlined text-3xl group-hover:translate-x-1 transition-transform">chevron_right</span>
+                        <span className="material-symbols-outlined text-2xl sm:text-4xl group-hover:translate-x-1 transition-transform">chevron_right</span>
                     </button>
 
-                    {/* Image with Frame */}
+                    {/* Image Container with Frame */}
                     <div 
-                        className="relative max-w-full max-h-full flex flex-col items-center gap-4 transition-transform duration-300"
+                        className="relative flex flex-col items-center max-w-full max-h-full"
                         onClick={(e) => e.stopPropagation()}
-                        style={{
-                            transform: `scale(${zoom}) translate(${offset.x}px, ${offset.y}px)`,
-                            cursor: zoom > 1 ? 'grab' : 'default'
-                        }}
-                        onMouseDown={(e) => {
-                            if (zoom > 1) {
-                                setDragStart({ x: e.clientX, y: e.clientY });
-                            }
-                        }}
-                        onMouseMove={(e) => {
-                            if (zoom > 1 && e.buttons === 1) {
-                                const dx = e.clientX - dragStart.x;
-                                const dy = e.clientY - dragStart.y;
-                                setOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
-                                setDragStart({ x: e.clientX, y: e.clientY });
-                            }
-                        }}
                     >
-                        <div className="bg-white p-3 sm:p-4 pb-12 sm:pb-16 rounded-sm shadow-2xl border-2 border-white/20 relative group">
+                        <div 
+                            className="bg-white p-2 sm:p-4 pb-12 sm:pb-20 rounded-sm shadow-2xl relative transition-transform duration-300 origin-center"
+                            style={{
+                                transform: `scale(${zoom}) translate(${offset.x}px, ${offset.y}px)`,
+                                cursor: zoom > 1 ? 'grab' : 'zoom-in'
+                            }}
+                            onWheel={(e) => {
+                                e.stopPropagation();
+                                if (e.deltaY < 0) setZoom(z => Math.min(z + 0.2, 4));
+                                if (e.deltaY > 0) setZoom(z => Math.max(z - 0.2, 1));
+                            }}
+                            onMouseDown={(e) => {
+                                if (zoom > 1) {
+                                    setDragStart({ x: e.clientX, y: e.clientY });
+                                }
+                            }}
+                            onMouseMove={(e) => {
+                                if (zoom > 1 && e.buttons === 1) {
+                                    const dx = (e.clientX - dragStart.x) / zoom;
+                                    const dy = (e.clientY - dragStart.y) / zoom;
+                                    setOffset(prev => ({ x: prev.x + dx, y: prev.y + dy }));
+                                    setDragStart({ x: e.clientX, y: e.clientY });
+                                }
+                            }}
+                            onDoubleClick={handleZoom}
+                        >
                             <img 
                                 src={filteredItems[selectedIdx].url} 
                                 alt="Zoomed view" 
-                                className="max-w-[90vw] max-h-[70vh] sm:max-h-[75vh] object-contain rounded-sm"
-                                onDoubleClick={handleZoom}
+                                className="max-w-[85vw] max-h-[65vh] sm:max-h-[75vh] object-contain rounded-sm select-none"
+                                draggable={false}
                             />
-                            {/* Legend in the frame */}
-                            <div className="absolute bottom-2 sm:bottom-4 left-6 right-6 flex justify-between items-center opacity-80">
-                                <span className="font-display italic text-[#5C2E0A] text-xs sm:text-lg">
-                                    {filteredItems[selectedIdx].caption || 'Quintal da Fafá'}
-                                </span>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[10px] sm:text-xs font-bold text-[#D9981F]">
-                                        {selectedIdx + 1} / {filteredItems.length}
+                            
+                            {/* Polaroid Label Area */}
+                            <div className="absolute bottom-0 left-0 right-0 h-12 sm:h-20 flex items-center justify-between px-4 sm:px-8 opacity-90">
+                                <div className="flex flex-col">
+                                    <span className="font-display italic text-[#5C2E0A] text-sm sm:text-xl leading-tight">
+                                        {filteredItems[selectedIdx].caption || 'Quintal da Fafá'}
                                     </span>
+                                    <span className="text-[10px] text-[#A84B18] font-bold uppercase tracking-widest opacity-60">
+                                        Memórias Inesquecíveis
+                                    </span>
+                                </div>
+                                <div className="bg-[#5C2E0A] text-[#EDD68A] px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold">
+                                    {selectedIdx + 1} / {filteredItems.length}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Controls Overlay */}
-                        <div className="absolute -bottom-16 flex gap-4 text-white/50 text-xs items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <div className="flex items-center gap-1">
-                                <span className="material-symbols-outlined text-sm">pinch</span>
-                                <span>Scroll p/ Zoom</span>
-                            </div>
-                            <div className="w-1 h-1 bg-white/20 rounded-full"></div>
-                            <div className="flex items-center gap-1">
-                                <span className="material-symbols-outlined text-sm">ads_click</span>
-                                <span>Double clique p/ Zoom Rápido</span>
-                            </div>
+                        {/* Interaction Tips */}
+                        <div className="mt-6 flex gap-6 text-white/40 text-[10px] sm:text-xs font-medium uppercase tracking-widest pointer-events-none">
+                            <span className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm">mouse</span> Scroll p/ Zoom
+                            </span>
+                            <span className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-sm">touch_app</span> Double clique p/ Zoom
+                            </span>
                         </div>
                     </div>
                 </div>
