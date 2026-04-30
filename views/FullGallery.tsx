@@ -168,40 +168,49 @@ const FullGallery: React.FC = () => {
             </main>
 
             {/* Lightbox Modal */}
+            {/* Lightbox Modal via Portal approach (manual since we don't have createPortal import yet, but we'll use fixed z-index at root level) */}
             {selectedItem && (
                 <div 
-                    className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-8 animate-fade-in"
+                    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/95 p-4 sm:p-10"
+                    style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
                     onClick={closeLightbox}
                 >
-                    {/* UI Controls - Absolute fixed to screen */}
+                    {/* Backdrop blur as a separate layer to avoid clipping issues */}
+                    <div className="absolute inset-0 backdrop-blur-xl opacity-50 pointer-events-none"></div>
+
+                    {/* Navigation Buttons - Force visibility with high z-index */}
                     <button 
-                        className="absolute top-4 right-4 sm:top-8 sm:right-8 text-white/70 hover:text-white z-[120] p-2"
+                        className="absolute top-6 right-6 text-white/80 hover:text-white z-[10001] transition-transform hover:scale-110 active:scale-95"
                         onClick={closeLightbox}
+                        title="Fechar"
                     >
-                        <span className="material-symbols-outlined text-4xl">close</span>
+                        <span className="material-symbols-outlined text-5xl">close</span>
                     </button>
 
                     <button 
-                        className="absolute left-2 sm:left-8 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center z-[120] backdrop-blur-sm border border-white/10"
+                        className="absolute left-4 sm:left-10 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-white/5 hover:bg-white/10 text-white flex items-center justify-center z-[10001] transition-all"
                         onClick={prevPhoto}
+                        title="Anterior"
                     >
-                        <span className="material-symbols-outlined text-4xl">chevron_left</span>
+                        <span className="material-symbols-outlined text-4xl sm:text-6xl">chevron_left</span>
                     </button>
 
                     <button 
-                        className="absolute right-2 sm:right-8 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center z-[120] backdrop-blur-sm border border-white/10"
+                        className="absolute right-4 sm:right-10 top-1/2 -translate-y-1/2 w-12 h-12 sm:w-20 sm:h-20 rounded-full bg-white/5 hover:bg-white/10 text-white flex items-center justify-center z-[10001] transition-all"
                         onClick={nextPhoto}
+                        title="Próximo"
                     >
-                        <span className="material-symbols-outlined text-4xl">chevron_right</span>
+                        <span className="material-symbols-outlined text-4xl sm:text-6xl">chevron_right</span>
                     </button>
 
-                    {/* The Frame and Photo */}
+                    {/* Main Content Area */}
                     <div 
-                        className="relative z-[110] flex flex-col items-center select-none"
+                        className="relative z-[10000] flex flex-col items-center max-w-full max-h-full"
                         onClick={(e) => e.stopPropagation()}
                     >
+                        {/* The Polaroid Frame */}
                         <div 
-                            className="bg-white p-2 sm:p-4 pb-12 sm:pb-20 rounded-sm shadow-2xl transition-transform duration-300"
+                            className="bg-white p-2 sm:p-5 pb-12 sm:pb-24 rounded-sm shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform-gpu transition-transform duration-300 ease-out"
                             style={{
                                 transform: `scale(${zoom}) translate(${offset.x}px, ${offset.y}px)`,
                                 cursor: zoom > 1 ? 'grab' : 'zoom-in'
@@ -219,34 +228,32 @@ const FullGallery: React.FC = () => {
                         >
                             <img 
                                 src={selectedItem.url} 
-                                alt="Visualização" 
-                                className="max-w-[90vw] max-h-[60vh] sm:max-h-[70vh] object-contain rounded-sm shadow-inner"
+                                alt="Foto do Arraiá" 
+                                className="max-w-[85vw] max-h-[60vh] sm:max-h-[65vh] object-contain rounded-[1px]"
                                 draggable={false}
+                                loading="eager"
                             />
                             
-                            <div className="absolute bottom-0 left-0 right-0 h-12 sm:h-20 flex items-center justify-between px-6 sm:px-10">
+                            {/* Polaroid Info */}
+                            <div className="absolute bottom-0 left-0 right-0 h-12 sm:h-24 flex items-center justify-between px-6 sm:px-12">
                                 <div className="flex flex-col">
-                                    <span className="font-display italic text-[#5C2E0A] text-sm sm:text-2xl leading-tight">
-                                        {selectedItem.caption || 'Arraiá Quintal'}
+                                    <span className="font-display italic text-[#4a2a10] text-sm sm:text-3xl leading-none mb-1">
+                                        {selectedItem.caption || 'Arraiá da Fafá'}
                                     </span>
-                                    <span className="text-[10px] sm:text-xs text-[#A84B18] font-bold uppercase tracking-[0.2em] opacity-40">
-                                        Momento Inesquecível
+                                    <span className="text-[9px] sm:text-xs text-[#a84b18]/60 font-bold uppercase tracking-[0.3em]">
+                                        Momento Eternizado
                                     </span>
                                 </div>
-                                <div className="text-[#5C2E0A]/40 font-bold text-xs sm:text-base">
-                                    #{filteredItems.findIndex(i => i.id === selectedItem.id) + 1}
+                                <div className="text-[#4a2a10]/20 font-black text-xl sm:text-4xl italic">
+                                    {filteredItems.findIndex(i => i.id === selectedItem.id) + 1}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Help Text */}
-                        <div className="mt-8 flex gap-8 text-white/30 text-[10px] uppercase font-bold tracking-widest">
-                            <span className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">zoom_in</span> Double clique p/ Zoom
-                            </span>
-                            <span className="flex items-center gap-2">
-                                <span className="material-symbols-outlined text-sm">swipe</span> Arraste p/ Mover
-                            </span>
+                        {/* Interaction Tips - Simplified */}
+                        <div className="mt-10 flex gap-10 text-white/20 text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] animate-pulse">
+                            <span className="flex items-center gap-2"><span className="material-symbols-outlined text-sm">zoom_in</span> Double clique p/ Zoom</span>
+                            <span className="flex items-center gap-2"><span className="material-symbols-outlined text-sm">open_with</span> Arraste p/ Mover</span>
                         </div>
                     </div>
                 </div>
