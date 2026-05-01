@@ -28,6 +28,7 @@ body {
   background-color: var(--color-background);
   color: var(--color-text-main);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 #root {
@@ -236,4 +237,19 @@ h6 {
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: var(--color-primary);
   border-radius: 2px;
+}
+
+/* Mercado Pago Mobile Layout Overrides */
+.mercadopago-brick-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 768px) {
+  #mercadopago-brick-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
 }

@@ -480,7 +480,7 @@ const Arraia2026: React.FC = () => {
                     <a href="#local" className="hover:text-[#D9981F] transition-colors">Local</a>
                 </div>
                 <a href="#checkout-form">
-                    <button className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] px-5 py-2 rounded-full font-black text-sm transition-all transform hover:scale-105 shadow-lg">
+                    <button className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] px-3 md:px-5 py-2 rounded-full font-black text-[11px] xs:text-xs md:text-sm transition-all transform hover:scale-105 shadow-lg whitespace-nowrap">
                         COMPRAR INGRESSO
                     </button>
                 </a>
@@ -1102,7 +1102,7 @@ const Arraia2026: React.FC = () => {
                                             </button>
                                         </>
                                     ) : (
-                                        <div className="mt-6 bg-white rounded-2xl p-4 overflow-hidden text-black flex flex-col gap-2">
+                                        <div className="mt-6 bg-white rounded-2xl p-2 md:p-4 overflow-hidden text-black flex flex-col gap-2 w-full max-w-full box-border">
                                             {total > 0 && formData.name && formData.email && formData.phone ? (
                                                 <>
                                                     <Payment 
