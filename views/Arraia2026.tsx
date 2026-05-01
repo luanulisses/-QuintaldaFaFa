@@ -901,17 +901,17 @@ const Arraia2026: React.FC = () => {
 
             {/* Pricing / Buy Section */}
             <section id="comprar" className="py-24 bg-[#F0DFBB]" style={{ scrollMarginTop: '80px' }}>
-                <div className="container mx-auto px-6 max-w-6xl">
+                <div className="container mx-auto px-2 xs:px-4 md:px-6 max-w-6xl overflow-x-hidden">
                     <div className="text-center mb-16">
                         <span className="text-[#A84B18] text-xs font-bold tracking-[0.2em] uppercase mb-2 block">Garanta seu lugar</span>
                         <h2 className="font-display text-4xl md:text-6xl font-bold text-[#5C2E0A] mb-6">Preços & Lotes</h2>
                         <p className="text-[#A84B18] font-bold">⚠️ Apenas 300 ingressos disponíveis. Esgotando rápido!</p>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-12">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 mt-12">
                         {/* Summary of Batches / Lotes */}
                         <div className="space-y-4">
-                            <div className="bg-white rounded-3xl p-8 border-2 border-[#D9981F] shadow-xl relative scale-105 z-10 animate-fade-in">
+                            <div className="bg-white rounded-3xl p-6 md:p-8 border-2 border-[#D9981F] shadow-xl relative scale-105 z-10 animate-fade-in">
                                 <div className="absolute top-0 right-10 bg-[#D9981F] text-[#1C0C04] px-4 py-1 rounded-b-xl text-[10px] font-black tracking-widest">
                                     LOTE ATUAL
                                 </div>
@@ -938,7 +938,7 @@ const Arraia2026: React.FC = () => {
                                 </div>
                             </div>
                             {/* Future Lotes Grayscale */}
-                            <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-8 border border-black/5 opacity-60">
+                            <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 md:p-8 border border-black/5 opacity-60">
                                 <h3 className="font-display text-xl font-bold text-[#5C2E0A]/60 mb-2">2º Lote</h3>
                                 <div className="space-y-2 text-xs">
                                     <div className="flex justify-between">
@@ -959,7 +959,7 @@ const Arraia2026: React.FC = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-8 border border-black/5 opacity-60">
+                            <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 md:p-8 border border-black/5 opacity-60">
                                 <h3 className="font-display text-xl font-bold text-[#5C2E0A]/60 mb-2">3º Lote</h3>
                                 <div className="space-y-2 text-xs">
                                     <div className="flex justify-between">
@@ -983,7 +983,7 @@ const Arraia2026: React.FC = () => {
                         </div>
 
                         {/* Checkout Form */}
-                        <form id="checkout-form" onSubmit={handlePurchase} className="bg-[#1C0C04] text-[#EDD68A] p-10 rounded-[40px] shadow-2xl space-y-6" style={{ scrollMarginTop: '100px' }}>
+                        <form id="checkout-form" onSubmit={handlePurchase} className="bg-[#1C0C04] text-[#EDD68A] p-4 sm:p-6 md:p-10 rounded-2xl md:rounded-[40px] shadow-2xl space-y-6 w-full max-w-full overflow-hidden box-border" style={{ scrollMarginTop: '100px' }}>
                             <h3 className="font-display text-3xl font-bold mb-6">Seus Dados</h3>
                             <div className="space-y-4">
                                 <div>
