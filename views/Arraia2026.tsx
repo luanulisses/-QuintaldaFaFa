@@ -905,7 +905,7 @@ const Arraia2026: React.FC = () => {
                     <div className="text-center mb-16">
                         <span className="text-[#A84B18] text-xs font-bold tracking-[0.2em] uppercase mb-2 block">Garanta seu lugar</span>
                         <h2 className="font-display text-4xl md:text-6xl font-bold text-[#5C2E0A] mb-6">Preços & Lotes</h2>
-                        <p className="text-[#A84B18] font-bold">⚠️ Apenas 300 ingressos disponíveis. Esgotando rápido!</p>
+                        <p className="text-[#A84B18] font-bold animate-pulse">🔥 RESTAM APENAS 150 INGRESSOS PARA O 2º LOTE. GARANTA O SEU AGORA! 🏃‍♂️💨</p>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 mt-12">
