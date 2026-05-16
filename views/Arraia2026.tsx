@@ -47,7 +47,7 @@ const Arraia2026: React.FC = () => {
     const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
     const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-    const currentPrices = { geral: 20, meia: 10, passaporte: 20, combo: 50, pescaria: 10, brinquedos: 10 };
+    const currentPrices = { geral: 25, meia: 12, passaporte: 25, combo: 62, pescaria: 10, brinquedos: 10 };
 
     const total = (
         (qty.geral * currentPrices.geral) +
@@ -814,8 +814,8 @@ const Arraia2026: React.FC = () => {
                         <span className="font-display italic text-3xl text-[#D9981F] mb-4 block">Passaporte da Alegria</span>
                         <div className="text-8xl mb-8">🎫</div>
                         <p className="text-sm opacity-60 uppercase tracking-widest mb-2">A partir de</p>
-                        <div className="font-display text-6xl font-black text-[#D9981F] mb-4">R$ 20</div>
-                        <p className="text-xs opacity-50 mb-8">no 1º Lote · para crianças de 3 a 12 anos</p>
+                        <div className="font-display text-6xl font-black text-[#D9981F] mb-4">R$ 25</div>
+                        <p className="text-xs opacity-50 mb-8">no 2º Lote · para crianças de 3 a 12 anos</p>
                         <div className="bg-[#D9981F] text-[#1C0C04] py-2 px-6 rounded-full inline-block font-bold text-xs uppercase tracking-tight">
                             🎟️ Incluído no Combo Especial
                         </div>
@@ -911,54 +911,61 @@ const Arraia2026: React.FC = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 mt-12">
                         {/* Summary of Batches / Lotes */}
                         <div className="space-y-4">
+                            {/* 1st Lote - ESGOTADO */}
+                            <div className="bg-white/40 backdrop-blur-sm rounded-3xl p-6 md:p-8 border border-black/5 opacity-60 relative grayscale">
+                                <div className="absolute top-0 right-10 bg-gray-500 text-white px-4 py-1 rounded-b-xl text-[10px] font-black tracking-widest">
+                                    ESGOTADO
+                                </div>
+                                <h3 className="font-display text-xl font-bold text-[#5C2E0A]/60 mb-2">1º Lote</h3>
+                                <div className="space-y-2 text-xs">
+                                    <div className="flex justify-between">
+                                        <span>Geral</span>
+                                        <span>R$ 20</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Kids</span>
+                                        <span>R$ 20</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span>Meia (6-12)</span>
+                                        <span>R$ 10</span>
+                                    </div>
+                                    <div className="flex justify-between font-bold border-t border-black/10 pt-1">
+                                        <span>Combo</span>
+                                        <span>R$ 50</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 2nd Lote - LOTE ATUAL */}
                             <div className="bg-white rounded-3xl p-6 md:p-8 border-2 border-[#D9981F] shadow-xl relative scale-105 z-10 animate-fade-in">
                                 <div className="absolute top-0 right-10 bg-[#D9981F] text-[#1C0C04] px-4 py-1 rounded-b-xl text-[10px] font-black tracking-widest">
                                     LOTE ATUAL
                                 </div>
                                 <h3 className="font-display text-2xl font-bold text-[#5C2E0A] mb-6">
-                                    1º Lote
+                                    2º Lote
                                 </h3>
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-center border-b border-dashed border-[#5C2E0A]/20 pb-2">
                                         <span className="text-[#7a5235]">Ingresso Geral</span>
-                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 20</span>
+                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 25</span>
                                     </div>
                                     <div className="flex justify-between items-center border-b border-dashed border-[#5C2E0A]/20 pb-2">
                                         <span className="text-[#7a5235]">Passaporte Kids</span>
-                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 20</span>
+                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 25</span>
                                     </div>
                                     <div className="flex justify-between items-center border-b border-dashed border-[#5C2E0A]/20 pb-2">
                                         <span className="text-[#7a5235]">Meia (6 a 12 anos)</span>
-                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 10</span>
+                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 12</span>
                                     </div>
                                     <div className="bg-gradient-to-r from-[#A84B18] to-[#E85D2F] p-4 rounded-xl flex justify-between items-center text-white">
                                         <span className="font-bold">Combo (Geral + Kids + Meia)</span>
-                                        <span className="font-display text-2xl font-bold">R$ 50</span>
+                                        <span className="font-display text-2xl font-bold">R$ 62</span>
                                     </div>
                                 </div>
                             </div>
-                            {/* Future Lotes Grayscale */}
-                            <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 md:p-8 border border-black/5 opacity-60">
-                                <h3 className="font-display text-xl font-bold text-[#5C2E0A]/60 mb-2">2º Lote</h3>
-                                <div className="space-y-2 text-xs">
-                                    <div className="flex justify-between">
-                                        <span>Geral</span>
-                                        <span>R$ 25</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span>Kids</span>
-                                        <span>R$ 25</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span>Meia (6-12)</span>
-                                        <span>R$ 12</span>
-                                    </div>
-                                    <div className="flex justify-between font-bold border-t border-black/10 pt-1">
-                                        <span>Combo</span>
-                                        <span>R$ 62</span>
-                                    </div>
-                                </div>
-                            </div>
+
+                            {/* 3rd Lote */}
                             <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 md:p-8 border border-black/5 opacity-60">
                                 <h3 className="font-display text-xl font-bold text-[#5C2E0A]/60 mb-2">3º Lote</h3>
                                 <div className="space-y-2 text-xs">
