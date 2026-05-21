@@ -101,14 +101,14 @@ const ArraiaLista: React.FC = () => {
             `"${p.customer_email}"`,
             `"${p.customer_phone}"`,
             `"${formatItems(p.items)}"`,
-            p.total_amount,
+            `"${p.total_amount.toFixed(2).replace('.', ',')}"`, // Formata valor para o padrão BR
             `"${STATUS_LABELS[p.payment_status]?.label.replace(' ✅', '') || p.payment_status}"`,
             `"${p.checked_in ? (p.checked_in_at ? new Date(p.checked_in_at).toLocaleTimeString('pt-BR') : 'Sim') : 'Não'}"`
         ]);
 
         const csvContent = [
-            headers.join(','),
-            ...rows.map(row => row.join(','))
+            headers.join(';'),
+            ...rows.map(row => row.join(';'))
         ].join('\n');
 
         const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
