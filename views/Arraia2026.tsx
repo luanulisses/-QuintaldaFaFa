@@ -791,14 +791,14 @@ const Arraia2026: React.FC = () => {
                         <span className="text-[#D9981F] text-xs font-bold tracking-[0.2em] uppercase block">Para a criançada</span>
                         <h2 className="font-display text-4xl md:text-6xl font-bold">Passaporte da Alegria 🎪</h2>
                         <p className="text-[#EDD68A]/70 text-lg">
-                            Diversão ilimitada para os pequenos com acesso a <strong>6 brinquedos</strong>. Vendido separado do ingresso de adulto.
+                            Diversão ilimitada para os pequenos com acesso a <strong>5 brinquedos</strong>. Vendido separado do ingresso de adulto.
                         </p>
                         <div className="bg-[#D9981F]/10 border border-[#D9981F]/30 p-4 rounded-xl flex items-center gap-3">
                             <span className="material-symbols-outlined text-[#D9981F]">schedule</span>
                             <p className="text-sm font-bold">Horário: Das 20:00h às 00:00h</p>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            {['Pula-pula', 'Ping Pong', 'Touro Mecânico', 'Escalada', 'Airgame', 'Tobogã'].map(item => (
+                            {['Pula-pula', 'Touro Mecânico', 'Escalada', 'Airgame', 'Tobogã'].map(item => (
                                 <div key={item} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-3">
                                     <span className="material-symbols-outlined text-[#D9981F] text-sm">check_circle</span>
                                     <span className="text-sm font-medium">{item}</span>
@@ -1152,7 +1152,7 @@ const Arraia2026: React.FC = () => {
                     <FaqAccordion items={[
                         {
                             q: 'Qual é a diferença entre Ingresso Geral e Passaporte da Alegria?',
-                            a: 'O Ingresso Geral dá acesso ao evento, aos shows das bandas e à praça de alimentação. O Passaporte é um complemento exclusivo para crianças, com acesso ilimitado a 6 brinquedos (Pula-pula, Ping Pong, Touro Mecânico, Escalada, Airgame e Tobogã). O Combo já inclui os dois.'
+                            a: 'O Ingresso Geral dá acesso ao evento, aos shows das bandas e à praça de alimentação. O Passaporte é um complemento exclusivo para crianças, com acesso ilimitado a 5 brinquedos (Pula-pula, Touro Mecânico, Escalada, Airgame e Tobogã). O Combo já inclui os dois.'
                         },
                         {
                             q: 'Crianças pagam entrada?',
