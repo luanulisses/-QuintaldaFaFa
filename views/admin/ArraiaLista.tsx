@@ -88,7 +88,37 @@ const ArraiaLista: React.FC = () => {
     };
 
     const exportCSV = () => {
-        // ... (same logic as before)
+        if (filtered.length === 0) {
+            alert('Não há dados para exportar.');
+            return;
+        }
+
+        const headers = ['Nº Lista', 'Nome', 'E-mail', 'Telefone', 'Ingressos', 'Total (R$)', 'Status', 'Check-in'];
+        
+        const rows = filtered.map(p => [
+            p.list_number || 'PENDENTE',
+            `"${p.customer_name}"`,
+            `"${p.customer_email}"`,
+            `"${p.customer_phone}"`,
+            `"${formatItems(p.items)}"`,
+            p.total_amount,
+            `"${STATUS_LABELS[p.payment_status]?.label.replace(' ✅', '') || p.payment_status}"`,
+            `"${p.checked_in ? (p.checked_in_at ? new Date(p.checked_in_at).toLocaleTimeString('pt-BR') : 'Sim') : 'Não'}"`
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.join(','))
+        ].join('\n');
+
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `lista_arraia_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     const handleDelete = async (id: string) => {
