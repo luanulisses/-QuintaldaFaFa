@@ -12,6 +12,9 @@ import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
 
 initMercadoPago(import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY, { locale: 'pt-BR' });
 
+// Flag para encerrar as vendas do evento (Modo Evento Encerrado)
+const SALES_CLOSED = true;
+
 const Arraia2026: React.FC = () => {
     const [timeLeft, setTimeLeft] = useState<{ days: number, hours: number, minutes: number, seconds: number }>({
         days: 0, hours: 0, minutes: 0, seconds: 0
@@ -177,6 +180,10 @@ const Arraia2026: React.FC = () => {
 
     const handlePurchase = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (SALES_CLOSED) {
+            alert('As vendas online foram encerradas. Agradecemos sua participação!');
+            return;
+        }
         if (paymentMethod !== 'pix') return;
         if (total === 0) { setPurchaseError('Selecione pelo menos um ingresso.'); return; }
         
@@ -251,6 +258,11 @@ const Arraia2026: React.FC = () => {
 
     const onCardPaymentSubmit = useCallback((cardFormData: any) => {
         return new Promise<void>(async (resolve, reject) => {
+            if (SALES_CLOSED) {
+                alert('As vendas online foram encerradas. Agradecemos sua participação!');
+                reject(new Error('Vendas encerradas.'));
+                return;
+            }
             if (total === 0) { 
                 setPurchaseError('Selecione pelo menos um ingresso.'); 
                 reject();
@@ -511,11 +523,19 @@ const Arraia2026: React.FC = () => {
                     <a href="#comprar" className="hover:text-[#D9981F] transition-colors">Preços</a>
                     <a href="#local" className="hover:text-[#D9981F] transition-colors">Local</a>
                 </div>
-                <a href="#checkout-form">
-                    <button className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] px-3 md:px-5 py-2 rounded-full font-black text-[11px] xs:text-xs md:text-sm transition-all transform hover:scale-105 shadow-lg whitespace-nowrap">
-                        COMPRAR INGRESSO
-                    </button>
-                </a>
+                {SALES_CLOSED ? (
+                    <Link to="/galeria">
+                        <button className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] px-3 md:px-5 py-2 rounded-full font-black text-[11px] xs:text-xs md:text-sm transition-all transform hover:scale-105 shadow-lg whitespace-nowrap">
+                            📸 VER FOTOS
+                        </button>
+                    </Link>
+                ) : (
+                    <a href="#checkout-form">
+                        <button className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] px-3 md:px-5 py-2 rounded-full font-black text-[11px] xs:text-xs md:text-sm transition-all transform hover:scale-105 shadow-lg whitespace-nowrap">
+                            COMPRAR INGRESSO
+                        </button>
+                    </a>
+                )}
             </nav>
 
             {/* Hero Section */}
@@ -578,7 +598,7 @@ const Arraia2026: React.FC = () => {
 
                 <div className="relative z-10 max-w-4xl space-y-6 animate-fade-in py-20">
                     <span className="inline-block py-2 px-6 rounded-full bg-[#E85D2F] text-white text-xs font-bold tracking-widest uppercase shadow-lg">
-                        🎉 06 de Junho de 2026 · Planaltina — DF
+                        {SALES_CLOSED ? '✨ EVENTO REALIZADO' : '🎉 06 de Junho de 2026 · Planaltina — DF'}
                     </span>
                     <h1 className="font-display text-3xl sm:text-6xl md:text-8xl font-bold text-[#EDD68A] leading-tight md:leading-none drop-shadow-2xl px-2">
                         {isEventStarted ? (
@@ -614,11 +634,19 @@ const Arraia2026: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-4 justify-center animate-slide-up" style={{ animationDelay: '0.4s' }}>
-                        <a href={isEventStarted ? "#atracoes" : "#checkout-form"}>
-                            <Button size="lg" className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] font-bold border-none shadow-xl transform hover:-translate-y-1 transition-all px-6">
-                                {isEventStarted ? 'ℹ️ VER INFORMAÇÕES DO EVENTO' : '🎟️ GARANTIR MEU INGRESSO'}
-                            </Button>
-                        </a>
+                        {SALES_CLOSED ? (
+                            <Link to="/galeria">
+                                <Button size="lg" className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] font-bold border-none shadow-xl transform hover:-translate-y-1 transition-all px-6">
+                                    📸 Ver Fotos do Evento
+                                </Button>
+                            </Link>
+                        ) : (
+                            <a href={isEventStarted ? "#atracoes" : "#checkout-form"}>
+                                <Button size="lg" className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] font-bold border-none shadow-xl transform hover:-translate-y-1 transition-all px-6">
+                                    {isEventStarted ? 'ℹ️ VER INFORMAÇÕES DO EVENTO' : '🎟️ GARANTIR MEU INGRESSO'}
+                                </Button>
+                            </a>
+                        )}
                     </div>
 
                     {/* Memory Badge */}
@@ -1012,6 +1040,14 @@ const Arraia2026: React.FC = () => {
                         </div>
 
                         {/* Checkout Form */}
+                        {SALES_CLOSED ? (
+                            <div id="checkout-form" className="bg-[#1C0C04] text-[#EDD68A] p-10 md:p-16 rounded-[40px] shadow-2xl text-center flex flex-col items-center justify-center min-h-[400px] border-2 border-[#D9981F]/30" style={{ scrollMarginTop: '100px' }}>
+                                <div className="text-6xl md:text-8xl mb-6">🎉</div>
+                                <h3 className="font-display text-3xl md:text-5xl font-bold mb-4 text-[#EDD68A]">Evento Encerrado</h3>
+                                <p className="text-[#EDD68A]/90 text-lg md:text-xl mb-6 font-bold">Agradecemos a todos que participaram do Arraiá do Quintal da Fafá 2026.</p>
+                                <p className="text-[#EDD68A]/70 text-md md:text-lg">Foi uma alegria compartilhar esse momento com vocês. Nos vemos na próxima edição!</p>
+                            </div>
+                        ) : (
                         <form id="checkout-form" onSubmit={handlePurchase} className="bg-[#1C0C04] text-[#EDD68A] p-4 sm:p-6 md:p-10 rounded-2xl md:rounded-[40px] shadow-2xl space-y-6 w-full max-w-full overflow-hidden box-border" style={{ scrollMarginTop: '100px' }}>
                             <h3 className="font-display text-3xl font-bold mb-6">Seus Dados</h3>
                             <div className="space-y-4">
@@ -1159,6 +1195,7 @@ const Arraia2026: React.FC = () => {
                                     </p>
                                 </div>
                         </form>
+                        )}
                     </div>
                 </div>
             </section>
@@ -1251,6 +1288,11 @@ const Arraia2026: React.FC = () => {
                     </div>
                 </div>
             </Section>
+
+            {/* SEO & Event Info */}
+            <div className="bg-[#1C0C04] text-center py-4 text-[10px] text-white/30 uppercase tracking-widest border-t border-white/5">
+                Evento realizado em 06/06/2026 em Planaltina - DF.
+            </div>
 
             <Footer />
             
