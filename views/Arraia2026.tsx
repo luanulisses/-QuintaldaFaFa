@@ -524,11 +524,11 @@ const Arraia2026: React.FC = () => {
                     <a href="#local" className="hover:text-[#D9981F] transition-colors">Local</a>
                 </div>
                 {SALES_CLOSED ? (
-                    <Link to="/galeria">
+                    <a href="#atracoes">
                         <button className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] px-3 md:px-5 py-2 rounded-full font-black text-[11px] xs:text-xs md:text-sm transition-all transform hover:scale-105 shadow-lg whitespace-nowrap">
-                            📸 VER FOTOS
+                            PROGRAMAÇÃO
                         </button>
-                    </Link>
+                    </a>
                 ) : (
                     <a href="#checkout-form">
                         <button className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] px-3 md:px-5 py-2 rounded-full font-black text-[11px] xs:text-xs md:text-sm transition-all transform hover:scale-105 shadow-lg whitespace-nowrap">
@@ -597,8 +597,8 @@ const Arraia2026: React.FC = () => {
                 )}
 
                 <div className="relative z-10 max-w-4xl space-y-6 animate-fade-in py-20">
-                    <span className="inline-block py-2 px-6 rounded-full bg-[#E85D2F] text-white text-xs font-bold tracking-widest uppercase shadow-lg">
-                        {SALES_CLOSED ? '✨ EVENTO REALIZADO' : '🎉 06 de Junho de 2026 · Planaltina — DF'}
+                    <span className="inline-block py-2 px-6 rounded-full bg-[#E85D2F] text-white text-xs font-bold tracking-widest uppercase shadow-lg text-center">
+                        {SALES_CLOSED ? '⚠️ ATENÇÃO: Vendas online encerradas. Ingressos na portaria.' : '🎉 06 de Junho de 2026 · Planaltina — DF'}
                     </span>
                     <h1 className="font-display text-3xl sm:text-6xl md:text-8xl font-bold text-[#EDD68A] leading-tight md:leading-none drop-shadow-2xl px-2">
                         {isEventStarted ? (
@@ -635,11 +635,11 @@ const Arraia2026: React.FC = () => {
 
                     <div className="flex flex-col md:flex-row gap-4 justify-center animate-slide-up" style={{ animationDelay: '0.4s' }}>
                         {SALES_CLOSED ? (
-                            <Link to="/galeria">
+                            <a href="#atracoes">
                                 <Button size="lg" className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] font-bold border-none shadow-xl transform hover:-translate-y-1 transition-all px-6">
-                                    📸 Ver Fotos do Evento
+                                    🎉 Ver Programação
                                 </Button>
-                            </Link>
+                            </a>
                         ) : (
                             <a href={isEventStarted ? "#atracoes" : "#checkout-form"}>
                                 <Button size="lg" className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] font-bold border-none shadow-xl transform hover:-translate-y-1 transition-all px-6">
@@ -1041,11 +1041,26 @@ const Arraia2026: React.FC = () => {
 
                         {/* Checkout Form */}
                         {SALES_CLOSED ? (
-                            <div id="checkout-form" className="bg-[#1C0C04] text-[#EDD68A] p-10 md:p-16 rounded-[40px] shadow-2xl text-center flex flex-col items-center justify-center min-h-[400px] border-2 border-[#D9981F]/30" style={{ scrollMarginTop: '100px' }}>
-                                <div className="text-6xl md:text-8xl mb-6">🎉</div>
-                                <h3 className="font-display text-3xl md:text-5xl font-bold mb-4 text-[#EDD68A]">Evento Encerrado</h3>
-                                <p className="text-[#EDD68A]/90 text-lg md:text-xl mb-6 font-bold">Agradecemos a todos que participaram do Arraiá do Quintal da Fafá 2026.</p>
-                                <p className="text-[#EDD68A]/70 text-md md:text-lg">Foi uma alegria compartilhar esse momento com vocês. Nos vemos na próxima edição!</p>
+                            <div id="checkout-form" className="bg-[#1C0C04] text-[#EDD68A] p-6 md:p-12 rounded-[40px] shadow-2xl flex flex-col items-center justify-center min-h-[400px] border-2 border-[#D9981F]/30" style={{ scrollMarginTop: '100px' }}>
+                                <div className="text-6xl md:text-7xl mb-4">🎟️</div>
+                                <h3 className="font-display text-3xl md:text-5xl font-bold mb-4 text-[#EDD68A] text-center">Vendas Online Encerradas</h3>
+                                <p className="text-[#EDD68A]/90 text-lg md:text-xl mb-4 font-bold text-center">As vendas antecipadas pela internet foram finalizadas.</p>
+                                <p className="text-[#EDD68A]/70 text-md md:text-lg mb-8 text-center max-w-2xl">O Arraiá do Quintal da Fafá continua confirmado e acontecerá normalmente. Os ingressos agora serão vendidos exclusivamente na portaria/local do evento, sujeito à disponibilidade. Esperamos você para uma noite de muita música, diversão e tradição junina!</p>
+                                
+                                <div className="bg-[#D9981F]/10 border border-[#D9981F]/30 p-6 md:p-8 rounded-3xl w-full max-w-xl text-center">
+                                    <h4 className="font-display text-2xl text-[#D9981F] font-bold mb-4">🏠 Venda Presencial</h4>
+                                    <p className="text-[#EDD68A]/80 mb-6">Os ingressos poderão ser adquiridos diretamente no local do evento.</p>
+                                    <div className="flex flex-col md:flex-row justify-center gap-6 text-sm">
+                                        <div>
+                                            <span className="block text-[#D9981F] font-bold uppercase tracking-widest text-[10px] mb-1">Data</span>
+                                            <span className="font-bold">06/06/2026</span>
+                                        </div>
+                                        <div>
+                                            <span className="block text-[#D9981F] font-bold uppercase tracking-widest text-[10px] mb-1">Local</span>
+                                            <span className="font-bold">Planaltina - DF</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         ) : (
                         <form id="checkout-form" onSubmit={handlePurchase} className="bg-[#1C0C04] text-[#EDD68A] p-4 sm:p-6 md:p-10 rounded-2xl md:rounded-[40px] shadow-2xl space-y-6 w-full max-w-full overflow-hidden box-border" style={{ scrollMarginTop: '100px' }}>
@@ -1290,8 +1305,8 @@ const Arraia2026: React.FC = () => {
             </Section>
 
             {/* SEO & Event Info */}
-            <div className="bg-[#1C0C04] text-center py-4 text-[10px] text-white/30 uppercase tracking-widest border-t border-white/5">
-                Evento realizado em 06/06/2026 em Planaltina - DF.
+            <div className="bg-[#1C0C04] text-center py-4 px-4 text-[10px] text-white/30 uppercase tracking-widest border-t border-white/5">
+                Vendas antecipadas online encerradas. Ingressos disponíveis na portaria do evento, sujeito à disponibilidade.
             </div>
 
             <Footer />
