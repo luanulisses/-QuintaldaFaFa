@@ -47,7 +47,7 @@ const Arraia2026: React.FC = () => {
     const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
     const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-    const currentPrices = { geral: 25, meia: 12, passaporte: 25, combo: 62, pescaria: 10, brinquedos: 10 };
+    const currentPrices = { geral: 30, meia: 15, passaporte: 25, combo: 70, pescaria: 10, brinquedos: 10 };
 
     const total = (
         (qty.geral * currentPrices.geral) +
@@ -815,7 +815,7 @@ const Arraia2026: React.FC = () => {
                         <div className="text-8xl mb-8">🎫</div>
                         <p className="text-sm opacity-60 uppercase tracking-widest mb-2">A partir de</p>
                         <div className="font-display text-6xl font-black text-[#D9981F] mb-4">R$ 25</div>
-                        <p className="text-xs opacity-50 mb-8">no 2º Lote · para crianças de 3 a 12 anos</p>
+                        <p className="text-xs opacity-50 mb-8">no 3º Lote · para crianças de 3 a 12 anos</p>
                         <div className="bg-[#D9981F] text-[#1C0C04] py-2 px-6 rounded-full inline-block font-bold text-xs uppercase tracking-tight">
                             🎟️ Incluído no Combo Especial
                         </div>
@@ -905,7 +905,7 @@ const Arraia2026: React.FC = () => {
                     <div className="text-center mb-16">
                         <span className="text-[#A84B18] text-xs font-bold tracking-[0.2em] uppercase mb-2 block">Garanta seu lugar</span>
                         <h2 className="font-display text-4xl md:text-6xl font-bold text-[#5C2E0A] mb-6">Preços & Lotes</h2>
-                        <p className="text-[#A84B18] font-bold animate-pulse">🔥 RESTAM APENAS 150 INGRESSOS PARA O 2º LOTE. GARANTA O SEU AGORA! 🏃‍♂️💨</p>
+                        <p className="text-[#A84B18] font-bold animate-pulse">🔥 3º LOTE LIBERADO! GARANTA O SEU AGORA ANTES QUE ACABE! 🏃‍♂️💨</p>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 mt-12">
@@ -937,41 +937,16 @@ const Arraia2026: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* 2nd Lote - LOTE ATUAL */}
-                            <div className="bg-white rounded-3xl p-6 md:p-8 border-2 border-[#D9981F] shadow-xl relative scale-105 z-10 animate-fade-in">
-                                <div className="absolute top-0 right-10 bg-[#D9981F] text-[#1C0C04] px-4 py-1 rounded-b-xl text-[10px] font-black tracking-widest">
-                                    LOTE ATUAL
+                            {/* 2nd Lote - ESGOTADO */}
+                            <div className="bg-white/40 backdrop-blur-sm rounded-3xl p-6 md:p-8 border border-black/5 opacity-60 relative grayscale mt-4 lg:mt-0">
+                                <div className="absolute top-0 right-10 bg-gray-500 text-white px-4 py-1 rounded-b-xl text-[10px] font-black tracking-widest">
+                                    ESGOTADO
                                 </div>
-                                <h3 className="font-display text-2xl font-bold text-[#5C2E0A] mb-6">
-                                    2º Lote
-                                </h3>
-                                <div className="space-y-4">
-                                    <div className="flex justify-between items-center border-b border-dashed border-[#5C2E0A]/20 pb-2">
-                                        <span className="text-[#7a5235]">Ingresso Geral</span>
-                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 25</span>
-                                    </div>
-                                    <div className="flex justify-between items-center border-b border-dashed border-[#5C2E0A]/20 pb-2">
-                                        <span className="text-[#7a5235]">Passaporte Kids</span>
-                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 25</span>
-                                    </div>
-                                    <div className="flex justify-between items-center border-b border-dashed border-[#5C2E0A]/20 pb-2">
-                                        <span className="text-[#7a5235]">Meia (6 a 12 anos)</span>
-                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 12</span>
-                                    </div>
-                                    <div className="bg-gradient-to-r from-[#A84B18] to-[#E85D2F] p-4 rounded-xl flex justify-between items-center text-white">
-                                        <span className="font-bold">Combo (Geral + Kids + Meia)</span>
-                                        <span className="font-display text-2xl font-bold">R$ 62</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* 3rd Lote */}
-                            <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-6 md:p-8 border border-black/5 opacity-60">
-                                <h3 className="font-display text-xl font-bold text-[#5C2E0A]/60 mb-2">3º Lote</h3>
+                                <h3 className="font-display text-xl font-bold text-[#5C2E0A]/60 mb-2">2º Lote</h3>
                                 <div className="space-y-2 text-xs">
                                     <div className="flex justify-between">
                                         <span>Geral</span>
-                                        <span>R$ 30</span>
+                                        <span>R$ 25</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Kids</span>
@@ -979,11 +954,39 @@ const Arraia2026: React.FC = () => {
                                     </div>
                                     <div className="flex justify-between">
                                         <span>Meia (6-12)</span>
-                                        <span>R$ 15</span>
+                                        <span>R$ 12</span>
                                     </div>
                                     <div className="flex justify-between font-bold border-t border-black/10 pt-1">
                                         <span>Combo</span>
-                                        <span>R$ 70</span>
+                                        <span>R$ 62</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 3rd Lote - LOTE ATUAL */}
+                            <div className="bg-white rounded-3xl p-6 md:p-8 border-2 border-[#D9981F] shadow-xl relative scale-105 z-10 animate-fade-in mt-4 lg:mt-0">
+                                <div className="absolute top-0 right-10 bg-[#D9981F] text-[#1C0C04] px-4 py-1 rounded-b-xl text-[10px] font-black tracking-widest">
+                                    LOTE ATUAL
+                                </div>
+                                <h3 className="font-display text-2xl font-bold text-[#5C2E0A] mb-6">
+                                    3º Lote
+                                </h3>
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center border-b border-dashed border-[#5C2E0A]/20 pb-2">
+                                        <span className="text-[#7a5235]">Ingresso Geral</span>
+                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 30</span>
+                                    </div>
+                                    <div className="flex justify-between items-center border-b border-dashed border-[#5C2E0A]/20 pb-2">
+                                        <span className="text-[#7a5235]">Passaporte Kids</span>
+                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 25</span>
+                                    </div>
+                                    <div className="flex justify-between items-center border-b border-dashed border-[#5C2E0A]/20 pb-2">
+                                        <span className="text-[#7a5235]">Meia (6 a 12 anos)</span>
+                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 15</span>
+                                    </div>
+                                    <div className="bg-gradient-to-r from-[#A84B18] to-[#E85D2F] p-4 rounded-xl flex justify-between items-center text-white">
+                                        <span className="font-bold">Combo (Geral + Kids + Meia)</span>
+                                        <span className="font-display text-2xl font-bold">R$ 70</span>
                                     </div>
                                 </div>
                             </div>
