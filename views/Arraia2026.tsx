@@ -70,7 +70,20 @@ const Arraia2026: React.FC = () => {
         }
     }), []);
 
-    const eventDate = new Date('2026-06-06T20:00:00').getTime();
+    const eventDate = new Date('2026-06-06T20:00:00-03:00').getTime();
+    const [isEventStarted, setIsEventStarted] = useState(() => new Date().getTime() >= eventDate);
+
+    const confettiPieces = useMemo(() => {
+        return [...Array(30)].map((_, i) => (
+            <div key={i} className="confetti-piece" style={{ 
+                left: `${Math.random() * 100}%`, 
+                animationDelay: `${Math.random() * 5}s`,
+                animationDuration: `${3 + Math.random() * 4}s`
+            }}>
+                {['🎉', '🌽', '✨', '🎈', '🤠'][Math.floor(Math.random() * 5)]}
+            </div>
+        ));
+    }, []);
 
     useEffect(() => {
         const loadPreview = async () => {
@@ -90,7 +103,12 @@ const Arraia2026: React.FC = () => {
         const timer = setInterval(() => {
             const now = new Date().getTime();
             const dist = eventDate - now;
-            if (dist < 0) { clearInterval(timer); return; }
+            if (dist <= 0) { 
+                clearInterval(timer); 
+                setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+                setIsEventStarted(true);
+                return; 
+            }
             setTimeLeft({
                 days: Math.floor(dist / (1000 * 60 * 60 * 24)),
                 hours: Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
@@ -99,7 +117,7 @@ const Arraia2026: React.FC = () => {
             });
         }, 1000);
         return () => clearInterval(timer);
-    }, []);
+    }, [eventDate]);
 
     // PIX countdown timer
     useEffect(() => {
@@ -344,6 +362,20 @@ const Arraia2026: React.FC = () => {
 
     return (
         <div className="font-body text-[#2D2420] bg-[#FFF6F0] w-full flex-1 flex flex-col">
+            {/* Confetti Styles */}
+            <style>{`
+                @keyframes fall {
+                    0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+                    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+                }
+                .confetti-piece {
+                    position: absolute;
+                    top: -10vh;
+                    animation: fall linear forwards infinite;
+                    font-size: 2rem;
+                    z-index: 40;
+                }
+            `}</style>
 
             {/* ===== PIX Payment Screen ===== */}
             {pixStep === 'pix' && pixData && (
@@ -538,17 +570,28 @@ const Arraia2026: React.FC = () => {
                         })}
                     </div>
                 </div>
-                {/* ====== FIM BANDEIROLAS ====== */}
+                {isEventStarted && (
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden w-full h-full z-50">
+                        {confettiPieces}
+                    </div>
+                )}
 
                 <div className="relative z-10 max-w-4xl space-y-6 animate-fade-in py-20">
                     <span className="inline-block py-2 px-6 rounded-full bg-[#E85D2F] text-white text-xs font-bold tracking-widest uppercase shadow-lg">
                         🎉 06 de Junho de 2026 · Planaltina — DF
                     </span>
                     <h1 className="font-display text-3xl sm:text-6xl md:text-8xl font-bold text-[#EDD68A] leading-tight md:leading-none drop-shadow-2xl px-2">
-                        Arraiá do <br className="hidden sm:block"/> <em className="italic text-[#D9981F] not-italic font-display">Quintal da Fafá</em>
+                        {isEventStarted ? (
+                            <span className="animate-pulse text-[#D9981F]">O Arraiá começou! 🎉</span>
+                        ) : (
+                            <>Arraiá do <br className="hidden sm:block"/> <em className="italic text-[#D9981F] not-italic font-display">Quintal da Fafá</em></>
+                        )}
                     </h1>
                     <p className="font-display text-xl md:text-3xl text-[#EDD68A]/80 italic">
-                        Celebre a tradição junina com música, alegria e diversão!
+                        {isEventStarted 
+                            ? "Seja bem-vindo ao Quintal da Fafá!" 
+                            : "Celebre a tradição junina com música, alegria e diversão!"
+                        }
                     </p>
 
                     <div className="flex gap-2 sm:gap-4 justify-center py-8">
@@ -571,34 +614,10 @@ const Arraia2026: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-4 justify-center animate-slide-up" style={{ animationDelay: '0.4s' }}>
-                        <a href="#checkout-form">
-                            <Button size="lg" className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] font-bold border-none shadow-xl transform hover:-translate-y-1 transition-all">
-                                🎟️ GARANTIR MEU INGRESSO
+                        <a href={isEventStarted ? "#atracoes" : "#checkout-form"}>
+                            <Button size="lg" className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] font-bold border-none shadow-xl transform hover:-translate-y-1 transition-all px-6">
+                                {isEventStarted ? 'ℹ️ VER INFORMAÇÕES DO EVENTO' : '🎟️ GARANTIR MEU INGRESSO'}
                             </Button>
-                        </a>
-                        <a href="#atracoes">
-                            <button
-                                style={{
-                                    background: 'transparent',
-                                    border: '2px solid #EDD68A',
-                                    color: '#EDD68A',
-                                    padding: '12px 32px',
-                                    borderRadius: '9999px',
-                                    fontWeight: 700,
-                                    fontSize: '1rem',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s',
-                                    letterSpacing: '0.02em',
-                                }}
-                                onMouseEnter={e => {
-                                    (e.target as HTMLButtonElement).style.background = 'rgba(237,214,138,0.15)';
-                                }}
-                                onMouseLeave={e => {
-                                    (e.target as HTMLButtonElement).style.background = 'transparent';
-                                }}
-                            >
-                                VER ATRAÇÕES ↓
-                            </button>
                         </a>
                     </div>
 
