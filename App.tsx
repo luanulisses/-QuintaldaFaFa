@@ -27,6 +27,7 @@ import AdminNotaFiscal from './views/admin/NotaFiscal';
 import CheckinScanner from './views/admin/CheckinScanner';
 import ArraiaLista from './views/admin/ArraiaLista';
 import Portaria from './views/admin/Portaria';
+import VipWaitlist from './views/admin/VipWaitlist';
 import ProtectedRoute from './layouts/ProtectedRoute';
 
 const App: React.FC = () => {
@@ -62,6 +63,7 @@ const App: React.FC = () => {
                         <Route path="notas" element={<AdminNotaFiscal />} />
                         <Route path="checkin" element={<CheckinScanner />} />
                         <Route path="arraia-lista" element={<ArraiaLista />} />
+                        <Route path="vip" element={<VipWaitlist />} />
                         <Route path="portaria" element={<Portaria />} />
                         <Route path="config" element={<PlaceholderView title="Configurações" />} />
                     </Route>

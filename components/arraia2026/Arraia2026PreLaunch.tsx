@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useGallery, GalleryItem } from '../../lib/hooks/useGallery';
 import { Link } from 'react-router-dom';
@@ -12,6 +12,24 @@ const Arraia2026PreLaunch: React.FC = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error' | 'duplicate'>('idle');
     const [vipCount, setVipCount] = useState<number | null>(null);
+    const nameInputRef = useRef<HTMLInputElement>(null);
+    const [highlightForm, setHighlightForm] = useState(false);
+
+    const scrollToVip = (e: React.MouseEvent) => {
+        e.preventDefault();
+        const vipSection = document.getElementById('lista-vip');
+        if (vipSection) {
+            vipSection.scrollIntoView({ behavior: 'smooth' });
+            setHighlightForm(true);
+            setTimeout(() => {
+                nameInputRef.current?.focus();
+            }, 800);
+            
+            setTimeout(() => {
+                setHighlightForm(false);
+            }, 3800);
+        }
+    };
 
     useEffect(() => {
         const fetchVipCount = async () => {
@@ -184,9 +202,9 @@ const Arraia2026PreLaunch: React.FC = () => {
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                            <a href="#lista-vip">
+                            <a href="#lista-vip" onClick={scrollToVip}>
                                 <button className="w-full sm:w-auto bg-[#FFD54F] hover:bg-[#ffb703] text-[#3B0964] px-6 md:px-8 py-3 md:py-4 rounded-xl font-black text-base md:text-lg transition-all shadow-[4px_4px_0px_rgba(0,0,0,0.4)] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] flex items-center justify-center gap-2">
-                                    <span className="text-2xl">🔔</span> QUERO SER AVISADO!
+                                    <span className="text-2xl">🔔</span> QUERO SER AVISADO
                                 </button>
                             </a>
                             <Link to="/#espaco">
@@ -307,7 +325,7 @@ const Arraia2026PreLaunch: React.FC = () => {
                     </div>
 
                     {/* 3. Lista VIP */}
-                    <div id="lista-vip" className="bg-[#3B0964] rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+                    <div id="lista-vip" className={`bg-[#3B0964] rounded-2xl p-6 shadow-2xl relative overflow-hidden transition-all duration-500 ${highlightForm ? 'border-4 border-[#FFD54F] shadow-[0_0_30px_rgba(255,213,79,0.8)] scale-[1.02]' : 'border border-transparent'}`}>
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
                         <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#FFD54F]/10 rounded-full blur-xl"></div>
                         
@@ -327,11 +345,17 @@ const Arraia2026PreLaunch: React.FC = () => {
                             )}
 
                             <p className="text-center text-white/80 text-xs mb-1">
-                                Cadastre-se gratuitamente e receba em primeira mão:
+                                Preencha seus dados e seja avisado antes de todo mundo sobre atrações, ingressos e novidades da 2ª edição.
                             </p>
                             <p className="text-center text-[#FFD54F] text-xs font-bold mb-4">
                                 ⚡ Os membros da Lista VIP serão os primeiros a saber sobre atrações e abertura das vendas.
                             </p>
+
+                            {highlightForm && (
+                                <div className="bg-[#FFD54F] text-[#3B0964] font-black text-center p-3 rounded-lg text-sm mb-4 animate-pulse">
+                                    Preencha seus dados para entrar na Lista VIP e receber as novidades em primeira mão.
+                                </div>
+                            )}
                             
                             <ul className="text-white text-xs space-y-1 mb-5 flex flex-col ml-2">
                                 <li className="flex items-center gap-2"><span className="text-green-400">✔</span> Abertura das vendas</li>
@@ -365,7 +389,7 @@ const Arraia2026PreLaunch: React.FC = () => {
                                     <>
                                         <div className="flex flex-col sm:flex-row gap-3">
                                             <input 
-                                                type="text" 
+                                                type="text" ref={nameInputRef}
                                                 required placeholder="Seu nome"
                                                 value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})}
                                                 className="w-full bg-white text-black px-4 py-3 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#FFD54F]"
@@ -386,18 +410,20 @@ const Arraia2026PreLaunch: React.FC = () => {
                                         
                                         {submitStatus === 'error' && <p className="text-red-400 text-xs text-center">Erro ao cadastrar. Tente novamente.</p>}
                                         {submitStatus === 'duplicate' && (
-                                            <div className="bg-yellow-500/20 border border-yellow-500 text-white p-4 rounded-xl text-center mt-2">
+                                            <div className="bg-yellow-500/20 border border-yellow-500 text-white p-4 rounded-xl text-center mt-2 animate-fade-in">
                                                 <p className="font-bold text-sm mb-1">⚠️ Você já está cadastrado na Lista VIP.</p>
-                                                <p className="text-xs opacity-90">Fique tranquilo, entraremos em contato quando houver novidades da 2ª edição.</p>
+                                                <p className="text-xs opacity-90">Em breve entraremos em contato com as novidades.</p>
                                             </div>
                                         )}
 
-                                        <button 
-                                            type="submit" disabled={isSubmitting}
-                                            className="w-full bg-[#FFD54F] hover:bg-[#ffb703] text-[#3B0964] font-black py-4 rounded-xl text-base md:text-lg transition-all shadow-[4px_4px_0px_#1e0533] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] mt-4 flex justify-center items-center gap-2"
-                                        >
-                                            <span className="text-xl">🚀</span> {isSubmitting ? 'ENVIANDO...' : 'ENTRAR NA LISTA VIP!'}
-                                        </button>
+                                        {submitStatus !== 'duplicate' && (
+                                            <button 
+                                                type="submit" disabled={isSubmitting}
+                                                className="w-full bg-[#FFD54F] hover:bg-[#ffb703] text-[#3B0964] font-black py-4 rounded-xl text-base md:text-lg transition-all shadow-[4px_4px_0px_#1e0533] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] mt-4 flex justify-center items-center gap-2"
+                                            >
+                                                <span className="text-xl">🚀</span> {isSubmitting ? 'ENVIANDO...' : 'ENTRAR NA LISTA VIP'}
+                                            </button>
+                                        )}
                                         <p className="text-center text-[9px] text-white/50 mt-2 flex items-center justify-center gap-1">
                                             <span className="material-symbols-outlined text-[10px]">lock</span> Seus dados estão seguros e não serão compartilhados.
                                         </p>

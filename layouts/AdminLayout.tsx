@@ -35,6 +35,7 @@ const AdminLayout: React.FC = () => {
         { name: 'Pacotes', path: '/admin/pacotes', icon: 'inventory_2' },
         { name: 'Relatórios', path: '/admin/relatorios', icon: 'analytics' },
         { name: 'Lista Arraiá', path: '/admin/arraia-lista', icon: 'list_alt' },
+        { name: 'Lista VIP (2ª Edição)', path: '/admin/vip', icon: 'stars' },
         { name: 'Portaria (Check-in)', path: '/admin/portaria', icon: 'qr_code_scanner' },
         { name: 'Configurações', path: '/admin/config', icon: 'settings' },
     ];
