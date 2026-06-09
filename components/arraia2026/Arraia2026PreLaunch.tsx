@@ -28,21 +28,29 @@ const Arraia2026PreLaunch: React.FC = () => {
     }, []);
 
     const [galleryPreview, setGalleryPreview] = useState<GalleryItem[]>([]);
-    const { fetchGalleryImages } = useGallery();
 
     const eventDate = new Date('2026-07-18T00:00:00-03:00').getTime();
 
     useEffect(() => {
         const loadPreview = async () => {
             try {
-                const images = await fetchGalleryImages();
-                setGalleryPreview(images.slice(0, 4));
+                const { data, error } = await supabase
+                    .from('gallery_images')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(6);
+
+                if (error) throw error;
+                if (data) {
+                    setGalleryPreview(data as GalleryItem[]);
+                }
             } catch (err) {
                 console.error('Error fetching gallery preview:', err);
+                // Não repete loop, tela não quebra, mantemos o fallback
             }
         };
         loadPreview();
-    }, [fetchGalleryImages]);
+    }, []);
 
     useEffect(() => {
         const timer = setInterval(() => {
