@@ -51,12 +51,13 @@ const Landing: React.FC = () => {
 
     return (
         <div className="font-body text-text-main bg-background w-full flex-1 flex flex-col">
-            {/* Arraiá 2026 Announcement Bar */}
-            <div className="bg-[#E85D2F] text-white py-2 px-4 text-center z-[60] relative flex items-center justify-center gap-4 shadow-md">
-                <span className="hidden md:inline text-xs font-bold tracking-widest uppercase">✨ Vendas Abertas para o Arraiá 2026! ✨</span>
-                <span className="md:hidden text-[10px] font-bold uppercase">🎉 Arraiá 2026: Garanta seu ingresso!</span>
-                <a href="/arraia-2026" className="bg-[#EDD68A] text-[#5C2E0A] px-3 py-1 rounded-full text-[10px] font-black hover:bg-white transition-all">
-                    COMPRAR AGORA
+            {/* 2ª Edição Announcement Bar */}
+            <div className="bg-[#FFD54F] text-[#3B0964] py-2 px-4 text-center z-[60] relative flex flex-wrap items-center justify-center gap-4 shadow-md">
+                <span className="font-black text-xs md:text-sm tracking-widest uppercase flex items-center gap-2">
+                    🎉 2ª Edição Confirmada — 18 de Julho de 2026
+                </span>
+                <a href="/arraia-2026#lista-vip" className="bg-[#3B0964] text-white px-4 py-1.5 rounded-md text-[11px] md:text-xs font-black hover:bg-[#5a189a] transition-all shadow-sm">
+                    🔔 Quero ser avisado
                 </a>
             </div>
 
@@ -85,7 +86,7 @@ const Landing: React.FC = () => {
                         <button onClick={() => scrollToSection('about')} className="hover:text-accent transition-colors">O Espaço</button>
                         <button onClick={() => scrollToSection('gallery')} className="hover:text-accent transition-colors">Galeria</button>
                         <button onClick={() => scrollToSection('plans')} className="hover:text-accent transition-colors">Pacotes</button>
-                        <a href="/arraia-2026" className="text-[#E85D2F] font-bold hover:text-accent transition-colors">Arraiá 2026 🌽</a>
+                        <a href="/arraia-2026" className="text-[#3B0964] bg-[#FFD54F] px-3 py-1 rounded-md font-black hover:scale-105 transition-transform shadow-sm">2ª Edição 🎉</a>
                         <button onClick={() => scrollToSection('contact')}>
                             <Button variant={scrolled ? 'primary' : 'outline'} size="sm" className={!scrolled ? 'border-white text-white hover:bg-white/20' : ''}>
                                 Solicitar Orçamento
@@ -109,7 +110,7 @@ const Landing: React.FC = () => {
                         <button onClick={() => scrollToSection('about')}>O Espaço</button>
                         <button onClick={() => scrollToSection('gallery')}>Galeria</button>
                         <button onClick={() => scrollToSection('plans')}>Pacotes</button>
-                        <a href="/arraia-2026" className="text-[#E85D2F] font-bold">Arraiá 2026 🌽</a>
+                        <a href="/arraia-2026" className="text-[#3B0964] bg-[#FFD54F] px-3 py-1 rounded-md font-black">2ª Edição 🎉</a>
                         <button onClick={() => scrollToSection('contact')}>
                             <Button size="sm">Solicitar Orçamento</Button>
                         </button>
@@ -118,7 +119,7 @@ const Landing: React.FC = () => {
             </nav>
 
             {/* Hero Section */}
-            <section id="home" className="relative h-screen min-h-[750px] md:min-h-[600px] flex items-center justify-center text-center px-4">
+            <section id="home" className="relative h-screen min-h-[750px] md:min-h-[600px] flex items-center justify-center text-center px-4 overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     {getText('hero_bg_image', 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80').match(/\.(mp4|webm|ogg)$/i) ? (
                         <video
@@ -137,42 +138,70 @@ const Landing: React.FC = () => {
                             className="w-full h-full object-cover"
                         />
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-background/20"></div>
+                    {/* Overlay roxo festivo */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#3B0964]/90 via-[#3B0964]/80 to-[#1e0533]/90 mix-blend-multiply"></div>
                 </div>
 
-                <div className="relative z-10 max-w-4xl mx-auto space-y-6 animate-fade-in pt-20">
-                    <span className="inline-block py-1 px-4 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-bold tracking-widest uppercase border border-white/30">
-                        {getText('hero_location', 'Planaltina - DF')}
-                    </span>
-                    <h1 className="font-display text-4xl md:text-7xl font-bold text-white leading-tight drop-shadow-lg whitespace-pre-line">
-                        {getText('hero_title', 'Seu evento com \nclima rústico e moderno')}
-                    </h1>
-                    <p className="text-base md:text-xl text-white/90 max-w-2xl mx-auto font-medium leading-relaxed drop-shadow-md px-2">
-                        {getText('hero_subtitle', 'O espaço ideal para casamentos e confraternizações inesquecíveis.')}
+                {/* Bandeirinhas */}
+                <div className="absolute top-16 left-0 w-full flex justify-around pointer-events-none drop-shadow-xl z-10" style={{ transform: 'translateY(-10px)' }}>
+                    {Array.from({ length: 15 }).map((_, i) => {
+                        const colors = ['#FFD54F', '#4caf50', '#ff5722', '#e91e63', '#2196f3'];
+                        return (
+                            <div key={i} className="w-10 h-14 md:w-16 md:h-24" style={{ backgroundColor: colors[i % colors.length], clipPath: 'polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%)', transform: `rotate(${Math.sin(i) * 10}deg)` }}></div>
+                        )
+                    })}
+                </div>
+
+                <div className="relative z-20 max-w-5xl mx-auto space-y-6 pt-20 animate-fade-in flex flex-col items-center">
+                    
+                    {/* Faixa Título Principal */}
+                    <div className="relative inline-block mb-2">
+                        <span className="text-4xl md:text-6xl lg:text-7xl font-display font-black text-white drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)] leading-tight">
+                            🎉 2ª Edição do <br className="md:hidden"/> Quintal da Fafá
+                        </span>
+                        <span className="absolute -top-8 -left-8 text-5xl rotate-[-20deg] drop-shadow-lg hidden md:block">👒</span>
+                    </div>
+
+                    {/* Datas e Local */}
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-4 mt-6">
+                        <div className="bg-[#FFD54F] text-[#3B0964] px-6 py-2 rounded-lg font-display font-black text-xl md:text-3xl shadow-[4px_4px_0px_rgba(0,0,0,0.3)] transform -rotate-2">
+                            18 DE JULHO DE 2026
+                        </div>
+                        <div className="bg-white/20 backdrop-blur-md text-white border border-white/30 px-6 py-2 rounded-lg font-display font-bold text-xl md:text-3xl shadow-lg transform rotate-1">
+                            📍 PLANALTINA - DF
+                        </div>
+                    </div>
+
+                    {/* Textos da Chamada */}
+                    <p className="text-lg md:text-2xl text-white/95 max-w-3xl mx-auto font-medium leading-relaxed drop-shadow-md px-2 mt-8 mb-8">
+                        <strong className="text-[#FFD54F] text-xl md:text-3xl block mb-2">A maior festa junina da região está de volta.</strong>
+                        As atrações, ingressos e novidades serão divulgadas em breve.
                     </p>
-                    <div className="flex flex-col md:flex-row gap-3 md:gap-4 justify-center mt-6 md:mt-8">
-                        <Button size="lg" className="bg-primary hover:bg-primary-dark text-white border-none shadow-lg transform hover:scale-105 transition-all text-sm md:text-base py-3 md:py-4" onClick={() => scrollToSection('contact')}>
-                            Agendar Visita
-                        </Button>
-                        <Button variant="outline" size="lg" className="bg-white text-text-main border-white hover:bg-white/90 shadow-lg transform hover:scale-105 transition-all text-sm md:text-base py-3 md:py-4" onClick={() => scrollToSection('gallery')}>
-                            Ver Galeria
+
+                    {/* Botões */}
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12 w-full max-w-3xl px-4">
+                        <a href="/arraia-2026#lista-vip" className="w-full sm:w-auto">
+                            <button className="w-full bg-[#FFD54F] hover:bg-[#ffb703] text-[#3B0964] px-8 py-4 rounded-xl font-black text-lg md:text-xl transition-all shadow-[6px_6px_0px_rgba(0,0,0,0.5)] hover:shadow-none hover:translate-x-[6px] hover:translate-y-[6px] flex items-center justify-center gap-2">
+                                🔔 Quero ser avisado
+                            </button>
+                        </a>
+                        <Button variant="outline" size="lg" className="w-full sm:w-auto bg-transparent border-2 border-white text-white hover:bg-white hover:text-[#3B0964] shadow-lg transform hover:-translate-y-1 transition-all text-sm md:text-base py-3 md:py-4 flex items-center justify-center gap-2" onClick={() => scrollToSection('gallery')}>
+                            📸 Ver Galeria
                         </Button>
                         <a
                             href="https://www.google.com/maps/place/15%C2%B045'44.1%22S+47%C2%B029'34.9%22W/@-15.7622386,-47.4955887,17z/data=!3m1!4b1!4m4!3m3!8m2!3d-15.7622386!4d-47.4930138?hl=pt-BR&entry=ttu&g_ep=EgoyMDI2MDIxOC4wIKXMDSoASAFQAw%3D%3D"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-block"
+                            className="inline-block w-full sm:w-auto"
                         >
-                            <Button size="lg" className="w-full bg-primary hover:bg-primary-dark text-white border-none shadow-lg transform hover:scale-105 transition-all text-sm md:text-base py-3 md:py-4 flex items-center justify-center gap-2">
-                                <span className="material-symbols-outlined text-sm md:text-base">location_on</span>
-                                Como chegar
+                            <Button size="lg" className="w-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 shadow-lg transform hover:-translate-y-1 transition-all text-sm md:text-base py-3 md:py-4 flex items-center justify-center gap-2">
+                                📍 Como chegar
                             </Button>
                         </a>
                     </div>
                 </div>
-
-
             </section>
+            
             {/* ===== O ESPAÇO Section ===== */}
             <section id="about" className="py-20 bg-white relative z-10">
                 <div className="container mx-auto px-4 md:px-6">
