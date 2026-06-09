@@ -34,6 +34,22 @@ FOR SELECT
 TO authenticated
 USING (true);
 
+DROP POLICY IF EXISTS "Permitir exclusao para autenticados" ON vip_waitlist;
+
+CREATE POLICY "Permitir exclusao para autenticados"
+ON vip_waitlist
+FOR DELETE
+TO authenticated
+USING (true);
+
+DROP POLICY IF EXISTS "Permitir atualizacao para autenticados" ON vip_waitlist;
+
+CREATE POLICY "Permitir atualizacao para autenticados"
+ON vip_waitlist
+FOR UPDATE
+TO authenticated
+USING (true);
+
 -- Função RPC para buscar apenas o total de inscritos sem expor dados sensíveis
 CREATE OR REPLACE FUNCTION public.get_vip_waitlist_count()
 RETURNS integer
