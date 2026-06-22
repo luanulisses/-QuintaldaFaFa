@@ -7,7 +7,7 @@ interface Purchase {
     customer_name: string;
     customer_email: string;
     customer_phone: string;
-    items: { geral?: number; meia?: number; passaporte?: number; combo?: number; pescaria?: number; brinquedos?: number };
+    items: { geral?: number; meia?: number; passaporte?: number; pescaria?: number; brinquedos?: number };
     total_amount: number;
     payment_status: string;
     checked_in: boolean;
@@ -26,7 +26,6 @@ const formatItems = (items: Purchase['items']) => {
         geral: 'Geral', 
         meia: 'Meia',
         passaporte: 'Kids', 
-        combo: 'Combo',
         pescaria: 'Pesc.',
         brinquedos: 'Brinq.'
     };
@@ -44,6 +43,10 @@ const ArraiaLista: React.FC = () => {
     const [editing, setEditing] = useState<Purchase | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [editionFilter, setEditionFilter] = useState<'all' | '1st' | '2nd'>('2nd');
+
+    const EDITION_2_START = new Date('2026-06-20T00:00:00Z');
+    const isSecondEdition = (dateString: string) => new Date(dateString) >= EDITION_2_START;
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -68,6 +71,10 @@ const ArraiaLista: React.FC = () => {
     }, [fetchPurchases]);
 
     const filtered = purchases.filter(p => {
+        const is2nd = isSecondEdition(p.created_at);
+        if (editionFilter === '1st' && is2nd) return false;
+        if (editionFilter === '2nd' && !is2nd) return false;
+
         const matchSearch = search === '' ||
             p.customer_name.toLowerCase().includes(search.toLowerCase()) ||
             p.customer_email.toLowerCase().includes(search.toLowerCase()) ||
@@ -229,6 +236,33 @@ const ArraiaLista: React.FC = () => {
 
             {/* Filters + Buttons Row 2: Scrollable Horizontal Filters */}
             <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', overflowX: 'auto', paddingBottom: '8px', whiteSpace: 'nowrap', WebkitOverflowScrolling: 'touch' }}>
+                <div style={{ display: 'flex', gap: '4px', marginRight: '8px', borderRight: '2px solid #e0cdb0', paddingRight: '12px' }}>
+                    <button onClick={() => setEditionFilter('2nd')}
+                        style={{ padding: '8px 14px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 900, fontSize: '12px',
+                            background: editionFilter === '2nd' ? '#D9981F' : 'white',
+                            color: editionFilter === '2nd' ? '#1C0C04' : '#7a5235',
+                            boxShadow: '0 1px 4px rgba(0,0,0,0.08)'
+                        }}>
+                        🌟 2ª Edição 2026
+                    </button>
+                    <button onClick={() => setEditionFilter('1st')}
+                        style={{ padding: '8px 14px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '12px',
+                            background: editionFilter === '1st' ? '#5C2E0A' : 'white',
+                            color: editionFilter === '1st' ? '#EDD68A' : '#7a5235',
+                            boxShadow: '0 1px 4px rgba(0,0,0,0.08)'
+                        }}>
+                        1ª Edição / Histórico
+                    </button>
+                    <button onClick={() => setEditionFilter('all')}
+                        style={{ padding: '8px 14px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '12px',
+                            background: editionFilter === 'all' ? '#5C2E0A' : 'white',
+                            color: editionFilter === 'all' ? '#EDD68A' : '#7a5235',
+                            boxShadow: '0 1px 4px rgba(0,0,0,0.08)'
+                        }}>
+                        Todas
+                    </button>
+                </div>
+
                 {(['all', 'pending', 'approved', 'checked_in'] as const).map(f => (
                     <button key={f} onClick={() => setFilter(f)}
                         style={{ padding: '8px 14px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '12px',
@@ -237,7 +271,7 @@ const ArraiaLista: React.FC = () => {
                             boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
                             flexShrink: 0
                         }}>
-                        {f === 'all' ? 'Todos' : f === 'checked_in' ? 'Check-in' : STATUS_LABELS[f]?.label.split(' ')[0]}
+                        {f === 'all' ? 'Status: Todos' : f === 'checked_in' ? 'Check-in' : STATUS_LABELS[f]?.label.split(' ')[0]}
                     </button>
                 ))}
             </div>
@@ -283,6 +317,11 @@ const ArraiaLista: React.FC = () => {
                                     <td style={{ padding: '12px 16px', fontWeight: 600, color: '#1C0C04' }}>
                                         {p.customer_name}
                                         <br/><span style={{ fontSize: '11px', color: '#7a5235', fontWeight: 400 }}>{p.customer_email}</span>
+                                        {isSecondEdition(p.created_at) && (
+                                            <span style={{ display: 'inline-block', marginLeft: '6px', padding: '2px 6px', background: '#D9981F20', color: '#D9981F', borderRadius: '4px', fontSize: '9px', fontWeight: 900, textTransform: 'uppercase' }}>
+                                                2ª Edição
+                                            </span>
+                                        )}
                                     </td>
                                     <td style={{ padding: '12px 16px', color: '#5C2E0A' }}>{p.customer_phone}</td>
                                     <td style={{ padding: '12px 16px', color: '#5C2E0A' }}>{formatItems(p.items)}</td>

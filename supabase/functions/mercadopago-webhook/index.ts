@@ -25,7 +25,6 @@ function formatItems(items: Record<string, number>): string {
     geral: "Ingresso Geral",
     meia: "Meia-Entrada (6-12 anos)",
     passaporte: "Passaporte Kids",
-    combo: "Combo (Geral + Kids + Meia)",
     pescaria: "Pescaria",
     brinquedos: "Brinquedo Individual",
   };

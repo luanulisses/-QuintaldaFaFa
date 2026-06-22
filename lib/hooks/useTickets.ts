@@ -6,7 +6,6 @@ export interface TicketBatch {
     name: string;
     price_geral: number;
     price_passaporte: number;
-    price_combo: number;
     active: boolean;
     max_tickets: number;
     current_sold: number;
@@ -21,7 +20,6 @@ export interface PurchaseData {
     items: {
         geral: number;
         passaporte: number;
-        combo: number;
     };
 }
 

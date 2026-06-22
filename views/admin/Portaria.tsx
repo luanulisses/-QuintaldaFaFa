@@ -6,7 +6,7 @@ interface Purchase {
     list_number: string;
     customer_name: string;
     customer_phone: string;
-    items: { geral?: number; meia?: number; passaporte?: number; combo?: number; pescaria?: number; brinquedos?: number };
+    items: { geral?: number; meia?: number; passaporte?: number; pescaria?: number; brinquedos?: number };
     total_amount: number;
     payment_status: string;
     checked_in: boolean;
@@ -18,7 +18,6 @@ const formatItems = (items: Purchase['items']) => {
         geral: 'Ingresso Geral', 
         meia: 'Meia-Entrada',
         passaporte: 'Passaporte Kids', 
-        combo: 'Combo Premium',
         pescaria: 'Ficha Pescaria',
         brinquedos: 'Brinquedo Individual'
     };

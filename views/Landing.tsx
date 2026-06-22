@@ -54,10 +54,10 @@ const Landing: React.FC = () => {
             {/* 2ª Edição Announcement Bar */}
             <div className="bg-[#FFD54F] text-[#3B0964] py-2 px-4 text-center z-[60] relative flex flex-wrap items-center justify-center gap-4 shadow-md">
                 <span className="font-black text-xs md:text-sm tracking-widest uppercase flex items-center gap-2">
-                    🎉 2ª Edição Confirmada — 18 de Julho de 2026
+                    🎉 Vendas Abertas 2ª Edição — 18 de Julho de 2026
                 </span>
-                <a href="/arraia-2026#lista-vip" className="bg-[#3B0964] text-white px-4 py-1.5 rounded-md text-[11px] md:text-xs font-black hover:bg-[#5a189a] transition-all shadow-sm">
-                    🔔 Quero ser avisado
+                <a href="/arraia-2026#checkout-form" className="bg-[#3B0964] text-white px-4 py-1.5 rounded-md text-[11px] md:text-xs font-black hover:bg-[#5a189a] transition-all shadow-sm">
+                    🎟️ Comprar Ingresso
                 </a>
             </div>
 
@@ -174,15 +174,15 @@ const Landing: React.FC = () => {
 
                     {/* Textos da Chamada */}
                     <p className="text-lg md:text-2xl text-white/95 max-w-3xl mx-auto font-medium leading-relaxed drop-shadow-md px-2 mt-8 mb-8">
-                        <strong className="text-[#FFD54F] text-xl md:text-3xl block mb-2">A maior festa junina da região está de volta.</strong>
-                        As atrações, ingressos e novidades serão divulgadas em breve.
+                        <strong className="text-[#FFD54F] text-xl md:text-3xl block mb-2">Atrações confirmadas e Vendas Abertas!</strong>
+                        Garanta já o seu ingresso para a maior festa junina da região.
                     </p>
 
                     {/* Botões */}
                     <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12 w-full max-w-3xl px-4">
-                        <a href="/arraia-2026#lista-vip" className="w-full sm:w-auto">
+                        <a href="/arraia-2026#checkout-form" className="w-full sm:w-auto">
                             <button className="w-full bg-[#FFD54F] hover:bg-[#ffb703] text-[#3B0964] px-8 py-4 rounded-xl font-black text-lg md:text-xl transition-all shadow-[6px_6px_0px_rgba(0,0,0,0.5)] hover:shadow-none hover:translate-x-[6px] hover:translate-y-[6px] flex items-center justify-center gap-2">
-                                🔔 Quero ser avisado
+                                🎟️ Comprar Ingresso
                             </button>
                         </a>
                         <Button variant="outline" size="lg" className="w-full sm:w-auto bg-transparent border-2 border-white text-white hover:bg-white hover:text-[#3B0964] shadow-lg transform hover:-translate-y-1 transition-all text-sm md:text-base py-3 md:py-4 flex items-center justify-center gap-2" onClick={() => scrollToSection('gallery')}>
