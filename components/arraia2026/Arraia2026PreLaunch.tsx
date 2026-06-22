@@ -960,7 +960,7 @@ const Arraia2026PreLaunch: React.FC = () => {
                         <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-[#4CAF50] backdrop-blur-sm px-4 py-2 rounded-lg border border-white/20 shadow-lg">
                             <span className="text-white font-black text-sm tracking-wider uppercase">✅ Local Oficial do Evento</span>
                         </div>
-                        <img src="https://images.unsplash.com/photo-1533174000255-144fbbdb88d7?auto=format&fit=crop&q=80" alt="Espaço do Evento" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                        <img src="https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80" alt="Espaço do Evento" className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
                     </div>
                     
