@@ -116,6 +116,7 @@ const ArraiaTicketCheckout: React.FC = () => {
                     customer_phone: formData.phone,
                     items: qty,
                     total_amount: total,
+                    event_edition: 'segunda_edicao_2026',
                 })
             });
 
@@ -189,6 +190,7 @@ const ArraiaTicketCheckout: React.FC = () => {
                     customer_phone: formData.phone,
                     items: qty,
                     total_amount: total,
+                    event_edition: 'segunda_edicao_2026',
                     ...cardFormData,
                 };
 

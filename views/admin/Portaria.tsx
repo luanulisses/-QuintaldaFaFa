@@ -34,6 +34,8 @@ const Portaria: React.FC = () => {
     const [confirming, setConfirming] = useState(false);
     const [justConfirmed, setJustConfirmed] = useState(false);
 
+    const EDITION_2_START = '2026-06-20T00:00:00Z';
+
     const search = async () => {
         if (!query.trim()) return;
         setResult(null);
@@ -42,12 +44,13 @@ const Portaria: React.FC = () => {
 
         const term = query.trim().toUpperCase();
 
-        // Busca por número da lista OU por nome
+        // Busca por número da lista OU por nome — apenas 2ª edição
         let { data } = await supabase
             .from('arraia_purchases')
             .select('*')
             .or(`list_number.ilike.%${term}%,customer_name.ilike.%${query.trim()}%`)
             .eq('payment_status', 'approved')
+            .gte('created_at', EDITION_2_START)
             .limit(1)
             .single();
 

@@ -86,12 +86,20 @@ const ArraiaLista: React.FC = () => {
         return matchSearch && matchFilter;
     });
 
+    // Filtra SÓ por edição (sem aplicar search/status) para calcular os stats corretos da edição
+    const filteredByEdition = purchases.filter(p => {
+        const is2nd = isSecondEdition(p.created_at);
+        if (editionFilter === '1st' && is2nd) return false;
+        if (editionFilter === '2nd' && !is2nd) return false;
+        return true;
+    });
+
     const stats = {
-        total: purchases.length,
-        paid: purchases.filter(p => p.payment_status === 'approved').length,
-        pending: purchases.filter(p => p.payment_status === 'pending').length,
-        checkedIn: purchases.filter(p => p.checked_in).length,
-        revenue: purchases.filter(p => p.payment_status === 'approved').reduce((s, p) => s + Number(p.total_amount), 0),
+        total: filteredByEdition.length,
+        paid: filteredByEdition.filter(p => p.payment_status === 'approved').length,
+        pending: filteredByEdition.filter(p => p.payment_status === 'pending').length,
+        checkedIn: filteredByEdition.filter(p => p.checked_in).length,
+        revenue: filteredByEdition.filter(p => p.payment_status === 'approved').reduce((s, p) => s + Number(p.total_amount), 0),
     };
 
     const exportCSV = () => {
