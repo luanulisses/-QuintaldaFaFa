@@ -117,6 +117,7 @@ Deno.serve(async (req) => {
 
     const itemsText = formatItems(purchase.items || {});
     const totalFormatted = `R$ ${Number(purchase.total_amount).toFixed(2).replace(".", ",")}`;
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${listNumber}`;
 
     // 5. Enviar E-mail de confirmação
     if (RESEND_API_KEY) {
@@ -135,7 +136,7 @@ Deno.serve(async (req) => {
               <div style="background: #5C2E0A; padding: 40px 32px; text-align: center;">
                 <p style="color: #D9981F; font-size: 12px; letter-spacing: 3px; margin: 0 0 8px 0; text-transform: uppercase;">🌽 Arraiá do Quintal da Fafá 2026 🌽</p>
                 <h1 style="color: #EDD68A; font-size: 32px; margin: 0;">Pagamento Confirmado!</h1>
-                <p style="color: #EDD68A; opacity: 0.7; margin: 8px 0 0 0;">06 de junho de 2026 · Planaltina-DF</p>
+                <p style="color: #EDD68A; opacity: 0.7; margin: 8px 0 0 0;">18 de Julho de 2026 · Planaltina-DF</p>
               </div>
 
               <!-- Número da Lista — DESTAQUE -->
@@ -143,6 +144,14 @@ Deno.serve(async (req) => {
                 <p style="color: #1C0C04; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 8px 0;">Seu número na lista</p>
                 <h2 style="color: #1C0C04; font-size: 48px; font-weight: 900; margin: 0; letter-spacing: 4px;">${listNumber}</h2>
                 <p style="color: #1C0C04; font-size: 13px; margin: 12px 0 0 0; opacity: 0.8;">Guarde este número — você vai precisar na portaria!</p>
+              </div>
+
+              <!-- Ingresso Digital Premium QR Code -->
+              <div style="text-align:center; margin: 30px 32px; padding: 20px; background:#fff; border-radius:16px; border: 1px solid #f0e0c0;">
+                <h2 style="color:#3B0964; margin: 0 0 10px 0; font-family: sans-serif; font-size: 20px;">🎟️ Seu ingresso digital</h2>
+                <p style="color:#333; margin: 0 0 20px 0; font-family: sans-serif; font-size: 14px;">Apresente este QR Code na entrada do evento.</p>
+                <img src="${qrCodeUrl}" alt="QR Code do ingresso ${listNumber}" style="width:220px; height:220px; display:block; margin:20px auto;" />
+                <p style="font-weight:bold; color:#3B0964; margin: 10px 0 0 0; font-family: sans-serif; font-size: 16px;">Código: ${listNumber}</p>
               </div>
 
               <!-- Detalhes -->
@@ -166,10 +175,11 @@ Deno.serve(async (req) => {
 
               <!-- Instrução portaria -->
               <div style="background: #FDF6EC; border: 2px solid #EDD68A; border-radius: 12px; margin: 0 32px 32px 32px; padding: 20px;">
-                <p style="color: #5C2E0A; font-weight: bold; margin: 0 0 8px 0;">📋 Como funciona na portaria?</p>
-                <p style="color: #7a5235; margin: 0; font-size: 14px; line-height: 1.6;">
-                  No dia 06/06, chegue na portaria e informe:<br>
-                  <strong>Seu número (${listNumber}) + seu nome</strong><br>
+                <p style="color: #5C2E0A; font-weight: bold; margin: 0 0 8px 0; font-family: sans-serif;">📋 Como funciona na portaria?</p>
+                <p style="color: #7a5235; margin: 0; font-size: 14px; line-height: 1.6; font-family: sans-serif;">
+                  No dia do evento, apresente:<br>
+                  • Este QR Code<br>
+                  • Ou o número da lista (<strong>${listNumber}</strong>) + nome do comprador<br>
                   Pronto! Entrada liberada. 🎉
                 </p>
               </div>
@@ -178,9 +188,9 @@ Deno.serve(async (req) => {
               <div style="margin: 0 32px 32px 32px; padding: 20px; border: 1px solid #f0e0c0; border-radius: 12px; background: #fff;">
                 <p style="color: #5C2E0A; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px 0;">⚠️ Regras de Reembolso e Transferência</p>
                 <ul style="color: #7a5235; font-size: 11px; margin: 0; padding: 0 0 0 16px; line-height: 1.6;">
-                  <li><strong>Cancelamentos:</strong> Aceitos até 7 dias antes (até 30/05).</li>
+                  <li><strong>Cancelamentos:</strong> Aceitos até 7 dias antes (até 11/07).</li>
                   <li><strong>Troca de Titularidade:</strong> Disponível via WhatsApp com taxa de R$ 5,00.</li>
-                  <li><strong>Pós-Prazo:</strong> Após o dia 30/05, não há devolução ou cancelamento.</li>
+                  <li><strong>Pós-Prazo:</strong> Após o dia 11/07, não há devolução ou cancelamento.</li>
                 </ul>
               </div>
 
@@ -198,7 +208,7 @@ Deno.serve(async (req) => {
     }
 
     // 6. Enviar WhatsApp de confirmação
-    const whatsMessage = `🌽 *Arraiá do Quintal da Fafá 2026* 🌽\n\nOlá, ${purchase.customer_name}! Seu pagamento foi confirmado! ✅\n\n🎫 *Seu número na lista:*\n*${listNumber}*\n\n📋 *Ingressos:* ${itemsText}\n💰 *Total pago:* ${totalFormatted}\n\n📍 06/06 · Planaltina-DF · Portaria abre 19h30\n\n*Na portaria, informe: ${listNumber} + seu nome*\n\n⚠️ *IMPORTANTE:* Cancelamentos até 30/05. Troca de titularidade via WhatsApp com taxa de R$ 5,00. Após o prazo, não há reembolso.\n\nQualquer dúvida: (61) 99635-1010 🤠`;
+    const whatsMessage = `🌽 *Arraiá do Quintal da Fafá 2026* 🌽\n\nOlá, ${purchase.customer_name}! Seu pagamento foi confirmado! ✅\n\n🎫 *Seu número na lista:*\n*${listNumber}*\n\n📋 *Ingressos:* ${itemsText}\n💰 *Total pago:* ${totalFormatted}\n\n📍 18/07 · Planaltina-DF · Portaria abre 19h30\n\n*Na portaria, informe: ${listNumber} + seu nome*\n\n⚠️ *IMPORTANTE:* Cancelamentos até 11/07. Troca de titularidade via WhatsApp com taxa de R$ 5,00. Após o prazo, não há reembolso.\n\nQualquer dúvida: (61) 99635-1010 🤠`;
 
     await sendWhatsApp(purchase.customer_phone, whatsMessage);
 
