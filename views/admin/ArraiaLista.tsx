@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../../lib/supabase';
+import DigitalTicket from '../../components/arraia2026/DigitalTicket';
 
 interface Purchase {
     id: string;
@@ -42,6 +43,7 @@ const ArraiaLista: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState<Purchase | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [viewingTicket, setViewingTicket] = useState<Purchase | null>(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [editionFilter, setEditionFilter] = useState<'all' | '1st' | '2nd'>('2nd');
 
@@ -359,6 +361,13 @@ const ArraiaLista: React.FC = () => {
                                             >
                                                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>whatsapp</span>
                                             </button>
+                                            <button 
+                                                onClick={() => setViewingTicket(p)} 
+                                                style={{ background: '#D9981F15', border: 'none', color: '#D9981F', cursor: 'pointer', padding: '6px', borderRadius: '8px' }} 
+                                                title="Ver Ingresso"
+                                            >
+                                                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>confirmation_number</span>
+                                            </button>
                                             <button onClick={() => setEditing(p)} style={{ background: '#5C2E0A10', border: 'none', color: '#5C2E0A', cursor: 'pointer', padding: '6px', borderRadius: '8px' }} title="Editar">
                                                 <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit</span>
                                             </button>
@@ -415,6 +424,23 @@ const ArraiaLista: React.FC = () => {
                                 <button type="button" onClick={() => setEditing(null)} style={{ flex: 1, padding: '12px', borderRadius: '12px', background: '#eee', color: '#666', border: 'none', fontWeight: 700, cursor: 'pointer' }}>Cancelar</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal de visualização de ingresso */}
+            {viewingTicket && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, backdropFilter: 'blur(4px)', padding: '16px', overflowY: 'auto' }}>
+                    <div style={{ position: 'relative', width: '100%', maxWidth: '380px' }}>
+                        <DigitalTicket 
+                            listNumber={viewingTicket.list_number || 'PENDENTE'}
+                            customerName={viewingTicket.customer_name}
+                            customerPhone={viewingTicket.customer_phone}
+                            itemsText={formatItems(viewingTicket.items)}
+                            total={viewingTicket.total_amount}
+                            paymentStatus={viewingTicket.payment_status}
+                            onClose={() => setViewingTicket(null)}
+                        />
                     </div>
                 </div>
             )}

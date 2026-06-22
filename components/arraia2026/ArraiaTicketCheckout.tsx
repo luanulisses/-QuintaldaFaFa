@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
 import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
+import DigitalTicket from './DigitalTicket';
 
 initMercadoPago(import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY, { locale: 'pt-BR' });
 
@@ -555,45 +556,28 @@ const ArraiaTicketCheckout: React.FC = () => {
             )}
 
             {pixStep === 'success' && pixData && (
-                <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-white rounded-[32px] max-w-md w-full overflow-hidden shadow-2xl text-center relative">
-                        <button onClick={() => window.location.reload()} className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 text-white font-bold flex items-center justify-center hover:bg-white/40 transition-colors z-10">&times;</button>
-                        <div className="bg-gradient-to-br from-[#3B0964] to-[#5a189a] px-8 py-10 pt-12">
-                            <div className="text-6xl mb-4">🎉</div>
-                            <h2 className="text-[#FFD54F] font-display text-3xl font-bold">Pagamento Confirmado!</h2>
-                            <p className="text-white mt-2">Olá, {pixData.customerName}!</p>
-                        </div>
-
-                        <div className="bg-[#FFD54F] px-8 py-8">
-                            <p className="text-[#3B0964] text-xs font-bold tracking-[0.3em] uppercase mb-3">Seu número na lista</p>
-                            <p className="text-[#3B0964] font-display text-5xl font-black tracking-wider">
-                                {pixData.listNumber}
-                            </p>
-                            <p className="text-[#3B0964]/70 text-sm mt-3">Anote este número — você vai precisar na portaria!</p>
-                        </div>
-
-                        <div className="px-8 py-6">
-                            <p className="text-gray-700 text-sm leading-relaxed">
-                                <strong>{pixData.itemsText}</strong><br/>
-                                O comprovante foi enviado para seu e-mail. 🌽
-                            </p>
-                            <div className="mt-4 bg-gray-50 rounded-2xl p-4 text-left border border-gray-200">
-                                <p className="text-[#3B0964] font-bold text-sm">📋 Na portaria, informe:</p>
-                                <p className="text-gray-600 text-sm mt-1">{pixData.listNumber} + seu nome</p>
-                            </div>
-
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    const cleanPhone = formData.phone.replace(/\D/g, '');
-                                    const msg = `Olá! Sou ${pixData.customerName}. Arraiá do Quintal da Fafá 2026! 🌽\n\n📌 *MEU NÚMERO NA LISTA: ${pixData.listNumber}*\n🛒 Itens: ${pixData.itemsText}\n\nGuarde esta mensagem para a portaria!`;
-                                    window.open(`https://wa.me/55${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-                                }}
-                                className="mt-6 w-full bg-[#25D366] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#128C7E] transition-all shadow-lg hover:shadow-xl transform active:scale-95"
-                            >
-                                <span>📲 RECEBER NO WHATSAPP</span>
-                            </button>
-                        </div>
+                <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+                    <div className="max-w-sm w-full relative">
+                        <button onClick={() => window.location.reload()} className="absolute -top-12 right-0 w-8 h-8 rounded-full bg-white/20 text-white font-bold flex items-center justify-center hover:bg-white/40 transition-colors z-10">&times;</button>
+                        <DigitalTicket 
+                            listNumber={pixData.listNumber || 'Aguardando...'}
+                            customerName={pixData.customerName}
+                            customerPhone={formData.phone}
+                            itemsText={pixData.itemsText}
+                            total={pixData.total}
+                            paymentStatus="approved"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => {
+                                const cleanPhone = formData.phone.replace(/\D/g, '');
+                                const msg = `Olá! Sou ${pixData.customerName}. Arraiá do Quintal da Fafá 2026! 🌽\n\n📌 *MEU NÚMERO NA LISTA: ${pixData.listNumber || 'Aguardando...'}*\n🛒 Itens: ${pixData.itemsText}\n\nGuarde esta mensagem para a portaria!`;
+                                window.open(`https://wa.me/55${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+                            }}
+                            className="mt-4 w-full bg-[#25D366] text-white py-3 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#128C7E] transition-all shadow-lg text-sm border-none cursor-pointer"
+                        >
+                            <span>📲 RECEBER NO WHATSAPP</span>
+                        </button>
                     </div>
                 </div>
             )}
