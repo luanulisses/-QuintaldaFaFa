@@ -299,9 +299,14 @@ const Arraia2026PreLaunch: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Formulário de Checkout */}
-                    <div id="checkout-form" className={`mt-16 max-w-3xl mx-auto transition-all duration-500 ${highlightForm ? 'scale-[1.02]' : ''}`}>
-                        <ArraiaTicketCheckout />
+                    {/* Botão de Redirecionamento para Compra */}
+                    <div className="mt-12 text-center">
+                        <Link to="/arraia-2026/ingressos" className="inline-block relative group w-full max-w-md">
+                            <div className="absolute inset-0 bg-[#4CAF50] rounded-2xl blur-lg opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <button className="relative w-full bg-gradient-to-b from-[#4CAF50] to-[#388E3C] border-2 border-white/20 hover:border-white/50 text-white py-5 rounded-2xl font-black text-xl md:text-2xl transition-all shadow-[0_8px_30px_rgba(76,175,80,0.5)] group-hover:-translate-y-1 flex items-center justify-center gap-3 cursor-pointer border-none">
+                                <span>🎟️</span> COMPRAR INGRESSO AGORA
+                            </button>
+                        </Link>
                     </div>
                 </div>
             </section>
