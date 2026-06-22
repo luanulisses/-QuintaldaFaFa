@@ -528,11 +528,12 @@ const Arraia2026: React.FC = () => {
                         </button>
                     </a>
                 ) : (
-                    <a href="#checkout-form">
+                    <Link to="/arraia-2026/ingressos">
                         <button className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] px-3 md:px-5 py-2 rounded-full font-black text-[11px] xs:text-xs md:text-sm transition-all transform hover:scale-105 shadow-lg whitespace-nowrap">
                             COMPRAR INGRESSO
                         </button>
-                    </a>
+                    </Link>
+
                 )}
             </nav>
 
@@ -638,12 +639,18 @@ const Arraia2026: React.FC = () => {
                                     🎉 Ver Programação
                                 </Button>
                             </a>
-                        ) : (
-                            <a href={isEventStarted ? "#atracoes" : "#checkout-form"}>
+                        ) : isEventStarted ? (
+                            <a href="#atracoes">
                                 <Button size="lg" className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] font-bold border-none shadow-xl transform hover:-translate-y-1 transition-all px-6">
-                                    {isEventStarted ? 'ℹ️ VER INFORMAÇÕES DO EVENTO' : '🎟️ GARANTIR MEU INGRESSO'}
+                                    ℹ️ VER INFORMAÇÕES DO EVENTO
                                 </Button>
                             </a>
+                        ) : (
+                            <Link to="/arraia-2026/ingressos">
+                                <Button size="lg" className="bg-[#D9981F] hover:bg-[#E85D2F] text-[#1C0C04] font-bold border-none shadow-xl transform hover:-translate-y-1 transition-all px-6">
+                                    🎟️ GARANTIR MEU INGRESSO
+                                </Button>
+                            </Link>
                         )}
                     </div>
 

@@ -9,8 +9,6 @@ const Arraia2026PreLaunch: React.FC = () => {
     
 
     const [vipCount, setVipCount] = useState<number | null>(null);
-    const nameInputRef = useRef<HTMLInputElement>(null);
-    const [highlightForm, setHighlightForm] = useState(false);
 
     const { fetchGalleryImages } = useGallery();
     const [galleryImages, setGalleryImages] = useState<GalleryItem[]>([]);
@@ -27,24 +25,6 @@ const Arraia2026PreLaunch: React.FC = () => {
     useEffect(() => {
         fetchGalleryImages().then(setGalleryImages).catch(console.error);
     }, []);
-
-    
-
-    const scrollToTickets = (e: React.MouseEvent) => {
-        e.preventDefault();
-        const ticketsSection = document.getElementById('checkout-form');
-        if (ticketsSection) {
-            ticketsSection.scrollIntoView({ behavior: 'smooth' });
-            setHighlightForm(true);
-            setTimeout(() => {
-                nameInputRef.current?.focus();
-            }, 800);
-            
-            setTimeout(() => {
-                setHighlightForm(false);
-            }, 3800);
-        }
-    };
 
     useEffect(() => {
         const fetchVipCount = async () => {
