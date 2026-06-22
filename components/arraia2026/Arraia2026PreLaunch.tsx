@@ -66,7 +66,7 @@ const Arraia2026PreLaunch: React.FC = () => {
 
     return (
         <div className="font-body w-full flex-1 flex flex-col bg-[#F5ECD5] text-[#3B0964]">
-            {/* Navigation Header */}}
+            {/* Navigation Header */}
             <nav className="absolute top-0 left-0 w-full z-50 flex items-center justify-between px-4 md:px-12 py-6 bg-transparent">
                 <Link to="/" className="flex items-center gap-2 text-white hover:scale-105 transition-transform">
                     <div className="flex flex-col items-start">
@@ -756,7 +756,7 @@ const Arraia2026PreLaunch: React.FC = () => {
                         <button className="relative bg-gradient-to-b from-[#4CAF50] to-[#388E3C] border-2 border-white/20 hover:border-white/50 text-white px-12 py-6 rounded-2xl font-black text-xl md:text-2xl transition-all shadow-[0_8px_30px_rgba(76,175,80,0.5)] group-hover:-translate-y-2 flex items-center justify-center gap-4">
                             <span className="text-3xl">🎟️</span> GARANTIR MEU INGRESSO AGORA
                         </button>
-                    </a>
+                    </Link>
                 </div>
             </section>
 
