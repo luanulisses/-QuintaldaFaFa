@@ -1,40 +1,12 @@
+import ArraiaTicketCheckout from './ArraiaTicketCheckout';
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useGallery, GalleryItem } from '../../lib/hooks/useGallery';
 import ArraiaMenu, { MenuType } from '../landing/ArraiaMenu';
 import { Link } from 'react-router-dom';
-import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
-
-initMercadoPago(import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY, { locale: 'pt-BR' });
-
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const Arraia2026PreLaunch: React.FC = () => {
-    const [formData, setFormData] = useState({ name: '', email: '', phone: '' });
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [purchaseError, setPurchaseError] = useState<string | null>(null);
-
-    // Sales State
-    const [qty, setQty] = useState({ geral: 0, meia: 0, passaporte: 0 });
-    const [paymentMethod, setPaymentMethod] = useState<'pix' | 'credit_card'>('pix');
-
-    // PIX payment state
-    type PixState = {
-        purchaseId: string;
-        qrCodeBase64: string;
-        copyPaste: string;
-        expiresAt: Date;
-        listNumber?: string;
-        customerName: string;
-        itemsText: string;
-        total: number;
-    };
-    const [pixData, setPixData] = useState<PixState | null>(null);
-    const [pixStep, setPixStep] = useState<'idle' | 'pix' | 'loading_cc' | 'success'>('idle');
-    const [pixTimeLeft, setPixTimeLeft] = useState(30 * 60);
-    const [copied, setCopied] = useState(false);
-    const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    
 
     const [vipCount, setVipCount] = useState<number | null>(null);
     const nameInputRef = useRef<HTMLInputElement>(null);
@@ -56,19 +28,7 @@ const Arraia2026PreLaunch: React.FC = () => {
         fetchGalleryImages().then(setGalleryImages).catch(console.error);
     }, []);
 
-    const currentPrices = { geral: 20, meia: 10, passaporte: 25 };
-    const total = (qty.geral * currentPrices.geral) + (qty.meia * currentPrices.meia) + (qty.passaporte * currentPrices.passaporte);
-
-    const mpInitialization = useMemo(() => ({ amount: total }), [total]);
-    const mpCustomization = useMemo(() => ({
-        paymentMethods: { 
-            maxInstallments: 3, 
-            creditCard: 'all' as const,
-            types: {
-                excluded: ['ticket', 'bank_transfer', 'atm', 'debitCard', 'wallet_purchase', 'onboarding_credits'] as any
-            }
-        }
-    }), []);
+    
 
     const scrollToTickets = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -100,337 +60,13 @@ const Arraia2026PreLaunch: React.FC = () => {
         fetchVipCount();
     }, []);
 
-    // PIX countdown timer
-    useEffect(() => {
-        if (pixStep !== 'pix') return;
-        const t = setInterval(() => {
-            setPixTimeLeft(prev => {
-                if (prev <= 1) { clearInterval(t); return 0; }
-                return prev - 1;
-            });
-        }, 1000);
-        return () => clearInterval(t);
-    }, [pixStep]);
+    
 
-    // Poll for payment confirmation
-    const startPolling = useCallback((purchaseId: string) => {
-        if (pollingRef.current) clearInterval(pollingRef.current);
-        pollingRef.current = setInterval(async () => {
-            const { data } = await supabase
-                .from('arraia_purchases')
-                .select('payment_status, list_number')
-                .eq('id', purchaseId)
-                .single();
-            if (data?.payment_status === 'approved' && data.list_number) {
-                clearInterval(pollingRef.current!);
-                setPixData(prev => prev ? { ...prev, listNumber: data.list_number } : prev);
-                setPixStep('success');
-            }
-        }, 5000);
-    }, []);
-
-    useEffect(() => {
-        return () => { if (pollingRef.current) clearInterval(pollingRef.current); };
-    }, []);
-
-    const handleQtyChange = (field: keyof typeof qty, delta: number) => {
-        setQty(prev => {
-            const nextValue = Math.max(0, prev[field] + delta);
-            return { ...prev, [field]: nextValue };
-        });
-    };
-
-    const formatItems = (q: typeof qty) => {
-        const labels = { 
-            geral: 'Ingresso Geral', 
-            meia: 'Meia-Entrada (6-12 anos)',
-            passaporte: 'Passaporte Kids'
-        };
-        return Object.entries(q).filter(([, v]) => (v as number) > 0).map(([k, v]) => `${v}x ${labels[k as keyof typeof labels]}`).join(', ');
-    };
-
-    const handlePurchase = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (paymentMethod !== 'pix') return;
-        if (total === 0) { setPurchaseError('Selecione pelo menos um ingresso.'); return; }
-        
-        try {
-            setIsSubmitting(true);
-            setPurchaseError(null);
-
-            const res = await fetch(`${SUPABASE_URL}/functions/v1/mercadopago-pix`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'apikey': SUPABASE_ANON_KEY,
-                },
-                body: JSON.stringify({
-                    customer_name: formData.name,
-                    customer_email: formData.email,
-                    customer_phone: formData.phone,
-                    items: qty,
-                    total_amount: total,
-                })
-            });
-
-            const result = await res.json();
-            if (!res.ok) throw new Error(result.error || 'Erro ao gerar PIX');
-
-            setPixData({
-                purchaseId: result.purchase_id,
-                qrCodeBase64: result.qr_code_base64,
-                copyPaste: result.copy_paste,
-                expiresAt: new Date(result.expires_at),
-                customerName: formData.name,
-                itemsText: formatItems(qty),
-                total,
-            });
-            setPixTimeLeft(30 * 60);
-            setPixStep('pix');
-            startPolling(result.purchase_id);
-
-        } catch (err: any) {
-            setPurchaseError('Erro: ' + err.message);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    const getPaymentErrorMessage = (statusDetail: string) => {
-        switch (statusDetail) {
-            case "cc_rejected_high_risk":
-                return "Pagamento recusado pela análise de segurança. Tente outro cartão ou escolha PIX.";
-            case "cc_rejected_insufficient_amount":
-                return "Cartão sem limite disponível.";
-            case "cc_rejected_bad_filled_card_number":
-                return "Número do cartão inválido.";
-            case "cc_rejected_bad_filled_date":
-                return "Data de validade inválida.";
-            case "cc_rejected_bad_filled_security_code":
-                return "Código de segurança inválido.";
-            case "cc_rejected_blacklist":
-                return "Pagamento recusado. Entre em contato com o banco.";
-            case "cc_rejected_other_reason":
-                return "Pagamento não autorizado. Tente outro cartão.";
-            default:
-                return "Não foi possível processar o pagamento. Tente novamente.";
-        }
-    };
-
-    const onCardPaymentSubmit = useCallback((cardFormData: any) => {
-        return new Promise<void>(async (resolve, reject) => {
-            if (total === 0) { 
-                setPurchaseError('Selecione pelo menos um ingresso.'); 
-                reject();
-                return; 
-            }
-            if (!formData.name || !formData.email || !formData.phone) {
-                setPurchaseError('Preencha seus dados de contato primeiro.');
-                reject();
-                return;
-            }
-
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-            try {
-                setIsSubmitting(true);
-                setPurchaseError(null);
-
-                const payload = {
-                    customer_name: formData.name,
-                    customer_email: formData.email,
-                    customer_phone: formData.phone,
-                    items: qty,
-                    total_amount: total,
-                    ...cardFormData,
-                };
-
-                const res = await fetch(`${SUPABASE_URL}/functions/v1/mercadopago-cc`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    },
-                    body: JSON.stringify(payload),
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeoutId);
-
-                const result = await res.json();
-
-                if (!res.ok) throw new Error(result.error || 'Erro ao processar cartão');
-
-                if (result.status === 'approved') {
-                    setPixData({
-                        purchaseId: result.purchase_id,
-                        qrCodeBase64: '',
-                        copyPaste: '',
-                        expiresAt: new Date(),
-                        customerName: formData.name,
-                        itemsText: formatItems(qty),
-                        total,
-                    });
-                    setPixStep('loading_cc');
-                    startPolling(result.purchase_id);
-                    resolve();
-                } else if (result.status === 'in_process') {
-                    setPurchaseError('Pagamento em análise pelo Mercado Pago. Você receberá a confirmação por e-mail se aprovado.');
-                    resolve();
-                } else if (result.status === 'rejected') {
-                    const msg = getPaymentErrorMessage(result.status_detail);
-                    setPurchaseError(msg);
-                    reject(new Error(msg));
-                } else {
-                    const msg = 'Pagamento não aprovado. Tente novamente.';
-                    setPurchaseError(msg);
-                    reject(new Error(msg));
-                }
-
-            } catch (err: any) {
-                let msg = 'Ocorreu um erro inesperado ao processar seu pagamento. Tente novamente mais tarde.';
-                if (err.name === 'AbortError') {
-                    msg = 'A conexão com o servidor demorou muito. Por favor, tente novamente.';
-                }
-                setPurchaseError(msg);
-                reject(new Error(msg));
-            } finally {
-                setIsSubmitting(false);
-            }
-        });
-    }, [total, formData, qty, SUPABASE_URL, SUPABASE_ANON_KEY, startPolling]);
-
-    const handleCardPaymentSubmit = useCallback((param: any) => {
-        return onCardPaymentSubmit(param.formData);
-    }, [onCardPaymentSubmit]);
-
-    const copyPixCode = () => {
-        if (pixData?.copyPaste) {
-            navigator.clipboard.writeText(pixData.copyPaste);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 3000);
-        }
-    };
-
-    const pixMinutes = String(Math.floor(pixTimeLeft / 60)).padStart(2, '0');
-    const pixSeconds = String(pixTimeLeft % 60).padStart(2, '0');
+    
 
     return (
         <div className="font-body w-full flex-1 flex flex-col bg-[#F5ECD5] text-[#3B0964]">
-            {/* ===== Payment Overlays (Pix/CC/Success) ===== */}
-            {pixStep === 'pix' && pixData && (
-                <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-white rounded-[32px] max-w-md w-full overflow-hidden shadow-2xl">
-                        <div className="bg-[#3B0964] px-8 py-6 text-center">
-                            <p className="text-[#FFD54F] text-xs font-bold tracking-widest uppercase mb-1">Pague com PIX</p>
-                            <h2 className="text-white font-display text-2xl font-bold">Arraiá Quintal da Fafá 2026</h2>
-                            <p className="text-white/70 text-sm mt-1">{pixData.itemsText}</p>
-                        </div>
-
-                        <div className="p-8 text-center">
-                            {pixData.qrCodeBase64 ? (
-                                <img
-                                    src={`data:image/png;base64,${pixData.qrCodeBase64}`}
-                                    alt="QR Code PIX"
-                                    className="w-52 h-52 mx-auto rounded-2xl border-4 border-[#FFD54F] shadow-lg"
-                                />
-                            ) : (
-                                <div className="w-52 h-52 mx-auto rounded-2xl bg-gray-100 flex items-center justify-center text-5xl border-4 border-[#FFD54F]">
-                                    📱
-                                </div>
-                            )}
-
-                            <div className="mt-4 bg-[#FFD54F]/10 rounded-2xl p-4">
-                                <p className="text-[#3B0964] font-display text-3xl font-black">
-                                    R$ {pixData.total.toFixed(2).replace('.', ',')}
-                                </p>
-                            </div>
-
-                            {pixData.copyPaste && (
-                                <button
-                                    onClick={copyPixCode}
-                                    className="mt-4 w-full bg-[#3B0964] text-white py-3 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#5a189a] transition-colors"
-                                >
-                                    {copied ? '✅ Código copiado!' : '📋 Copiar código PIX copia-e-cola'}
-                                </button>
-                            )}
-
-                            <div className="mt-6 flex items-center justify-center gap-2">
-                                <span className="text-2xl">⏱️</span>
-                                <span className={`font-display text-2xl font-bold ${pixTimeLeft < 60 ? 'text-red-500' : 'text-[#3B0964]'}`}>
-                                    {pixMinutes}:{pixSeconds}
-                                </span>
-                                <span className="text-gray-500 text-sm">para expirar</span>
-                            </div>
-
-                            <p className="text-gray-500 text-xs mt-4 leading-relaxed">
-                                Após pagar, a confirmação é automática. <br/>
-                                Você receberá seu ingresso por <strong>e-mail e WhatsApp</strong>.
-                            </p>
-
-                            {pixTimeLeft === 0 && (
-                                <p className="text-red-500 font-bold mt-3 text-sm">⚠️ PIX expirado. Recarregue a página para tentar novamente.</p>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {pixStep === 'loading_cc' && pixData && (
-                <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-white rounded-[32px] max-w-md w-full overflow-hidden shadow-2xl p-10 text-center">
-                        <div className="animate-spin w-16 h-16 border-4 border-[#FFD54F] border-t-transparent rounded-full mx-auto mb-6"></div>
-                        <h2 className="text-[#3B0964] font-display text-2xl font-bold mb-2">Processando...</h2>
-                        <p className="text-gray-500 text-sm">Aguardando confirmação do pagamento. Não feche esta tela.</p>
-                    </div>
-                </div>
-            )}
-
-            {pixStep === 'success' && pixData && (
-                <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="bg-white rounded-[32px] max-w-md w-full overflow-hidden shadow-2xl text-center">
-                        <div className="bg-gradient-to-br from-[#3B0964] to-[#5a189a] px-8 py-10">
-                            <div className="text-6xl mb-4">🎉</div>
-                            <h2 className="text-[#FFD54F] font-display text-3xl font-bold">Pagamento Confirmado!</h2>
-                            <p className="text-white mt-2">Olá, {pixData.customerName}!</p>
-                        </div>
-
-                        <div className="bg-[#FFD54F] px-8 py-8">
-                            <p className="text-[#3B0964] text-xs font-bold tracking-[0.3em] uppercase mb-3">Seu número na lista</p>
-                            <p className="text-[#3B0964] font-display text-5xl font-black tracking-wider">
-                                {pixData.listNumber}
-                            </p>
-                            <p className="text-[#3B0964]/70 text-sm mt-3">Anote este número — você vai precisar na portaria!</p>
-                        </div>
-
-                        <div className="px-8 py-6">
-                            <p className="text-gray-700 text-sm leading-relaxed">
-                                <strong>{pixData.itemsText}</strong><br/>
-                                O comprovante foi enviado para seu e-mail. 🌽
-                            </p>
-                            <div className="mt-4 bg-gray-50 rounded-2xl p-4 text-left border border-gray-200">
-                                <p className="text-[#3B0964] font-bold text-sm">📋 Na portaria, informe:</p>
-                                <p className="text-gray-600 text-sm mt-1">{pixData.listNumber} + seu nome</p>
-                            </div>
-
-                            <button
-                                onClick={() => {
-                                    const cleanPhone = formData.phone.replace(/\D/g, '');
-                                    const msg = `Olá! Sou ${pixData.customerName}. Arraiá do Quintal da Fafá 2026! 🌽\n\n📌 *MEU NÚMERO NA LISTA: ${pixData.listNumber}*\n🛒 Itens: ${pixData.itemsText}\n\nGuarde esta mensagem para a portaria!`;
-                                    window.open(`https://wa.me/55${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-                                }}
-                                className="mt-6 w-full bg-[#25D366] text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-[#128C7E] transition-all shadow-lg hover:shadow-xl transform active:scale-95"
-                            >
-                                <span>📲 RECEBER NO WHATSAPP</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-
-            {/* Navigation Header */}
+            {/* Navigation Header */}}
             <nav className="absolute top-0 left-0 w-full z-50 flex items-center justify-between px-4 md:px-12 py-6 bg-transparent">
                 <Link to="/" className="flex items-center gap-2 text-white hover:scale-105 transition-transform">
                     <div className="flex flex-col items-start">
@@ -449,11 +85,11 @@ const Arraia2026PreLaunch: React.FC = () => {
                     <Link to="/" className="hover:text-[#FFD54F] transition-colors">CONTATO</Link>
                 </div>
 
-                <a href="#checkout-form" onClick={scrollToTickets} className="hidden md:block">
+                <Link to="/arraia-2026/ingressos" className="hidden md:block">
                     <button className="bg-[#FFD54F] hover:bg-[#ffb703] text-[#3B0964] px-6 py-3 rounded-md font-black text-sm transition-all shadow-md flex items-center gap-2">
                         <span>🏷️</span> COMPRAR INGRESSO
                     </button>
-                </a>
+                </Link>
             </nav>
 
             {/* Hero Section */}
@@ -1115,7 +751,7 @@ const Arraia2026PreLaunch: React.FC = () => {
                         A segunda edição promete ser ainda maior, com mais atrações, mais estrutura, mais diversão e momentos inesquecíveis para toda a família.
                     </p>
 
-                    <a href="#checkout-form" onClick={scrollToTickets} className="inline-block relative group">
+                    <Link to="/arraia-2026/ingressos" className="inline-block relative group">
                         <div className="absolute inset-0 bg-[#4CAF50] rounded-2xl blur-lg opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
                         <button className="relative bg-gradient-to-b from-[#4CAF50] to-[#388E3C] border-2 border-white/20 hover:border-white/50 text-white px-12 py-6 rounded-2xl font-black text-xl md:text-2xl transition-all shadow-[0_8px_30px_rgba(76,175,80,0.5)] group-hover:-translate-y-2 flex items-center justify-center gap-4">
                             <span className="text-3xl">🎟️</span> GARANTIR MEU INGRESSO AGORA

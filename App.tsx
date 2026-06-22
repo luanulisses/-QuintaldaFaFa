@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Landing from './views/Landing';
 import FullGallery from './views/FullGallery';
 import Arraia2026 from './views/Arraia2026';
+import Arraia2026Ingressos from './views/Arraia2026Ingressos';
 
 // Admin Imports
 // Admin Imports
@@ -38,6 +39,8 @@ const App: React.FC = () => {
                 <Route path="/" element={<Landing />} />
                 <Route path="/galeria" element={<FullGallery />} />
                 <Route path="/arraia-2026" element={<Arraia2026 />} />
+                <Route path="/arraia-2026/ingressos" element={<Arraia2026Ingressos />} />
+                <Route path="/ingressos" element={<Navigate to="/arraia-2026/ingressos" replace />} />
                 <Route path="/admin/login" element={<LoggedOutView />} />
 
                 {/* Admin Routes (Protected) */}
