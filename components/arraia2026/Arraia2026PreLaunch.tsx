@@ -148,11 +148,11 @@ const Arraia2026PreLaunch: React.FC = () => {
                             </div>
                         </div>
 
-                        <a href="#checkout-form" onClick={scrollToTickets} className="inline-block w-full sm:w-auto">
+                        <Link to="/arraia-2026/ingressos" className="inline-block w-full sm:w-auto">
                             <button className="w-full sm:w-auto bg-[#4CAF50] hover:bg-[#388E3C] text-white px-8 py-4 rounded-xl font-black text-lg md:text-xl transition-all shadow-[0_4px_15px_rgba(76,175,80,0.5)] flex items-center justify-center gap-3">
                                 🎟️ GARANTA SEU INGRESSO AGORA!
                             </button>
-                        </a>
+                        </Link>
 
                         {vipCount !== null && vipCount > 0 && (
                             <div className="mt-4 flex items-center justify-center lg:justify-start gap-2 text-sm text-[#FFD54F] font-bold">
