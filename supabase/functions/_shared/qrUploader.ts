@@ -12,5 +12,5 @@ const BUCKET_NAME = "tickets";
  * sem carregar dependências locais de canvas no Deno.
  */
 export async function generateAndUploadQR(listNumber: string): Promise<string> {
-  return `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(listNumber)}`;
+  return `https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=${encodeURIComponent(listNumber)}`;
 }

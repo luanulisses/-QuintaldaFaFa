@@ -167,9 +167,23 @@ Deno.serve(async (req) => {
                     <h2 style="color: #F4D35E; font-size: 42px; font-weight: 900; margin: 0; letter-spacing: 4px;">${listNumber}</h2>
                     <p style="color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 500; margin: 15px 0 0 0;">Na portaria, apresente este número ou o QR Code abaixo!</p>
                   </div>
-                  <div style="text-align:center; margin: 0 32px 30px 32px; padding: 24px; background: white; border-radius: 16px; border: 4px solid #F4D35E; box-shadow: 0 10px 15px rgba(0,0,0,0.2);">
-                    <img src="${qrCodeUrl}" alt="QR Code ${listNumber}" width="240" height="240" style="display:block; margin: 0 auto;" />
-                    <p style="font-weight: 900; color: #1B0038; margin: 15px 0 0 0; font-size: 18px;">${listNumber}</p>
+                  <div style="text-align:center; margin: 0 32px 30px 32px;">
+                    <img
+                      src="${qrCodeUrl}"
+                      alt="QR Code do ingresso ${listNumber}"
+                      width="260"
+                      height="260"
+                      style="display:block;margin:20px auto;background:#ffffff;padding:12px;border-radius:16px;border:4px solid #F4D35E;"
+                    />
+                    <p style="color: rgba(255,255,255,0.9); font-size: 14px; font-weight: bold; margin: 15px 0 5px 0;">
+                      Apresente este QR Code na entrada do evento.
+                    </p>
+                    <p style="color: rgba(255,255,255,0.7); font-size: 13px; margin: 0 0 5px 0;">
+                      Ou informe este número na portaria:
+                    </p>
+                    <p style="font-weight: 900; color: #F4D35E; margin: 5px 0 0 0; font-size: 26px; letter-spacing: 2px;">
+                      ${listNumber}
+                    </p>
                   </div>
                   <div style="padding: 0 32px 20px 32px;">
                     <table style="width: 100%; border-collapse: collapse; color: white;">
