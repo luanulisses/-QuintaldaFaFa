@@ -82,9 +82,9 @@ Deno.serve(async (req) => {
       purchase = data;
     }
 
-    // Se já estiver aprovada, só retorna sucesso
-    if (purchase.payment_status === "approved" && purchase.list_number) {
-      return new Response(JSON.stringify({ success: true, list_number: purchase.list_number, message: "Já estava pago" }), {
+    // Se já estiver aprovada E o e-mail de confirmação já foi enviado, só retorna sucesso
+    if (purchase.payment_status === "approved" && purchase.confirmation_email_sent_at) {
+      return new Response(JSON.stringify({ success: true, list_number: purchase.list_number, message: "Já estava pago e e-mail já foi enviado" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -117,97 +117,109 @@ Deno.serve(async (req) => {
         listNumber = seqData || formatListNumber(Math.floor(Math.random() * 999) + 1);
     }
 
-    // 4. Atualizar status e número da lista
-    await supabase
-      .from("arraia_purchases")
-      .update({
-        payment_status: "approved",
-        list_number: listNumber,
-      })
-      .eq("id", purchase.id);
+    // 4. Atualizar status e número da lista (caso não esteja aprovado ainda)
+    if (purchase.payment_status !== "approved") {
+      await supabase
+        .from("arraia_purchases")
+        .update({
+          payment_status: "approved",
+          list_number: listNumber,
+        })
+        .eq("id", purchase.id);
+    }
 
     const itemsText = formatItems(purchase.items || {});
     const totalFormatted = `R$ ${Number(purchase.total_amount).toFixed(2).replace(".", ",")}`;
     const qrCodeUrl = await generateAndUploadQR(listNumber);
 
-    // 5. Enviar E-mail de confirmação
-    try {
-      if (RESEND_API_KEY) {
-        const resend = new Resend(RESEND_API_KEY);
-        await resend.emails.send({
-          from: "Quintal da Fafá <pix@quintaldafafa.com.br>",
-          to: purchase.customer_email,
-          subject: `🎫 Ingresso Confirmado! Seu número: ${listNumber}`,
-          html: `
-            <!DOCTYPE html>
-            <html>
-            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; padding: 20px 0; margin: 0;">
-              <div style="max-width: 600px; margin: 0 auto; background: linear-gradient(180deg, #1B0038 0%, #32005A 50%, #4A1270 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid #F4D35E;">
-                <div style="padding: 40px 32px; text-align: center;">
-                  <div style="font-size: 32px; margin-bottom: 10px;">🌽</div>
-                  <h3 style="color: #F4D35E; font-size: 20px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0;">${eventConfig.title}</h3>
-                  <div style="margin-top: 10px;">
-                    <span style="background: #F4D35E; color: #1B0038; font-size: 11px; font-weight: 900; padding: 4px 8px; border-radius: 4px; letter-spacing: 1px; text-transform: uppercase;">🏷️ ${eventConfig.edition}</span>
+    // 5. Enviar E-mail de confirmação (se ainda não enviado)
+    if (!purchase.confirmation_email_sent_at) {
+      try {
+        if (RESEND_API_KEY) {
+          const resend = new Resend(RESEND_API_KEY);
+          await resend.emails.send({
+            from: "Quintal da Fafá <pix@quintaldafafa.com.br>",
+            to: purchase.customer_email,
+            subject: `🎫 Ingresso Confirmado! Seu número: ${listNumber}`,
+            html: `
+              <!DOCTYPE html>
+              <html>
+              <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; padding: 20px 0; margin: 0;">
+                <div style="max-width: 600px; margin: 0 auto; background: linear-gradient(180deg, #1B0038 0%, #32005A 50%, #4A1270 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid #F4D35E;">
+                  <div style="padding: 40px 32px; text-align: center;">
+                    <div style="font-size: 32px; margin-bottom: 10px;">🌽</div>
+                    <h3 style="color: #F4D35E; font-size: 20px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0;">${eventConfig.title}</h3>
+                    <div style="margin-top: 10px;">
+                      <span style="background: #F4D35E; color: #1B0038; font-size: 11px; font-weight: 900; padding: 4px 8px; border-radius: 4px; letter-spacing: 1px; text-transform: uppercase;">🏷️ ${eventConfig.edition}</span>
+                    </div>
+                    <h1 style="color: #FFFFFF; font-size: 28px; margin: 20px 0 10px 0; font-weight: 900;">Pagamento Confirmado!</h1>
+                    <div style="color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 600; margin-top: 15px;">
+                      <span style="margin: 0 5px;">📅 ${eventConfig.date}</span><br/>
+                      <span style="margin: 0 5px;">📍 ${eventConfig.city}</span>
+                    </div>
+                    <div style="color: #F4D35E; font-size: 12px; font-weight: bold; margin-top: 15px;">
+                      ${eventConfig.attractions.map(a => "🎵 " + a).join(' • ')}
+                    </div>
                   </div>
-                  <h1 style="color: #FFFFFF; font-size: 28px; margin: 20px 0 10px 0; font-weight: 900;">Pagamento Confirmado!</h1>
-                  <div style="color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 600; margin-top: 15px;">
-                    <span style="margin: 0 5px;">📅 ${eventConfig.date}</span><br/>
-                    <span style="margin: 0 5px;">📍 ${eventConfig.city}</span>
+                  <div style="border-top: 2px dashed rgba(255,255,255,0.2); margin: 0 20px;"></div>
+                  <div style="padding: 30px; text-align: center;">
+                    <p style="color: #F4D35E; font-size: 12px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0 0 10px 0;">Número da Lista</p>
+                    <h2 style="color: #F4D35E; font-size: 42px; font-weight: 900; margin: 0; letter-spacing: 4px;">${listNumber}</h2>
+                    <p style="color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 500; margin: 15px 0 0 0;">Na portaria, apresente este número ou o QR Code abaixo!</p>
                   </div>
-                  <div style="color: #F4D35E; font-size: 12px; font-weight: bold; margin-top: 15px;">
-                    ${eventConfig.attractions.map(a => "🎵 " + a).join(' • ')}
+                  <div style="text-align:center; margin: 0 32px 30px 32px; padding: 24px; background: white; border-radius: 16px; border: 4px solid #F4D35E; box-shadow: 0 10px 15px rgba(0,0,0,0.2);">
+                    <img src="${qrCodeUrl}" alt="QR Code ${listNumber}" width="240" height="240" style="display:block; margin: 0 auto;" />
+                    <p style="font-weight: 900; color: #1B0038; margin: 15px 0 0 0; font-size: 18px;">${listNumber}</p>
+                  </div>
+                  <div style="padding: 0 32px 20px 32px;">
+                    <table style="width: 100%; border-collapse: collapse; color: white;">
+                      <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <td style="padding: 12px 0; font-size: 13px; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: bold;">Comprador</td>
+                        <td style="padding: 12px 0; font-weight: 900; font-size: 16px; text-align: right;">${purchase.customer_name}</td>
+                      </tr>
+                      <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <td style="padding: 12px 0; font-size: 13px; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: bold;">Ingressos</td>
+                        <td style="padding: 12px 0; font-weight: bold; font-size: 14px; text-align: right;">${itemsText}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0; font-size: 13px; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: bold;">Total pago</td>
+                        <td style="padding: 12px 0; font-weight: 900; color: #F4D35E; font-size: 18px; text-align: right;">${totalFormatted}</td>
+                      </tr>
+                    </table>
+                  </div>
+                  <div style="margin: 0 32px 32px 32px; padding: 20px; border: 1px solid rgba(244,211,94,0.3); border-radius: 12px; background: rgba(0,0,0,0.2);">
+                    <p style="color: #F4D35E; font-size: 11px; font-weight: 900; text-transform: uppercase; margin: 0 0 10px 0;">⚠️ Regras de Reembolso e Transferência</p>
+                    <ul style="color: rgba(255,255,255,0.8); font-size: 12px; margin: 0; padding: 0 0 0 16px; line-height: 1.6;">
+                      <li style="margin-bottom: 4px;">Cancelamentos: Aceitos até ${eventConfig.cancellationDeadline}.</li>
+                      <li style="margin-bottom: 4px;">Troca de Titularidade: Via WhatsApp (taxa R$ 5,00).</li>
+                      <li>Pós-Prazo: Sem devoluções após ${eventConfig.cancellationDeadline}.</li>
+                    </ul>
+                  </div>
+                  <div style="padding: 0 32px 32px 32px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                    <p style="color: #F4D35E; font-size: 13px; font-weight: bold;">📍 ${eventConfig.city} · ⏰ Abertura às ${eventConfig.doorOpeningTime}</p>
+                    <p style="color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 15px;">Dúvidas? WhatsApp: ${eventConfig.whatsapp}</p>
                   </div>
                 </div>
-                <div style="border-top: 2px dashed rgba(255,255,255,0.2); margin: 0 20px;"></div>
-                <div style="padding: 30px; text-align: center;">
-                  <p style="color: #F4D35E; font-size: 12px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0 0 10px 0;">Número da Lista</p>
-                  <h2 style="color: #F4D35E; font-size: 42px; font-weight: 900; margin: 0; letter-spacing: 4px;">${listNumber}</h2>
-                  <p style="color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 500; margin: 15px 0 0 0;">Na portaria, apresente este número ou o QR Code abaixo!</p>
-                </div>
-                <div style="text-align:center; margin: 0 32px 30px 32px; padding: 24px; background: white; border-radius: 16px; border: 4px solid #F4D35E; box-shadow: 0 10px 15px rgba(0,0,0,0.2);">
-                  <img src="${qrCodeUrl}" alt="QR Code" style="width:200px; height:200px; display:block; margin: 0 auto;" />
-                  <p style="font-weight: 900; color: #1B0038; margin: 15px 0 0 0; font-size: 18px;">${listNumber}</p>
-                </div>
-                <div style="padding: 0 32px 20px 32px;">
-                  <table style="width: 100%; border-collapse: collapse; color: white;">
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                      <td style="padding: 12px 0; font-size: 13px; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: bold;">Comprador</td>
-                      <td style="padding: 12px 0; font-weight: 900; font-size: 16px; text-align: right;">${purchase.customer_name}</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
-                      <td style="padding: 12px 0; font-size: 13px; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: bold;">Ingressos</td>
-                      <td style="padding: 12px 0; font-weight: bold; font-size: 14px; text-align: right;">${itemsText}</td>
-                    </tr>
-                    <tr>
-                      <td style="padding: 12px 0; font-size: 13px; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: bold;">Total pago</td>
-                      <td style="padding: 12px 0; font-weight: 900; color: #F4D35E; font-size: 18px; text-align: right;">${totalFormatted}</td>
-                    </tr>
-                  </table>
-                </div>
-                <div style="margin: 0 32px 32px 32px; padding: 20px; border: 1px solid rgba(244,211,94,0.3); border-radius: 12px; background: rgba(0,0,0,0.2);">
-                  <p style="color: #F4D35E; font-size: 11px; font-weight: 900; text-transform: uppercase; margin: 0 0 10px 0;">⚠️ Regras de Reembolso e Transferência</p>
-                  <ul style="color: rgba(255,255,255,0.8); font-size: 12px; margin: 0; padding: 0 0 0 16px; line-height: 1.6;">
-                    <li style="margin-bottom: 4px;">Cancelamentos: Aceitos até ${eventConfig.cancellationDeadline}.</li>
-                    <li style="margin-bottom: 4px;">Troca de Titularidade: Via WhatsApp (taxa R$ 5,00).</li>
-                    <li>Pós-Prazo: Sem devoluções após ${eventConfig.cancellationDeadline}.</li>
-                  </ul>
-                </div>
-                <div style="padding: 0 32px 32px 32px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
-                  <p style="color: #F4D35E; font-size: 13px; font-weight: bold;">📍 ${eventConfig.city} · ⏰ Abertura às ${eventConfig.doorOpeningTime}</p>
-                  <p style="color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 15px;">Dúvidas? WhatsApp: ${eventConfig.whatsapp}</p>
-                </div>
-              </div>
-            </body>
-            </html>
-          `,
-        });
-      }
+              </body>
+              </html>
+            `,
+          });
+        }
 
-      // 6. Enviar WhatsApp de confirmação
-      const whatsMessage = `🌽 *${eventConfig.title} ${eventConfig.edition}* 🌽\n\nOlá, ${purchase.customer_name}! Seu pagamento foi confirmado! ✅\n\n🎫 *Seu número na lista:*\n*${listNumber}*\n\n📋 *Ingressos:* ${itemsText}\n💰 *Total pago:* ${totalFormatted}\n\n📍 ${eventConfig.dateShort} · ${eventConfig.city} · Portaria abre ${eventConfig.doorOpeningTime}\n\n*Na portaria, informe: ${listNumber} + seu nome*\n\nQualquer dúvida: ${eventConfig.whatsapp} 🤠`;
-      await sendWhatsApp(purchase.customer_phone, whatsMessage);
-    } catch (notificationError) {
-      console.error("Erro ao enviar notificacao (email/whatsapp):", notificationError);
+        // 6. Enviar WhatsApp de confirmação
+        const whatsMessage = `🌽 *${eventConfig.title} ${eventConfig.edition}* 🌽\n\nOlá, ${purchase.customer_name}! Seu pagamento foi confirmado! ✅\n\n🎫 *Seu número na lista:*\n*${listNumber}*\n\n📋 *Ingressos:* ${itemsText}\n💰 *Total pago:* ${totalFormatted}\n\n📍 ${eventConfig.dateShort} · ${eventConfig.city} · Portaria abre ${eventConfig.doorOpeningTime}\n\n*Na portaria, informe: ${listNumber} + seu nome*\n\nQualquer dúvida: ${eventConfig.whatsapp} 🤠`;
+        await sendWhatsApp(purchase.customer_phone, whatsMessage);
+
+        // Atualizar confirmation_email_sent_at no banco
+        await supabase
+          .from("arraia_purchases")
+          .update({
+            confirmation_email_sent_at: new Date().toISOString()
+          })
+          .eq("id", purchase.id);
+      } catch (notificationError) {
+        console.error("Erro ao enviar notificacao (email/whatsapp):", notificationError);
+      }
     }
 
     return new Response(JSON.stringify({ success: true, list_number: listNumber }), {

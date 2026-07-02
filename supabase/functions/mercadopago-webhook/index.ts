@@ -99,37 +99,45 @@ Deno.serve(async (req) => {
       .single();
 
     if (pError || !purchase) throw new Error("Compra não encontrada: " + purchaseId);
-    if (purchase.payment_status === "approved") {
-      return new Response("Already processed", { headers: corsHeaders });
+    
+    // Se o pagamento já foi aprovado E o e-mail de confirmação já foi enviado, não faz nada
+    if (purchase.payment_status === "approved" && purchase.confirmation_email_sent_at) {
+      return new Response("Already processed (email sent)", { headers: corsHeaders });
     }
 
+    let listNumber = purchase.list_number;
     // 3. Gerar número único da lista (ARRAIA-XXX)
-    const { data: seqData } = await supabase.rpc("generate_list_number");
-    const listNumber = seqData || formatListNumber(Math.floor(Math.random() * 999) + 1);
+    if (!listNumber) {
+      const { data: seqData } = await supabase.rpc("generate_list_number");
+      listNumber = seqData || formatListNumber(Math.floor(Math.random() * 999) + 1);
+    }
 
-    // 4. Atualizar status e número da lista
-    await supabase
-      .from("arraia_purchases")
-      .update({
-        payment_status: "approved",
-        payment_id: String(payment.id),
-        list_number: listNumber,
-      })
-      .eq("id", purchaseId);
+    // 4. Atualizar status e número da lista (caso não esteja aprovado ainda)
+    if (purchase.payment_status !== "approved") {
+      await supabase
+        .from("arraia_purchases")
+        .update({
+          payment_status: "approved",
+          payment_id: String(payment.id),
+          list_number: listNumber,
+        })
+        .eq("id", purchaseId);
+    }
 
     const itemsText = formatItems(purchase.items || {});
     const totalFormatted = `R$ ${Number(purchase.total_amount).toFixed(2).replace(".", ",")}`;
     const qrCodeUrl = await generateAndUploadQR(listNumber);
 
-    // 5. Enviar E-mail de confirmação
-    try {
-      if (RESEND_API_KEY) {
-        const resend = new Resend(RESEND_API_KEY);
-        await resend.emails.send({
-          from: "Quintal da Fafá <pix@quintaldafafa.com.br>",
-          to: purchase.customer_email,
-          subject: `🎫 Ingresso Confirmado! Seu número: ${listNumber}`,
-          html: `
+    // 5. Enviar E-mail de confirmação (se ainda não enviado)
+    if (!purchase.confirmation_email_sent_at) {
+      try {
+        if (RESEND_API_KEY) {
+          const resend = new Resend(RESEND_API_KEY);
+          await resend.emails.send({
+            from: "Quintal da Fafá <pix@quintaldafafa.com.br>",
+            to: purchase.customer_email,
+            subject: `🎫 Ingresso Confirmado! Seu número: ${listNumber}`,
+            html: `
             <!DOCTYPE html>
             <html>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; padding: 20px 0; margin: 0;">
@@ -165,7 +173,7 @@ Deno.serve(async (req) => {
 
                 <!-- Ingresso Digital Premium QR Code -->
                 <div style="text-align:center; margin: 0 32px 30px 32px; padding: 24px; background: white; border-radius: 16px; border: 4px solid #F4D35E; box-shadow: 0 10px 15px rgba(0,0,0,0.2);">
-                  <img src="${qrCodeUrl}" alt="QR Code do ingresso ${listNumber}" style="width:200px; height:200px; display:block; margin: 0 auto;" />
+                  <img src="${qrCodeUrl}" alt="QR Code ${listNumber}" width="240" height="240" style="display:block; margin: 0 auto;" />
                   <p style="font-weight: 900; color: #1B0038; margin: 15px 0 0 0; font-size: 18px;">${listNumber}</p>
                   <p style="color: #666; font-size: 12px; margin: 5px 0 0 0;">Apresente este QR Code na entrada</p>
                 </div>
@@ -208,15 +216,25 @@ Deno.serve(async (req) => {
             </body>
             </html>
           `,
-        });
+          });
+        }
+
+        // 6. Enviar WhatsApp de confirmação
+        const whatsMessage = `🌽 *${eventConfig.title} ${eventConfig.edition}* 🌽\n\nOlá, ${purchase.customer_name}! Seu pagamento foi confirmado! ✅\n\n🎫 *Seu número na lista:*\n*${listNumber}*\n\n📋 *Ingressos:* ${itemsText}\n💰 *Total pago:* ${totalFormatted}\n\n📍 ${eventConfig.dateShort} · ${eventConfig.city} · Portaria abre ${eventConfig.doorOpeningTime}\n\n*Na portaria, informe: ${listNumber} + seu nome*\n\n⚠️ *IMPORTANTE:* Cancelamentos até ${eventConfig.cancellationDeadline}. Troca de titularidade via WhatsApp com taxa de R$ 5,00. Após o prazo, não há reembolso.\n\nQualquer dúvida: ${eventConfig.whatsapp} 🤠`;
+
+        await sendWhatsApp(purchase.customer_phone, whatsMessage);
+
+        // Atualizar confirmation_email_sent_at no banco
+        await supabase
+          .from("arraia_purchases")
+          .update({
+            confirmation_email_sent_at: new Date().toISOString()
+          })
+          .eq("id", purchaseId);
+
+      } catch (notificationError) {
+        console.error("Erro ao enviar notificacao (email/whatsapp):", notificationError);
       }
-
-      // 6. Enviar WhatsApp de confirmação
-      const whatsMessage = `🌽 *${eventConfig.title} ${eventConfig.edition}* 🌽\n\nOlá, ${purchase.customer_name}! Seu pagamento foi confirmado! ✅\n\n🎫 *Seu número na lista:*\n*${listNumber}*\n\n📋 *Ingressos:* ${itemsText}\n💰 *Total pago:* ${totalFormatted}\n\n📍 ${eventConfig.dateShort} · ${eventConfig.city} · Portaria abre ${eventConfig.doorOpeningTime}\n\n*Na portaria, informe: ${listNumber} + seu nome*\n\n⚠️ *IMPORTANTE:* Cancelamentos até ${eventConfig.cancellationDeadline}. Troca de titularidade via WhatsApp com taxa de R$ 5,00. Após o prazo, não há reembolso.\n\nQualquer dúvida: ${eventConfig.whatsapp} 🤠`;
-
-      await sendWhatsApp(purchase.customer_phone, whatsMessage);
-    } catch (notificationError) {
-      console.error("Erro ao enviar notificacao (email/whatsapp):", notificationError);
     }
 
     return new Response(JSON.stringify({ success: true, list_number: listNumber }), {
