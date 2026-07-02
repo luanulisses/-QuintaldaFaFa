@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 import { toPng } from 'html-to-image';
+import { eventConfig } from '../../lib/eventConfig';
 
 interface DigitalTicketProps {
     listNumber: string;
@@ -145,14 +146,14 @@ export const DigitalTicket: React.FC<DigitalTicketProps> = ({
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({
                     files: [file],
-                    title: 'Ingresso Arraiá 2026',
-                    text: 'Aqui está meu ingresso para o Arraiá do Quintal da Fafá 2026!'
+                    title: `Ingresso ${eventConfig.title}`,
+                    text: `Aqui está meu ingresso para o ${eventConfig.title} ${eventConfig.edition}!`
                 });
             } else if (navigator.share) {
                 // Text fallback if files cannot be shared but navigator.share is supported
                 await navigator.share({
-                    title: 'Ingresso Arraiá 2026',
-                    text: `Meu ingresso para o Arraiá do Quintal da Fafá 2026!\nLista: ${listNumber}\nNome: ${customerName}\nItens: ${itemsText}`,
+                    title: `Ingresso ${eventConfig.title}`,
+                    text: `Meu ingresso para o ${eventConfig.title} ${eventConfig.edition}!\nLista: ${listNumber}\nNome: ${customerName}\nItens: ${itemsText}`,
                     url: window.location.origin
                 });
             } else {
@@ -188,27 +189,32 @@ export const DigitalTicket: React.FC<DigitalTicketProps> = ({
                 <div className="relative z-10 text-center mb-4">
                     <div className="text-3xl mb-1">🌽</div>
                     <h3 className="text-[#F4D35E] font-black text-xl tracking-wider uppercase font-display">
-                        Arraiá do Quintal da Fafá
+                        {eventConfig.title}
                     </h3>
                     <div className="inline-block bg-[#F4D35E] text-[#1B0038] text-[10px] font-black px-3 py-0.5 rounded tracking-widest mt-1 uppercase">
-                        🏷️ 2ª Edição
+                        🏷️ {eventConfig.edition}
                     </div>
                     
                     <div className="mt-3 space-y-0.5 text-xs text-white/90 font-medium">
                         <div className="flex items-center justify-center gap-1.5 font-bold">
                             <span>📅</span>
-                            <span>18 de Julho de 2026</span>
+                            <span>{eventConfig.date}</span>
                         </div>
                         <div className="flex items-center justify-center gap-1.5 font-semibold text-white/80">
                             <span>📍</span>
-                            <span>Planaltina - DF</span>
+                            <span>{eventConfig.city}</span>
                         </div>
                     </div>
 
                     <div className="mt-3.5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[#F4D35E] text-[11px] font-bold">
-                        <span className="flex items-center gap-1">🎵 Lampião Elétrico</span>
-                        <span className="text-white/30">•</span>
-                        <span className="flex items-center gap-1">🎵 Karlito Tremendão</span>
+                        {eventConfig.attractions.map((a, idx) => (
+                            <React.Fragment key={idx}>
+                                <span className="flex items-center gap-1">🎵 {a}</span>
+                                {idx < eventConfig.attractions.length - 1 && (
+                                    <span className="text-white/30">•</span>
+                                )}
+                            </React.Fragment>
+                        ))}
                     </div>
                 </div>
 

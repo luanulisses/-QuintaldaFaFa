@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { Resend } from "https://esm.sh/resend@3.1.0";
+import { eventConfig } from "../_shared/eventConfig.ts";
 
 const MP_ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN");
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -117,7 +118,7 @@ Deno.serve(async (req) => {
 
     const itemsText = formatItems(purchase.items || {});
     const totalFormatted = `R$ ${Number(purchase.total_amount).toFixed(2).replace(".", ",")}`;
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${listNumber}`;
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${listNumber}&margin=2`;
 
     // 5. Enviar E-mail de confirmação
     if (RESEND_API_KEY) {
@@ -129,75 +130,76 @@ Deno.serve(async (req) => {
         html: `
           <!DOCTYPE html>
           <html>
-          <body style="font-family: Georgia, serif; background: #FDF6EC; padding: 0; margin: 0;">
-            <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; padding: 20px 0; margin: 0;">
+            <div style="max-width: 600px; margin: 0 auto; background: linear-gradient(180deg, #1B0038 0%, #32005A 50%, #4A1270 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid #F4D35E;">
               
               <!-- Header -->
-              <div style="background: #5C2E0A; padding: 40px 32px; text-align: center;">
-                <p style="color: #D9981F; font-size: 12px; letter-spacing: 3px; margin: 0 0 8px 0; text-transform: uppercase;">🌽 Arraiá do Quintal da Fafá 2026 🌽</p>
-                <h1 style="color: #EDD68A; font-size: 32px; margin: 0;">Pagamento Confirmado!</h1>
-                <p style="color: #EDD68A; opacity: 0.7; margin: 8px 0 0 0;">18 de Julho de 2026 · Planaltina-DF</p>
+              <div style="padding: 40px 32px; text-align: center;">
+                <div style="font-size: 32px; margin-bottom: 10px;">🌽</div>
+                <h3 style="color: #F4D35E; font-size: 20px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0;">${eventConfig.title}</h3>
+                <div style="margin-top: 10px;">
+                  <span style="background: #F4D35E; color: #1B0038; font-size: 11px; font-weight: 900; padding: 4px 8px; border-radius: 4px; letter-spacing: 1px; text-transform: uppercase;">🏷️ ${eventConfig.edition}</span>
+                </div>
+                <h1 style="color: #FFFFFF; font-size: 28px; margin: 20px 0 10px 0; font-weight: 900;">Pagamento Confirmado!</h1>
+                
+                <div style="color: rgba(255,255,255,0.9); font-size: 14px; font-weight: 600; margin-top: 15px;">
+                  <span style="margin: 0 5px;">📅 ${eventConfig.date}</span><br/>
+                  <span style="margin: 0 5px;">📍 ${eventConfig.city}</span>
+                </div>
+                <div style="color: #F4D35E; font-size: 12px; font-weight: bold; margin-top: 15px;">
+                  ${eventConfig.attractions.map(a => "🎵 " + a).join(' • ')}
+                </div>
               </div>
 
-              <!-- Número da Lista — DESTAQUE -->
-              <div style="background: #D9981F; padding: 32px; text-align: center;">
-                <p style="color: #1C0C04; font-size: 12px; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 8px 0;">Seu número na lista</p>
-                <h2 style="color: #1C0C04; font-size: 48px; font-weight: 900; margin: 0; letter-spacing: 4px;">${listNumber}</h2>
-                <p style="color: #1C0C04; font-size: 13px; margin: 12px 0 0 0; opacity: 0.8;">Guarde este número — você vai precisar na portaria!</p>
+              <!-- Dotted separator -->
+              <div style="border-top: 2px dashed rgba(255,255,255,0.2); margin: 0 20px;"></div>
+
+              <!-- Número da Lista -->
+              <div style="padding: 30px; text-align: center;">
+                <p style="color: #F4D35E; font-size: 12px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin: 0 0 10px 0;">Número da Lista</p>
+                <h2 style="color: #F4D35E; font-size: 42px; font-weight: 900; margin: 0; letter-spacing: 4px;">${listNumber}</h2>
+                <p style="color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 500; margin: 15px 0 0 0;">Na portaria, apresente este número ou o QR Code abaixo!</p>
               </div>
 
               <!-- Ingresso Digital Premium QR Code -->
-              <div style="text-align:center; margin: 30px 32px; padding: 20px; background:#fff; border-radius:16px; border: 1px solid #f0e0c0;">
-                <h2 style="color:#3B0964; margin: 0 0 10px 0; font-family: sans-serif; font-size: 20px;">🎟️ Seu ingresso digital</h2>
-                <p style="color:#333; margin: 0 0 20px 0; font-family: sans-serif; font-size: 14px;">Apresente este QR Code na entrada do evento.</p>
-                <img src="${qrCodeUrl}" alt="QR Code do ingresso ${listNumber}" style="width:220px; height:220px; display:block; margin:20px auto;" />
-                <p style="font-weight:bold; color:#3B0964; margin: 10px 0 0 0; font-family: sans-serif; font-size: 16px;">Código: ${listNumber}</p>
+              <div style="text-align:center; margin: 0 32px 30px 32px; padding: 24px; background: white; border-radius: 16px; border: 4px solid #F4D35E; box-shadow: 0 10px 15px rgba(0,0,0,0.2);">
+                <img src="${qrCodeUrl}" alt="QR Code do ingresso ${listNumber}" style="width:200px; height:200px; display:block; margin: 0 auto;" />
+                <p style="font-weight: 900; color: #1B0038; margin: 15px 0 0 0; font-size: 18px;">${listNumber}</p>
+                <p style="color: #666; font-size: 12px; margin: 5px 0 0 0;">Apresente este QR Code na entrada</p>
               </div>
 
               <!-- Detalhes -->
-              <div style="padding: 32px;">
-                <h3 style="color: #5C2E0A; margin: 0 0 16px 0;">Resumo do pedido</h3>
-                <table style="width: 100%; border-collapse: collapse;">
-                  <tr style="border-bottom: 1px solid #f0e0c0; padding: 8px 0;">
-                    <td style="padding: 8px 0; color: #7a5235; font-size: 14px;">Nome</td>
-                    <td style="padding: 8px 0; font-weight: bold; color: #1C0C04; text-align: right;">${purchase.customer_name}</td>
+              <div style="padding: 0 32px 20px 32px;">
+                <table style="width: 100%; border-collapse: collapse; color: white;">
+                  <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding: 12px 0; font-size: 13px; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Comprador</td>
+                    <td style="padding: 12px 0; font-weight: 900; font-size: 16px; text-align: right;">${purchase.customer_name}</td>
                   </tr>
-                  <tr style="border-bottom: 1px solid #f0e0c0;">
-                    <td style="padding: 8px 0; color: #7a5235; font-size: 14px;">Ingressos</td>
-                    <td style="padding: 8px 0; font-weight: bold; color: #1C0C04; text-align: right;">${itemsText}</td>
+                  <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding: 12px 0; font-size: 13px; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Ingressos</td>
+                    <td style="padding: 12px 0; font-weight: bold; font-size: 14px; text-align: right;">${itemsText}</td>
                   </tr>
                   <tr>
-                    <td style="padding: 8px 0; color: #7a5235; font-size: 14px;">Total pago</td>
-                    <td style="padding: 8px 0; font-weight: bold; color: #D9981F; font-size: 18px; text-align: right;">${totalFormatted}</td>
+                    <td style="padding: 12px 0; font-size: 13px; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Total pago</td>
+                    <td style="padding: 12px 0; font-weight: 900; color: #F4D35E; font-size: 18px; text-align: right;">${totalFormatted}</td>
                   </tr>
                 </table>
               </div>
 
-              <!-- Instrução portaria -->
-              <div style="background: #FDF6EC; border: 2px solid #EDD68A; border-radius: 12px; margin: 0 32px 32px 32px; padding: 20px;">
-                <p style="color: #5C2E0A; font-weight: bold; margin: 0 0 8px 0; font-family: sans-serif;">📋 Como funciona na portaria?</p>
-                <p style="color: #7a5235; margin: 0; font-size: 14px; line-height: 1.6; font-family: sans-serif;">
-                  No dia do evento, apresente:<br>
-                  • Este QR Code<br>
-                  • Ou o número da lista (<strong>${listNumber}</strong>) + nome do comprador<br>
-                  Pronto! Entrada liberada. 🎉
-                </p>
-              </div>
-
               <!-- Políticas — IMPORTANTE -->
-              <div style="margin: 0 32px 32px 32px; padding: 20px; border: 1px solid #f0e0c0; border-radius: 12px; background: #fff;">
-                <p style="color: #5C2E0A; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 8px 0;">⚠️ Regras de Reembolso e Transferência</p>
-                <ul style="color: #7a5235; font-size: 11px; margin: 0; padding: 0 0 0 16px; line-height: 1.6;">
-                  <li><strong>Cancelamentos:</strong> Aceitos até 7 dias antes (até 11/07).</li>
-                  <li><strong>Troca de Titularidade:</strong> Disponível via WhatsApp com taxa de R$ 5,00.</li>
-                  <li><strong>Pós-Prazo:</strong> Após o dia 11/07, não há devolução ou cancelamento.</li>
+              <div style="margin: 0 32px 32px 32px; padding: 20px; border: 1px solid rgba(244,211,94,0.3); border-radius: 12px; background: rgba(0,0,0,0.2);">
+                <p style="color: #F4D35E; font-size: 11px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 10px 0;">⚠️ Regras de Reembolso e Transferência</p>
+                <ul style="color: rgba(255,255,255,0.8); font-size: 12px; margin: 0; padding: 0 0 0 16px; line-height: 1.6;">
+                  <li style="margin-bottom: 4px;"><strong>Cancelamentos:</strong> Aceitos até ${eventConfig.cancellationDeadline}.</li>
+                  <li style="margin-bottom: 4px;"><strong>Troca de Titularidade:</strong> Disponível via WhatsApp com taxa de R$ 5,00.</li>
+                  <li><strong>Pós-Prazo:</strong> Após o dia ${eventConfig.cancellationDeadline}, não há devolução ou cancelamento.</li>
                 </ul>
               </div>
 
               <!-- Data e Local -->
-              <div style="padding: 0 32px 32px 32px; text-align: center;">
-                <p style="color: #A84B18; font-size: 13px;">📍 Setor de Chácaras, Planaltina-DF · ⏰ Abertura às 19h30 · 🎶 Show às 20h</p>
-                <p style="color: #7a5235; font-size: 12px; margin-top: 24px;">Dúvidas? WhatsApp: <a href="https://wa.me/5561996351010" style="color: #D9981F;">(61) 99635-1010</a></p>
+              <div style="padding: 0 32px 32px 32px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 10px; padding-top: 20px;">
+                <p style="color: #F4D35E; font-size: 13px; font-weight: bold;">📍 ${eventConfig.city} · ⏰ Abertura às ${eventConfig.doorOpeningTime} · 🎶 Show às ${eventConfig.showTime}</p>
+                <p style="color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 15px;">Dúvidas? WhatsApp: <a href="${eventConfig.whatsappLink}" style="color: #F4D35E; text-decoration: none; font-weight: bold;">${eventConfig.whatsapp}</a></p>
               </div>
 
             </div>
@@ -208,7 +210,7 @@ Deno.serve(async (req) => {
     }
 
     // 6. Enviar WhatsApp de confirmação
-    const whatsMessage = `🌽 *Arraiá do Quintal da Fafá 2026* 🌽\n\nOlá, ${purchase.customer_name}! Seu pagamento foi confirmado! ✅\n\n🎫 *Seu número na lista:*\n*${listNumber}*\n\n📋 *Ingressos:* ${itemsText}\n💰 *Total pago:* ${totalFormatted}\n\n📍 18/07 · Planaltina-DF · Portaria abre 19h30\n\n*Na portaria, informe: ${listNumber} + seu nome*\n\n⚠️ *IMPORTANTE:* Cancelamentos até 11/07. Troca de titularidade via WhatsApp com taxa de R$ 5,00. Após o prazo, não há reembolso.\n\nQualquer dúvida: (61) 99635-1010 🤠`;
+    const whatsMessage = `🌽 *${eventConfig.title} ${eventConfig.edition}* 🌽\n\nOlá, ${purchase.customer_name}! Seu pagamento foi confirmado! ✅\n\n🎫 *Seu número na lista:*\n*${listNumber}*\n\n📋 *Ingressos:* ${itemsText}\n💰 *Total pago:* ${totalFormatted}\n\n📍 ${eventConfig.dateShort} · ${eventConfig.city} · Portaria abre ${eventConfig.doorOpeningTime}\n\n*Na portaria, informe: ${listNumber} + seu nome*\n\n⚠️ *IMPORTANTE:* Cancelamentos até ${eventConfig.cancellationDeadline}. Troca de titularidade via WhatsApp com taxa de R$ 5,00. Após o prazo, não há reembolso.\n\nQualquer dúvida: ${eventConfig.whatsapp} 🤠`;
 
     await sendWhatsApp(purchase.customer_phone, whatsMessage);
 
@@ -224,3 +226,4 @@ Deno.serve(async (req) => {
     });
   }
 });
+

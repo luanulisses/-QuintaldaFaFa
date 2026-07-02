@@ -1,6 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { Resend } from "https://esm.sh/resend@3.1.0";
+import { eventConfig } from "../_shared/eventConfig.ts";
 
 const MP_ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN");
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -59,7 +60,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         transaction_amount: Number(total_amount),
-        description: `Arraiá Quintal da Fafá 2026 — ${customer_name}`,
+        description: `${eventConfig.title} ${eventConfig.edition} — ${customer_name}`,
         payment_method_id: "pix",
         date_of_expiration: expiresAt,
         external_reference: purchase.id,
@@ -103,21 +104,33 @@ Deno.serve(async (req) => {
           to: customer_email,
           subject: "Seu PIX foi gerado 🎉",
           html: `
-            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 12px; padding: 24px;">
-              <h2 style="color: #5C2E0A;">Olá, ${customer_name.split(" ")[0]}!</h2>
-              <p>Seu pedido para o <strong>Arraiá do Quintal da Fafá 2026</strong> foi recebido.</p>
-              <div style="background: #FDF6EC; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                <p style="margin: 0; font-size: 14px; color: #7a5235;">Valor do PIX:</p>
-                <p style="margin: 5px 0 0 0; font-size: 24px; font-weight: bold; color: #D9981F;">R$ ${totalMod}</p>
+            <!DOCTYPE html>
+            <html>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f3f4f6; padding: 20px 0; margin: 0;">
+              <div style="max-width: 600px; margin: 0 auto; background: linear-gradient(180deg, #1B0038 0%, #32005A 50%, #4A1270 100%); border-radius: 24px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); border: 2px solid #F4D35E;">
+                <div style="padding: 40px 32px; text-align: center;">
+                  <h2 style="color: #F4D35E; font-size: 24px; font-weight: 900; margin-bottom: 10px;">Olá, ${customer_name.split(" ")[0]}!</h2>
+                  <p style="color: rgba(255,255,255,0.9); font-size: 16px;">Seu pedido para o <strong>${eventConfig.title} ${eventConfig.edition}</strong> foi recebido.</p>
+                  
+                  <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 12px; margin: 30px 0; border: 1px solid rgba(244,211,94,0.3);">
+                    <p style="margin: 0; font-size: 14px; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: bold; letter-spacing: 1px;">Valor do PIX:</p>
+                    <p style="margin: 10px 0 0 0; font-size: 32px; font-weight: 900; color: #F4D35E;">R$ ${totalMod}</p>
+                  </div>
+                  
+                  <p style="margin-top: 24px; font-weight: 900; color: #F4D35E; text-transform: uppercase; letter-spacing: 1px;">Código PIX Copia e Cola:</p>
+                  <div style="background: white; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px; word-break: break-all; border: 2px solid #F4D35E; color: #1B0038; font-weight: bold;">
+                    ${pixData?.qr_code || "Acesse o site para copiar o código"}
+                  </div>
+                  
+                  <p style="font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 20px;">O pagamento expira em 30 minutos. Após pagar, a confirmação é automática.</p>
+                  
+                  <div style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 30px; padding-top: 20px;">
+                    <p style="font-size: 12px; color: rgba(255,255,255,0.5);">Quintal da Fafá — ${eventConfig.city}</p>
+                  </div>
+                </div>
               </div>
-              <p style="margin-top: 24px; font-weight: bold; color: #5C2E0A;">Código PIX Copia e Cola:</p>
-              <div style="background: #eee; padding: 12px; border-radius: 4px; font-family: monospace; font-size: 11px; word-break: break-all; border: 1px solid #ccc; color: #333;">
-                ${pixData?.qr_code || "Acesse o site para copiar o código"}
-              </div>
-              <p style="font-size: 13px; color: #666; margin-top: 16px;">O pagamento expira em 30 minutos. Após pagar, a confirmação é automática.</p>
-              <hr style="border: none; border-top: 1px solid #eee; margin: 24px 0;">
-              <p style="font-size: 12px; color: #999;">Quintal da Fafá — Planaltina, DF</p>
-            </div>
+            </body>
+            </html>
           `
         });
       } catch (err) {

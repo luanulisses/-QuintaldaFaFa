@@ -1,4 +1,5 @@
 import React from 'react';
+import { eventConfig } from '../../lib/eventConfig';
 
 export type MenuType = 'gastronomia' | 'bebidas';
 
@@ -108,7 +109,7 @@ const ArraiaMenu: React.FC<ArraiaMenuProps> = ({ isOpen, onClose, type }) => {
                         {title}
                     </h2>
                     <p className="text-[#D9981F] text-xs font-bold tracking-[0.3em] uppercase mt-2">
-                        Quintal da Fafá · 06 de Junho de 2026
+                        {eventConfig.title} · {eventConfig.date}
                     </p>
                     <div className="flex justify-center gap-1 mt-4">
                         {[...Array(9)].map((_, i) => (

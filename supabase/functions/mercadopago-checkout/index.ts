@@ -1,5 +1,6 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
+import { eventConfig } from "../_shared/eventConfig.ts";
 
 const MP_ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN");
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -47,7 +48,7 @@ Deno.serve(async (req) => {
             body: JSON.stringify({
                 items: [
                     {
-                        title: "Arraiá Quintal da Fafá 2026 - Ingressos",
+                        title: `${eventConfig.title} ${eventConfig.edition} - Ingressos`,
                         unit_price: total_amount,
                         quantity: 1,
                         currency_id: "BRL",
