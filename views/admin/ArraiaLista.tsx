@@ -201,6 +201,32 @@ const ArraiaLista: React.FC = () => {
         }
     };
 
+    const handleVerifyPayment = async (p: Purchase) => {
+        try {
+            setLoading(true);
+            const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/mercadopago-verify`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+                },
+                body: JSON.stringify({ purchase_id: p.id })
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert(`Sucesso! Status atualizado: ${result.message || 'Pago'}`);
+                fetchPurchases();
+            } else {
+                alert(`O pagamento ainda não está aprovado no Mercado Pago. Status: ${result.status || result.error}`);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Erro ao tentar verificar o pagamento.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div style={{ fontFamily: 'Inter, sans-serif', background: '#FDF6EC', minHeight: '100vh', padding: isMobile ? '16px' : '24px' }}>
             {/* Header */}
@@ -350,6 +376,15 @@ const ArraiaLista: React.FC = () => {
                                     </td>
                                     <td style={{ padding: '12px 16px', textAlign: 'right' }}>
                                         <div style={{ display: 'flex', gap: '4px', justifyContent: 'flex-end' }}>
+                                            {p.payment_status === 'pending' && (
+                                                <button 
+                                                    onClick={() => handleVerifyPayment(p)}
+                                                    style={{ background: '#10B98120', border: 'none', color: '#10B981', cursor: 'pointer', padding: '6px', borderRadius: '8px' }}
+                                                    title="Verificar Pagamento no MP"
+                                                >
+                                                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>sync</span>
+                                                </button>
+                                            )}
                                             <button 
                                                 onClick={() => {
                                                     const cleanPhone = p.customer_phone.replace(/\D/g, '');

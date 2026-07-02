@@ -63,11 +63,10 @@ const ArraiaTicketCheckout: React.FC = () => {
     const startPolling = useCallback((purchaseId: string) => {
         if (pollingRef.current) clearInterval(pollingRef.current);
         pollingRef.current = setInterval(async () => {
-            const { data } = await supabase
-                .from('arraia_purchases')
-                .select('payment_status, list_number')
-                .eq('id', purchaseId)
+            const { data, error } = await supabase
+                .rpc('check_purchase_status', { p_purchase_id: purchaseId })
                 .single();
+                
             if (data?.payment_status === 'approved' && data.list_number) {
                 clearInterval(pollingRef.current!);
                 setPixData(prev => prev ? { ...prev, listNumber: data.list_number } : prev);
@@ -531,6 +530,36 @@ const ArraiaTicketCheckout: React.FC = () => {
                                 </span>
                                 <span className="text-gray-500 text-sm">para expirar</span>
                             </div>
+
+                            <button
+                                type="button"
+                                onClick={async () => {
+                                    try {
+                                        const res = await fetch(`${SUPABASE_URL}/functions/v1/mercadopago-verify`, {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json',
+                                                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                                            },
+                                            body: JSON.stringify({ purchase_id: pixData.purchaseId })
+                                        });
+                                        const result = await res.json();
+                                        if (result.success && result.list_number) {
+                                            if (pollingRef.current) clearInterval(pollingRef.current);
+                                            setPixData(prev => prev ? { ...prev, listNumber: result.list_number } : prev);
+                                            setPixStep('success');
+                                        } else {
+                                            alert('Ainda não identificamos o pagamento no Mercado Pago. Aguarde mais uns instantes e tente novamente!');
+                                        }
+                                    } catch (err) {
+                                        console.error('Verify error:', err);
+                                        alert('Erro ao consultar. Continue aguardando.');
+                                    }
+                                }}
+                                className="mt-4 w-full bg-[#10B981] hover:bg-[#059669] text-white py-3 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-colors border-none cursor-pointer"
+                            >
+                                ✅ JÁ PAGUEI, VERIFICAR PAGAMENTO
+                            </button>
 
                             <p className="text-gray-500 text-xs mt-4 leading-relaxed">
                                 Após pagar, a confirmação é automática. <br/>
