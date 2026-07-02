@@ -2,6 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.0";
 import { Resend } from "https://esm.sh/resend@3.1.0";
 import { eventConfig } from "../_shared/eventConfig.ts";
+import { generateAndUploadQR } from "../_shared/qrUploader.ts";
 
 const MP_ACCESS_TOKEN = Deno.env.get("MP_ACCESS_TOKEN");
 const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -127,7 +128,7 @@ Deno.serve(async (req) => {
 
     const itemsText = formatItems(purchase.items || {});
     const totalFormatted = `R$ ${Number(purchase.total_amount).toFixed(2).replace(".", ",")}`;
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${listNumber}&margin=2`;
+    const qrCodeUrl = await generateAndUploadQR(listNumber);
 
     // 5. Enviar E-mail de confirmação
     try {
