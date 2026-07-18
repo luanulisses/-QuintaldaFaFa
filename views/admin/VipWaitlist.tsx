@@ -19,7 +19,7 @@ const VipWaitlist: React.FC = () => {
 
     // Modal WhatsApp State
     const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
-    const [whatsappMessage, setWhatsappMessage] = useState('🎉 As vendas da 2ª Edição da Festa Junina do Quintal da Fafá estão abertas! \n\nData: 18 de Julho de 2026\nAtrações confirmadas:\n🎤 Lampião Elétrico\n🎤 Karlito Tremendão\n\nGaranta seu ingresso no 1º lote antes da virada!');
+    const [whatsappMessage, setWhatsappMessage] = useState('🎉 As vendas da 2ª Edição da Festa Junina do Quintal da Fafá estão abertas! \n\nData: 18 de Julho de 2026\nAtrações confirmadas:\n🎤 Lampião Elétrico\n🎤 Karlito Tremendão\n\nGaranta seu ingresso no 3º lote antes da virada!');
     const [modalFilterStatus, setModalFilterStatus] = useState('Aguardando');
 
     const fetchLeads = async () => {
@@ -106,7 +106,7 @@ const VipWaitlist: React.FC = () => {
     };
 
     const openIndividualWhatsApp = (lead: VipLead) => {
-        const link = generateWhatsAppLink(lead.telefone, lead.nome, '🎉 As vendas da 2ª Edição da Festa Junina do Quintal da Fafá estão abertas! \n\nData: 18 de Julho de 2026\nAtrações confirmadas:\n🎤 Lampião Elétrico\n🎤 Karlito Tremendão\n\nGaranta seu ingresso no 1º lote antes da virada!');
+        const link = generateWhatsAppLink(lead.telefone, lead.nome, '🎉 As vendas da 2ª Edição da Festa Junina do Quintal da Fafá estão abertas! \n\nData: 18 de Julho de 2026\nAtrações confirmadas:\n🎤 Lampião Elétrico\n🎤 Karlito Tremendão\n\nGaranta seu ingresso no 3º lote antes da virada!');
         
         if (!link) {
             alert('Telefone sem DDD válido.');

@@ -183,9 +183,63 @@ const Arraia2026PreLaunch: React.FC = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {/* 1º Lote */}
+                        <div className="bg-[#F9F9F9] rounded-xl overflow-hidden shadow-md border border-gray-200 flex flex-col opacity-80">
+                            <div className="bg-gray-500 text-white text-center py-3 font-black text-lg">
+                                1º LOTE
+                            </div>
+                            <div className="p-6 flex-1 flex flex-col gap-4">
+                                <div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-gray-500 text-xl">👥</span>
+                                        <span className="font-bold text-gray-500 leading-tight">INGRESSO<br/>GERAL</span>
+                                    </div>
+                                    <div className="text-gray-500 font-black text-3xl text-right">R$ 20,00</div>
+                                </div>
+                                <div className="border-t border-dashed border-gray-300"></div>
+                                <div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-gray-400 text-xl">👤</span>
+                                        <span className="font-bold text-gray-500 text-sm leading-tight">MEIA-ENTRADA<br/>6 A 12 ANOS</span>
+                                    </div>
+                                    <div className="text-gray-500 font-black text-2xl text-right">R$ 10,00</div>
+                                </div>
+                            </div>
+                            <div className="bg-gray-300 text-gray-600 text-center py-3 font-bold text-sm flex items-center justify-center gap-2">
+                                <span>✗</span> ENCERRADO
+                            </div>
+                        </div>
+
+                        {/* 2º Lote */}
+                        <div className="bg-[#F9F9F9] rounded-xl overflow-hidden shadow-md border border-gray-200 flex flex-col opacity-80">
+                            <div className="bg-gray-500 text-white text-center py-3 font-black text-lg">
+                                2º LOTE
+                            </div>
+                            <div className="p-6 flex-1 flex flex-col gap-4">
+                                <div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-gray-500 text-xl">👥</span>
+                                        <span className="font-bold text-gray-500 leading-tight">INGRESSO<br/>GERAL</span>
+                                    </div>
+                                    <div className="text-gray-500 font-black text-3xl text-right">R$ 25,00</div>
+                                </div>
+                                <div className="border-t border-dashed border-gray-300"></div>
+                                <div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-gray-400 text-xl">👤</span>
+                                        <span className="font-bold text-gray-500 text-sm leading-tight">MEIA-ENTRADA<br/>6 A 12 ANOS</span>
+                                    </div>
+                                    <div className="text-gray-500 font-black text-2xl text-right">R$ 12,00</div>
+                                </div>
+                            </div>
+                            <div className="bg-gray-300 text-gray-600 text-center py-3 font-bold text-sm flex items-center justify-center gap-2">
+                                <span>✗</span> ENCERRADO
+                            </div>
+                        </div>
+
+                        {/* 3º Lote */}
                         <div className="bg-[#F9F9F9] rounded-xl overflow-hidden shadow-xl border border-gray-200 flex flex-col transform lg:-translate-y-4">
                             <div className="bg-[#4CAF50] text-white text-center py-3 font-black text-lg relative">
-                                1º LOTE
+                                3º LOTE
                                 <span className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#FFD54F] text-[#3B0964] text-[10px] px-2 py-0.5 rounded-sm">ATUAL</span>
                             </div>
                             <div className="p-6 flex-1 flex flex-col gap-4">
@@ -194,61 +248,7 @@ const Arraia2026PreLaunch: React.FC = () => {
                                         <span className="text-[#4CAF50] text-xl">👥</span>
                                         <span className="font-bold text-[#3B0964] leading-tight">INGRESSO<br/>GERAL</span>
                                     </div>
-                                    <div className="text-[#4CAF50] font-black text-3xl text-right">R$ 20,00</div>
-                                </div>
-                                <div className="border-t border-dashed border-gray-300"></div>
-                                <div>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-[#3B0964] text-xl">👤</span>
-                                        <span className="font-bold text-[#3B0964] text-sm leading-tight">MEIA-ENTRADA<br/>6 A 12 ANOS</span>
-                                    </div>
-                                    <div className="text-[#3B0964] font-black text-2xl text-right">R$ 10,00</div>
-                                </div>
-                            </div>
-                            <div className="bg-[#4CAF50] text-white text-center py-3 font-bold text-sm flex items-center justify-center gap-2">
-                                <span>✓</span> EM VENDAS
-                            </div>
-                        </div>
-
-                        {/* 2º Lote */}
-                        <div className="bg-[#F9F9F9] rounded-xl overflow-hidden shadow-md border border-gray-200 flex flex-col opacity-80">
-                            <div className="bg-[#5a189a] text-white text-center py-3 font-black text-lg">
-                                2º LOTE
-                            </div>
-                            <div className="p-6 flex-1 flex flex-col gap-4">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-[#5a189a] text-xl">👥</span>
-                                        <span className="font-bold text-[#3B0964] leading-tight">INGRESSO<br/>GERAL</span>
-                                    </div>
-                                    <div className="text-[#5a189a] font-black text-3xl text-right">R$ 25,00</div>
-                                </div>
-                                <div className="border-t border-dashed border-gray-300"></div>
-                                <div>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-[#3B0964] text-xl">👤</span>
-                                        <span className="font-bold text-[#3B0964] text-sm leading-tight">MEIA-ENTRADA<br/>6 A 12 ANOS</span>
-                                    </div>
-                                    <div className="text-[#3B0964] font-black text-2xl text-right">R$ 12,00</div>
-                                </div>
-                            </div>
-                            <div className="bg-gray-300 text-gray-600 text-center py-3 font-bold text-sm flex items-center justify-center gap-2">
-                                <span>🔒</span> EM BREVE
-                            </div>
-                        </div>
-
-                        {/* 3º Lote */}
-                        <div className="bg-[#F9F9F9] rounded-xl overflow-hidden shadow-md border border-gray-200 flex flex-col opacity-80">
-                            <div className="bg-[#3B0964] text-white text-center py-3 font-black text-lg">
-                                3º LOTE
-                            </div>
-                            <div className="p-6 flex-1 flex flex-col gap-4">
-                                <div>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-[#3B0964] text-xl">👥</span>
-                                        <span className="font-bold text-[#3B0964] leading-tight">INGRESSO<br/>GERAL</span>
-                                    </div>
-                                    <div className="text-[#3B0964] font-black text-3xl text-right">R$ 30,00</div>
+                                    <div className="text-[#4CAF50] font-black text-3xl text-right">R$ 30,00</div>
                                 </div>
                                 <div className="border-t border-dashed border-gray-300"></div>
                                 <div>
@@ -259,8 +259,8 @@ const Arraia2026PreLaunch: React.FC = () => {
                                     <div className="text-[#3B0964] font-black text-2xl text-right">R$ 15,00</div>
                                 </div>
                             </div>
-                            <div className="bg-gray-300 text-gray-600 text-center py-3 font-bold text-sm flex items-center justify-center gap-2">
-                                <span>🔒</span> EM BREVE
+                            <div className="bg-[#4CAF50] text-white text-center py-3 font-bold text-sm flex items-center justify-center gap-2">
+                                <span>✓</span> EM VENDAS
                             </div>
                         </div>
 

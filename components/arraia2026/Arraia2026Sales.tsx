@@ -9,6 +9,7 @@ import MusicPlayer from '../landing/MusicPlayer';
 import { useGallery, GalleryItem } from '../../lib/hooks/useGallery';
 import { Link } from 'react-router-dom';
 import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
+import { ACTIVE_TICKET_CONFIG } from '../../lib/ticketConfig';
 
 initMercadoPago(import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY, { locale: 'pt-BR' });
 
@@ -50,7 +51,13 @@ const Arraia2026: React.FC = () => {
     const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
     const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-    const currentPrices = { geral: 20, meia: 10, passaporte: 25, pescaria: 10, brinquedos: 10 };
+    const currentPrices = {
+        geral: ACTIVE_TICKET_CONFIG.general.price,
+        meia: ACTIVE_TICKET_CONFIG.half.price,
+        passaporte: ACTIVE_TICKET_CONFIG.kids.price,
+        pescaria: ACTIVE_TICKET_CONFIG.pescaria.price,
+        brinquedos: ACTIVE_TICKET_CONFIG.brinquedos.price
+    };
 
     const total = (
         (qty.geral * currentPrices.geral) +
@@ -956,41 +963,41 @@ const Arraia2026: React.FC = () => {
                     <div className="text-center mb-16">
                         <span className="text-[#A84B18] text-xs font-bold tracking-[0.2em] uppercase mb-2 block">Garanta seu lugar</span>
                         <h2 className="font-display text-4xl md:text-6xl font-bold text-[#5C2E0A] mb-6">Preços & Lotes</h2>
-                        <p className="text-[#A84B18] font-bold animate-pulse">🔥 VENDAS ABERTAS! GARANTA O SEU NO 1º LOTE! 🏃‍♂️💨</p>
+                        <p className="text-[#A84B18] font-bold animate-pulse">🔥 VENDAS ABERTAS! GARANTA O SEU NO 3º LOTE! 🏃‍♂️💨</p>
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-12 mt-12">
                         {/* Summary of Batches / Lotes */}
                         <div className="space-y-4">
-                            {/* 1st Lote - LOTE ATUAL */}
-                            <div className="bg-white rounded-3xl p-6 md:p-8 border-2 border-[#D9981F] shadow-xl relative scale-105 z-10 animate-fade-in mt-4 lg:mt-0">
-                                <div className="absolute top-0 right-10 bg-[#D9981F] text-[#1C0C04] px-4 py-1 rounded-b-xl text-[10px] font-black tracking-widest">
-                                    LOTE ATUAL
+                            {/* 1st Lote - ENCERRADO */}
+                            <div className="bg-white/40 backdrop-blur-sm rounded-3xl p-6 md:p-8 border border-black/5 opacity-60 relative grayscale mt-4 lg:mt-0">
+                                <div className="absolute top-0 right-10 bg-gray-500 text-white px-4 py-1 rounded-b-xl text-[10px] font-black tracking-widest">
+                                    ENCERRADO
                                 </div>
-                                <h3 className="font-display text-2xl font-bold text-[#5C2E0A] mb-6">1º Lote</h3>
-                                <div className="space-y-4">
-                                    <div className="flex justify-between items-center border-b border-dashed border-[#5C2E0A]/20 pb-2">
-                                        <span className="text-[#7a5235]">Ingresso Geral</span>
-                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 20</span>
+                                <h3 className="font-display text-xl font-bold text-[#5C2E0A]/60 mb-2">1º Lote</h3>
+                                <div className="space-y-2 text-xs text-[#7a5235]/60">
+                                    <div className="flex justify-between">
+                                        <span>Geral</span>
+                                        <span>R$ 20</span>
                                     </div>
-                                    <div className="flex justify-between items-center border-b border-dashed border-[#5C2E0A]/20 pb-2">
-                                        <span className="text-[#7a5235]">Passaporte Kids</span>
-                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 25</span>
+                                    <div className="flex justify-between">
+                                        <span>Kids</span>
+                                        <span>R$ 25</span>
                                     </div>
-                                    <div className="flex justify-between items-center pb-2">
-                                        <span className="text-[#7a5235]">Meia (6 a 12 anos)</span>
-                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 10</span>
+                                    <div className="flex justify-between">
+                                        <span>Meia (6-12)</span>
+                                        <span>R$ 10</span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* 2nd Lote - EM BREVE */}
+                            {/* 2nd Lote - ENCERRADO */}
                             <div className="bg-white/40 backdrop-blur-sm rounded-3xl p-6 md:p-8 border border-black/5 opacity-60 relative grayscale mt-4 lg:mt-0">
                                 <div className="absolute top-0 right-10 bg-gray-500 text-white px-4 py-1 rounded-b-xl text-[10px] font-black tracking-widest">
-                                    EM BREVE
+                                    ENCERRADO
                                 </div>
                                 <h3 className="font-display text-xl font-bold text-[#5C2E0A]/60 mb-2">2º Lote</h3>
-                                <div className="space-y-2 text-xs">
+                                <div className="space-y-2 text-xs text-[#7a5235]/60">
                                     <div className="flex justify-between">
                                         <span>Geral</span>
                                         <span>R$ 25</span>
@@ -1006,24 +1013,24 @@ const Arraia2026: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* 3rd Lote - EM BREVE */}
-                            <div className="bg-white/40 backdrop-blur-sm rounded-3xl p-6 md:p-8 border border-black/5 opacity-60 relative grayscale mt-4 lg:mt-0">
-                                <div className="absolute top-0 right-10 bg-gray-500 text-white px-4 py-1 rounded-b-xl text-[10px] font-black tracking-widest">
-                                    EM BREVE
+                            {/* 3rd Lote - LOTE ATUAL */}
+                            <div className="bg-white rounded-3xl p-6 md:p-8 border-2 border-[#D9981F] shadow-xl relative scale-105 z-10 animate-fade-in mt-4 lg:mt-0">
+                                <div className="absolute top-0 right-10 bg-[#D9981F] text-[#1C0C04] px-4 py-1 rounded-b-xl text-[10px] font-black tracking-widest">
+                                    LOTE ATUAL
                                 </div>
-                                <h3 className="font-display text-xl font-bold text-[#5C2E0A]/60 mb-2">3º Lote</h3>
-                                <div className="space-y-2 text-xs">
-                                    <div className="flex justify-between">
-                                        <span>Geral</span>
-                                        <span>R$ 30</span>
+                                <h3 className="font-display text-2xl font-bold text-[#5C2E0A] mb-6">3º Lote</h3>
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center border-b border-dashed border-[#5C2E0A]/20 pb-2">
+                                        <span className="text-[#7a5235]">Ingresso Geral</span>
+                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 30</span>
                                     </div>
-                                    <div className="flex justify-between">
-                                        <span>Kids</span>
-                                        <span>R$ 25</span>
+                                    <div className="flex justify-between items-center border-b border-dashed border-[#5C2E0A]/20 pb-2">
+                                        <span className="text-[#7a5235]">Passaporte Kids</span>
+                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 25</span>
                                     </div>
-                                    <div className="flex justify-between">
-                                        <span>Meia (6-12)</span>
-                                        <span>R$ 15</span>
+                                    <div className="flex justify-between items-center pb-2">
+                                        <span className="text-[#7a5235]">Meia (6 a 12 anos)</span>
+                                        <span className="font-display text-2xl font-bold text-[#5C2E0A]">R$ 15</span>
                                     </div>
                                 </div>
                             </div>

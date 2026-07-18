@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { supabase } from '../../lib/supabase';
 import { initMercadoPago, Payment } from '@mercadopago/sdk-react';
 import DigitalTicket from './DigitalTicket';
+import { ACTIVE_TICKET_CONFIG } from '../../lib/ticketConfig';
 
 initMercadoPago(import.meta.env.VITE_MERCADOPAGO_PUBLIC_KEY, { locale: 'pt-BR' });
 
@@ -33,7 +34,11 @@ const ArraiaTicketCheckout: React.FC = () => {
     const [copied, setCopied] = useState(false);
     const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    const currentPrices = { geral: 20, meia: 10, passaporte: 25 };
+    const currentPrices = {
+        geral: ACTIVE_TICKET_CONFIG.general.price,
+        meia: ACTIVE_TICKET_CONFIG.half.price,
+        passaporte: ACTIVE_TICKET_CONFIG.kids.price
+    };
     const total = (qty.geral * currentPrices.geral) + (qty.meia * currentPrices.meia) + (qty.passaporte * currentPrices.passaporte);
 
     const mpInitialization = useMemo(() => ({ amount: total }), [total]);
@@ -88,9 +93,9 @@ const ArraiaTicketCheckout: React.FC = () => {
 
     const formatItems = (q: typeof qty) => {
         const labels = { 
-            geral: 'Ingresso Geral', 
-            meia: 'Meia-Entrada (6-12 anos)',
-            passaporte: 'Passaporte Kids'
+            geral: ACTIVE_TICKET_CONFIG.general.label, 
+            meia: ACTIVE_TICKET_CONFIG.half.label,
+            passaporte: ACTIVE_TICKET_CONFIG.kids.label
         };
         return Object.entries(q).filter(([, v]) => (v as number) > 0).map(([k, v]) => `${v}x ${labels[k as keyof typeof labels]}`).join(', ');
     };
@@ -270,10 +275,10 @@ const ArraiaTicketCheckout: React.FC = () => {
             
             {/* Lotes - Quadro de Preços Resumido */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                {/* 1º Lote */}
+                {/* 3º Lote */}
                 <div className="bg-[#2A0854] rounded-xl overflow-hidden shadow-xl border border-[#FFD54F]/30 flex flex-col transform hover:-translate-y-2 transition-transform duration-300">
                     <div className="bg-[#FFD54F] text-[#3B0964] text-center py-3 font-black text-lg">
-                        🎟️ 1º LOTE – ATUAL
+                        🎟️ 3º LOTE – ATUAL
                     </div>
                     <div className="p-6 flex-1 flex flex-col gap-4 bg-gradient-to-b from-[#2A0854] to-[#1C053A]">
                         <div>
@@ -283,7 +288,7 @@ const ArraiaTicketCheckout: React.FC = () => {
                                     <span className="font-bold text-white leading-tight">INGRESSO GERAL</span>
                                 </div>
                             </div>
-                            <div className="text-white font-black text-3xl text-center mt-2">R$ 20,00</div>
+                            <div className="text-white font-black text-3xl text-center mt-2">R$ 30,00</div>
                         </div>
                         <div className="border-t border-dashed border-white/20"></div>
                         <div>
@@ -293,7 +298,7 @@ const ArraiaTicketCheckout: React.FC = () => {
                                     <span className="font-bold text-white text-sm leading-tight">MEIA-ENTRADA <span className="bg-[#FFD54F] text-[#3B0964] px-1 rounded ml-1 text-[10px]">6 A 12 ANOS</span></span>
                                 </div>
                             </div>
-                            <div className="text-white font-black text-2xl text-center mt-2">R$ 10,00</div>
+                            <div className="text-white font-black text-2xl text-center mt-2">R$ 15,00</div>
                         </div>
                     </div>
                     <div className="bg-[#1C053A] text-white/50 text-center py-2 text-xs">
@@ -312,7 +317,7 @@ const ArraiaTicketCheckout: React.FC = () => {
             <div className="mb-6">
                 <div className="flex items-center gap-2 mb-4">
                     <span className="text-[#FFD54F] text-xl">🎟️</span>
-                    <span className="text-white font-bold text-lg">1º LOTE – ATUAL</span>
+                    <span className="text-white font-bold text-lg">3º LOTE – ATUAL</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Geral */}
@@ -322,7 +327,7 @@ const ArraiaTicketCheckout: React.FC = () => {
                             <span className="font-bold uppercase tracking-wider text-sm">Ingresso Geral</span>
                         </div>
                         <div className="text-white font-black text-3xl">
-                            <span className="text-lg text-white/60 mr-1">R$</span>20<span className="text-lg text-white/60">,00</span>
+                            <span className="text-lg text-white/60 mr-1">R$</span>30<span className="text-lg text-white/60">,00</span>
                         </div>
                     </div>
                     
@@ -336,7 +341,7 @@ const ArraiaTicketCheckout: React.FC = () => {
                             <span className="bg-[#FFD54F] text-[#3B0964] px-2 py-0.5 rounded text-[10px] font-black tracking-widest">6 A 12 ANOS</span>
                         </div>
                         <div className="text-white font-black text-3xl">
-                            <span className="text-lg text-white/60 mr-1">R$</span>10<span className="text-lg text-white/60">,00</span>
+                            <span className="text-lg text-white/60 mr-1">R$</span>15<span className="text-lg text-white/60">,00</span>
                         </div>
                     </div>
 
@@ -399,9 +404,9 @@ const ArraiaTicketCheckout: React.FC = () => {
                         </div>
                         <div className="divide-y divide-gray-100">
                             {[
-                                { id: 'geral', label: 'Ingresso Geral', subtitle: '(R$ 20,00)', price: 20, icon: '🎟️' },
-                                { id: 'meia', label: 'Meia-Entrada', subtitle: '(6 a 12 anos) (R$ 10,00)', price: 10, icon: '👤' },
-                                { id: 'passaporte', label: 'Passaporte Kids', subtitle: '(R$ 25,00)', price: 25, icon: '🧒' },
+                                { id: 'geral', label: ACTIVE_TICKET_CONFIG.general.label, subtitle: `(R$ ${ACTIVE_TICKET_CONFIG.general.price.toFixed(2).replace('.', ',')})`, price: ACTIVE_TICKET_CONFIG.general.price, icon: '🎟️' },
+                                { id: 'meia', label: ACTIVE_TICKET_CONFIG.half.label, subtitle: `(R$ ${ACTIVE_TICKET_CONFIG.half.price.toFixed(2).replace('.', ',')})`, price: ACTIVE_TICKET_CONFIG.half.price, icon: '👤' },
+                                { id: 'passaporte', label: ACTIVE_TICKET_CONFIG.kids.label, subtitle: `(R$ ${ACTIVE_TICKET_CONFIG.kids.price.toFixed(2).replace('.', ',')})`, price: ACTIVE_TICKET_CONFIG.kids.price, icon: '🧒' },
                             ].map(item => (
                                 <div key={item.id} className="flex flex-col sm:flex-row justify-between items-center p-4 bg-white hover:bg-gray-50 transition-colors gap-4 sm:gap-0">
                                     <div className="flex items-center gap-3 w-full sm:w-auto">

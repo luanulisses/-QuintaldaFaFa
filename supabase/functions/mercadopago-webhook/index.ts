@@ -24,10 +24,10 @@ function formatListNumber(seq: number): string {
 // Formata itens do ingresso para texto legível
 function formatItems(items: Record<string, number>): string {
   const labels: Record<string, string> = {
-    geral: "Ingresso Geral",
-    meia: "Meia-Entrada (6-12 anos)",
-    passaporte: "Passaporte Kids",
-    pescaria: "Pescaria",
+    geral: "Ingresso Geral — 3º Lote",
+    meia: "Meia-entrada — 3º Lote",
+    passaporte: "Passaporte Kids — Preço Único",
+    pescaria: "Ficha Pescaria",
     brinquedos: "Brinquedo Individual",
   };
   return Object.entries(items)
